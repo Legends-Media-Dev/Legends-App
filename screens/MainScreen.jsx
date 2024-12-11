@@ -1,12 +1,28 @@
 import React from "react";
-import { StyleSheet, View, Text, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-const MainScreen = () => {
+const MainScreen = ({ navigation }) => {
+  const handleNavigateToCheckout = () => {
+    navigation.navigate("Product");
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Main Screen</Text>
+      {/* Checkout Button */}
+      <TouchableOpacity
+        style={styles.checkoutButton}
+        onPress={handleNavigateToCheckout}
+      >
+        <Text style={styles.checkoutText}>Proceed to Product Screen</Text>
+      </TouchableOpacity>
     </View>
   );
 };
