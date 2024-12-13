@@ -14,7 +14,7 @@ import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
 import NotificationsScreen from "./screens/NotificatiosScreen";
 import { usePushNotifications } from "./usePushNotifications";
-import { View, Text } from "react-native";
+import { View, Text, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 // Removed the RootStackParamList type definition
@@ -58,6 +58,17 @@ export default function App() {
             },
             headerTintColor: "#000",
             headerTitle: () => null,
+            headerLeft: () => (
+              <Image
+                source={require("./assets/legends.webp")}
+                style={{
+                  width: 70,
+                  height: 70,
+                  marginLeft: 30,
+                  resizeMode: "contain",
+                }}
+              />
+            ),
             headerRight: () => (
               <Ionicons
                 name="bag-outline"
@@ -68,6 +79,7 @@ export default function App() {
             ),
           }}
         />
+
         <Stack.Screen
           name="Notifications"
           component={NotificationsScreen}

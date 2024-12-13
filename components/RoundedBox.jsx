@@ -1,4 +1,5 @@
 import React from "react";
+import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 
 const RoundedBox = ({
   width = 386,
@@ -7,7 +8,7 @@ const RoundedBox = ({
   fillColor = "#000",
   borderColor = "#000",
   borderWidth = 0,
-  borderRadius = 12,
+  borderRadius = 5,
   text = "Button Text",
   textColor = "#fff",
   textSize = 16,
@@ -17,32 +18,44 @@ const RoundedBox = ({
   const fontFamily = fontVariant === "bold" ? "Futura-Bold" : "Futura-Medium";
 
   return (
-    <div
-      onClick={onClick}
-      style={{
-        width: `${width}px`,
-        height: `${height}px`,
-        backgroundColor: isFilled ? fillColor : "transparent",
-        border: `${borderWidth}px solid ${borderColor}`,
-        borderRadius: `${borderRadius}px`,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: "pointer",
-      }}
+    <TouchableOpacity
+      onPress={onClick}
+      style={[
+        styles.container,
+        {
+          width,
+          height,
+          backgroundColor: isFilled ? fillColor : "transparent",
+          borderColor,
+          borderWidth,
+          borderRadius,
+        },
+      ]}
     >
-      <span
-        style={{
-          color: textColor,
-          fontSize: `${textSize}px`,
-          fontWeight: "bold",
-          fontFamily,
-        }}
+      <Text
+        style={[
+          styles.text,
+          {
+            color: textColor,
+            fontSize: textSize,
+            fontFamily,
+          },
+        ]}
       >
         {text}
-      </span>
-    </div>
+      </Text>
+    </TouchableOpacity>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  text: {
+    fontWeight: "bold",
+  },
+});
 
 export default RoundedBox;
