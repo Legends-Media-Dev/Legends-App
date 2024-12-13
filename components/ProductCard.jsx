@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-const ProductCard = ({ image, name, onLikePress }) => {
+const ProductCard = ({ image, name, price, onLikePress }) => {
     return (
         <View style={styles.card}>
             {/* Product Image */}
@@ -15,6 +15,9 @@ const ProductCard = ({ image, name, onLikePress }) => {
 
             {/* Product Name */}
             <Text style={styles.productName}>{name}</Text>
+
+            {/* Product Price */}
+            <Text style={styles.productPrice}>${price}</Text>
         </View>
     )
 };
@@ -58,6 +61,14 @@ const styles = StyleSheet.create({
         fontFamily: "Futura-Bold",
         color: "#777777",
         padding: 10,
+    },
+    productPrice: {
+        textAlign: "left",
+        fontSize: 12,
+        fontFamily: "Futura-Bold",
+        color: "#777777",
+        paddingHorizontal: 10,
+        paddingBottom: 10,
     },
 });
 
