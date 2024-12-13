@@ -42,70 +42,70 @@ export default function App() {
   }
 
   return (
-    // <CartProvider>
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="MainScreen">
-        {/* Set Collections as the initial route */}
-        {/* <Stack.Screen name="Collections" component={CollectionsScreen} />
+    <CartProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Collections">
+          {/* Set Collections as the initial route */}
+          <Stack.Screen name="Collections" component={CollectionsScreen} />
           <Stack.Screen name="Products" component={ProductsScreen} />
-          <Stack.Screen name="Cart" component={CartScreen} /> */}
-        <Stack.Screen
-          name="MainScreen"
-          component={MainScreen}
-          options={{
-            headerStyle: {
-              backgroundColor: "#fff",
-            },
-            headerTintColor: "#000",
-            headerTitle: () => null,
-            headerRight: () => (
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            ),
-          }}
-        />
-        <Stack.Screen
-          name="Notifications"
-          component={NotificationsScreen}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="Product"
-          component={ProductScreen}
-          options={{
-            headerStyle: {
-              backgroundColor: "#fff",
-            },
-            headerTintColor: "#000",
-            headerTitle: () => null,
-            headerRight: () => (
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            ),
-            headerBackTitle: null,
-            headerBackImage: () => (
-              <Ionicons
-                name="chevron-back-outline" // Back arrow icon
-                size={25} // Adjust the size here
-                color="#000"
-                style={{ marginLeft: 15 }} // Add margin if needed
-              />
-            ),
-          }}
-        />
-        {/* <Stack.Screen name="Checkout" component={CheckoutScreen} />
+          <Stack.Screen name="Cart" component={CartScreen} />
+          <Stack.Screen
+            name="MainScreen"
+            component={MainScreen}
+            options={{
+              headerStyle: {
+                backgroundColor: "#fff",
+              },
+              headerTintColor: "#000",
+              headerTitle: () => null,
+              headerRight: () => (
+                <Ionicons
+                  name="bag-outline"
+                  size={24}
+                  color="#000"
+                  style={{ marginRight: 30 }}
+                />
+              ),
+            }}
+          />
+          <Stack.Screen
+            name="Notifications"
+            component={NotificationsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Product"
+            component={ProductScreen}
+            options={{
+              headerStyle: {
+                backgroundColor: "#fff",
+              },
+              headerTintColor: "#000",
+              headerTitle: () => null,
+              headerRight: () => (
+                <Ionicons
+                  name="bag-outline"
+                  size={24}
+                  color="#000"
+                  style={{ marginRight: 30 }}
+                />
+              ),
+              headerBackTitle: null,
+              headerBackImage: () => (
+                <Ionicons
+                  name="chevron-back-outline" // Back arrow icon
+                  size={25} // Adjust the size here
+                  color="#000"
+                  style={{ marginLeft: 15 }} // Add margin if needed
+                />
+              ),
+            }}
+          />
+          {/* <Stack.Screen name="Checkout" component={CheckoutScreen} />
           <Stack.Screen name="WebViewScreen" component={WebViewScreen} /> */}
-      </Stack.Navigator>
-    </NavigationContainer>
-    // </CartProvider>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </CartProvider>
     // <View
     //   style={{
     //     flex: 1, // Makes the View fill the entire screen
