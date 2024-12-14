@@ -19,6 +19,7 @@ const { width } = Dimensions.get("window");
 const ProductScreen = ({ route }) => {
   const { product } = route.params;
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [quantity, setQuantity] = useState(1);
 
   // Extract photos from product.images.edges
   const extractPhotos = (imagesEdges) => {
@@ -27,14 +28,11 @@ const ProductScreen = ({ route }) => {
       uri: edge.node.src, // Image URL
     }));
   };
-  const [quantity, setQuantity] = useState(1);
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => {
     if (quantity > 1) setQuantity((prev) => prev - 1);
   };
-
-  console.log(product.variants.edges[0].node.availableForSale);
 
   const photos = extractPhotos(product.images.edges);
 
@@ -82,6 +80,8 @@ const ProductScreen = ({ route }) => {
         (option) => option.name === "Size" || option.name === "Title"
       ); // Check for "Size" or fallback to "Title"
 
+      console.log(edge.node);
+
       return {
         id: index.toString(), // Unique id for each size/variant
         label: getProductSize(sizeOption?.value) || "Default", // Use the value or fallback to "Default"
@@ -93,9 +93,11 @@ const ProductScreen = ({ route }) => {
   // Use the function to extract sizes
   const sizes = extractSizes(product.variants.edges);
 
-  const [selectedSize, setSelectedSize] = useState(
-    sizes[0].label == "Default" ? null : "Medium"
-  );
+  // Automatically set the selected size to the first available one
+  const [selectedSize, setSelectedSize] = useState(() => {
+    const firstAvailable = sizes.find((size) => size.available);
+    return firstAvailable ? firstAvailable.label : null;
+  });
 
   const getSizeIndicator = (size) => {
     if (size === "Small") {
@@ -195,7 +197,10 @@ const ProductScreen = ({ route }) => {
             </Text>
             {product.variants.edges[0].node.compareAtPrice ? (
               <Text style={styles.originalPrice}>
-                ${product.variants.edges[0].node.compareAtPrice.amount}
+                $
+                {parseFloat(
+                  product.variants.edges[0].node.compareAtPrice.amount
+                ).toFixed(2)}
               </Text>
             ) : null}
           </View>
@@ -209,12 +214,44 @@ const ProductScreen = ({ route }) => {
             marginBottom: 20,
           }}
         />
-        <View style={{ paddingLeft: 20, paddingRight: 20, marginBottom: 20 }}>
+        <View style={{ paddingLeft: 20, paddingRight: 20, marginBottom: 40 }}>
           <Text style={styles.productDescription}>{product.description}</Text>
         </View>
 
+        {/* Size Selector */}
+        {sizes[0].label == "Default" ? null : (
+          <View style={styles.sizeContainer}>
+            <View style={styles.topContainer}>
+              <Text style={styles.sizeTitle}>
+                Size{" "}
+                <Text style={styles.sizeIndicator}>
+                  {getSizeIndicator(selectedSize)}
+                </Text>
+              </Text>
+              <TouchableOpacity style={styles.sizeGuideContainer}>
+                <Text style={styles.sizeGuide}>Size Guide </Text>
+                <Ionicons
+                  name="chevron-forward-outline"
+                  size={20}
+                  color="#000"
+                />
+              </TouchableOpacity>
+            </View>
+            <View style={{ paddingLeft: 10 }}>
+              <FlatList
+                data={sizes}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                renderItem={renderSizeItem}
+                keyExtractor={(item) => item.id}
+                contentContainerStyle={styles.sizeOptions}
+              />
+            </View>
+          </View>
+        )}
+
         <View style={styles.quantityContainer}>
-          <Text style={styles.label}>Quantity:</Text>
+          <Text style={styles.sizeTitle}>Quantity:</Text>
           <View style={styles.selectorContainer}>
             {/* Minus Button */}
             <TouchableOpacity
@@ -238,40 +275,8 @@ const ProductScreen = ({ route }) => {
           </View>
         </View>
 
-        {/* Size Selector */}
-        {sizes[0].label == "Default" ? null : (
-          <View style={styles.sizeContainer}>
-            <View style={styles.topContainer}>
-              <Text style={styles.sizeTitle}>
-                Size{" "}
-                <Text style={styles.sizeIndicator}>
-                  {getSizeIndicator(selectedSize)}
-                </Text>
-              </Text>
-              <TouchableOpacity style={styles.sizeGuideContainer}>
-                <Text style={styles.sizeGuide}>Size Guide </Text>
-                <Ionicons
-                  name="chevron-forward-outline"
-                  size={18}
-                  color="#000"
-                />
-              </TouchableOpacity>
-            </View>
-            <View style={{ paddingLeft: 10 }}>
-              <FlatList
-                data={sizes}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                renderItem={renderSizeItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.sizeOptions}
-              />
-            </View>
-          </View>
-        )}
-
         {/* Buttons */}
-        <View style={{ paddingTop: sizes[0].label == "Default" ? "0" : "20" }}>
+        <View>
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[
@@ -363,55 +368,58 @@ const styles = StyleSheet.create({
   },
   productTitle: {
     fontSize: 20,
-    fontWeight: "bold",
     color: "#000",
     marginBottom: 10,
+    fontFamily: "Futura-Bold",
   },
   lowerCTAButton: {
     fontSize: 30,
-    fontWeight: "800",
+    fontFamily: "Futura-Bold",
+
     color: "#000",
     marginBottom: 10,
   },
   productDescription: {
     fontSize: 15,
     color: "#A09E9E",
+    fontFamily: "Futura-Medium",
   },
   productSoldOutTitle: {
     fontSize: 20,
-    fontWeight: "bold",
     color: "red",
     marginBottom: 10,
+    fontFamily: "Futura-Bold",
   },
   priceContainer: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 15,
+    gap: 9,
   },
   currentPrice: {
     fontSize: 18,
-    fontWeight: "bold",
+    fontFamily: "Futura-Bold",
+
     color: "#FF0000",
     marginRight: 10,
   },
   originalPrice: {
     fontSize: 18,
+    fontFamily: "Futura-Bold",
     color: "#A9A9A9",
-    fontWeight: "bold",
-
     textDecorationLine: "line-through",
   },
   sizeContainer: {
     marginBottom: 20,
-    gap: 18,
+    gap: 13,
   },
   sizeTitle: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: "Futura-Bold",
   },
   sizeIndicator: {
     fontSize: 16,
-    fontWeight: "500",
+    fontFamily: "Futura-Medium",
     color: "#A09E9E",
   },
   sizeOptions: {
@@ -446,7 +454,7 @@ const styles = StyleSheet.create({
   sizeGuide: {
     color: "#000",
     fontSize: 16,
-    fontWeight: "bold",
+    fontFamily: "Futura-Bold",
   },
   buttonContainer: {
     flexDirection: "row",
@@ -476,8 +484,8 @@ const styles = StyleSheet.create({
   },
   addToBagText: {
     color: "#fff",
-    fontWeight: "800",
     fontSize: 15,
+    fontFamily: "Futura-Bold",
   },
   topContainer: {
     display: "flex",
@@ -513,6 +521,7 @@ const styles = StyleSheet.create({
     borderColor: "#ddd",
     paddingHorizontal: 10,
     width: "35%",
+    marginTop: 10,
   },
   quantityButton: {
     padding: 7,
@@ -528,6 +537,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 500,
     marginHorizontal: 15,
+    fontFamily: "Futura-Medium",
   },
 });
 
