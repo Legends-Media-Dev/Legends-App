@@ -10,6 +10,9 @@ import {
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
+import { ScrollView } from "react-native-gesture-handler";
+
+import { useCart } from "../context/CartContext"; // Import CartContext
 
 const { width } = Dimensions.get("window");
 
@@ -23,6 +26,12 @@ const ProductScreen = ({ route }) => {
       id: index.toString(), // Unique id for each photo
       uri: edge.node.src, // Image URL
     }));
+  };
+  const [quantity, setQuantity] = useState(1);
+
+  const handleIncrement = () => setQuantity((prev) => prev + 1);
+  const handleDecrement = () => {
+    if (quantity > 1) setQuantity((prev) => prev - 1);
   };
 
   console.log(product.variants.edges[0].node.availableForSale);
@@ -40,6 +49,29 @@ const ProductScreen = ({ route }) => {
       return "XLarge";
     } else if (size === "2XL") {
       return "2XLarge";
+    }
+  };
+
+  // Use the CartContext
+  const { addItemToCart } = useCart();
+
+  const handleAddToCart = async () => {
+    console.log("testing add");
+    console.log(product?.variants?.edges?.[0]?.node?.id);
+    if (product?.variants?.edges?.[0]?.node?.id) {
+      const variantId = product.variants.edges[0].node.id;
+      try {
+        console.log("Adding item to cart with variant ID:", variantId);
+        await addItemToCart(variantId, quantity);
+        alert("Added to cart!");
+      } catch (error) {
+        console.error("Error handling add to cart:", error);
+      } finally {
+        // closeModal();
+        console.log("finsihed add");
+      }
+    } else {
+      console.error("No variant ID available for the selected product.");
     }
   };
 
@@ -114,7 +146,7 @@ const ProductScreen = ({ route }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* Product Image Carousel */}
       <View style={styles.imageContainer}>
         <FlatList
@@ -149,20 +181,60 @@ const ProductScreen = ({ route }) => {
 
       {/* Product Details */}
       <View style={styles.detailsContainer}>
-        <View style={{ padding: 20 }}>
+        <View style={{ padding: 20, paddingBottom: 5 }}>
           {!product.variants.edges[0].node.availableForSale ? (
             <Text style={styles.productSoldOutTitle}>SOLD OUT</Text>
           ) : null}
           <Text style={styles.productTitle}>{product.title}</Text>
           <View style={styles.priceContainer}>
             <Text style={styles.currentPrice}>
-              ${product.variants.edges[0].node.price.amount}
+              $
+              {parseFloat(product.variants.edges[0].node.price.amount).toFixed(
+                2
+              )}
             </Text>
             {product.variants.edges[0].node.compareAtPrice ? (
               <Text style={styles.originalPrice}>
                 ${product.variants.edges[0].node.compareAtPrice.amount}
               </Text>
             ) : null}
+          </View>
+        </View>
+        <View
+          style={{
+            height: "1",
+            backgroundColor: "#D9D9D9",
+            marginLeft: 20,
+            marginRight: 20,
+            marginBottom: 20,
+          }}
+        />
+        <View style={{ paddingLeft: 20, paddingRight: 20, marginBottom: 20 }}>
+          <Text style={styles.productDescription}>{product.description}</Text>
+        </View>
+
+        <View style={styles.quantityContainer}>
+          <Text style={styles.label}>Quantity:</Text>
+          <View style={styles.selectorContainer}>
+            {/* Minus Button */}
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={handleDecrement}
+              disabled={quantity === 1}
+            >
+              <Text style={styles.buttonText}>-</Text>
+            </TouchableOpacity>
+
+            {/* Quantity Value */}
+            <Text style={styles.quantity}>{quantity}</Text>
+
+            {/* Plus Button */}
+            <TouchableOpacity
+              style={styles.quantityButton}
+              onPress={handleIncrement}
+            >
+              <Text style={styles.buttonText}>+</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -201,9 +273,6 @@ const ProductScreen = ({ route }) => {
         {/* Buttons */}
         <View style={{ paddingTop: sizes[0].label == "Default" ? "0" : "20" }}>
           <View style={styles.buttonContainer}>
-            <TouchableOpacity style={styles.applePayButton}>
-              <Text style={styles.applePayText}> Pay</Text>
-            </TouchableOpacity>
             <TouchableOpacity
               style={[
                 styles.addToBagButton,
@@ -211,23 +280,31 @@ const ProductScreen = ({ route }) => {
                   backgroundColor: !product.variants.edges[0].node
                     .availableForSale
                     ? "grey"
-                    : "#FF0000",
+                    : "black",
                 },
               ]}
               disabled={!product.variants.edges[0].node.availableForSale} // Disable button if sold out
-              onPress={() => {
-                if (product.variants.edges[0].node.availableForSale) {
-                  // Your Add to Bag logic here
-                  console.log("Added to Bag");
-                }
-              }}
+              onPress={handleAddToCart}
             >
-              <Text style={styles.addToBagText}>Add to Bag</Text>
+              <Text style={styles.addToBagText}>Add to cart</Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-    </View>
+      <View>
+        <View
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 30,
+          }}
+        >
+          <Text style={styles.lowerCTAButton}>YOU MAY ALSO LIKE</Text>
+        </View>
+        {/* Call in code in kaylas section for showcasing products in a specific collection */}
+      </View>
+    </ScrollView>
   );
 };
 
@@ -289,6 +366,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000",
     marginBottom: 10,
+  },
+  lowerCTAButton: {
+    fontSize: 30,
+    fontWeight: "800",
+    color: "#000",
+    marginBottom: 10,
+  },
+  productDescription: {
+    fontSize: 15,
+    color: "#A09E9E",
   },
   productSoldOutTitle: {
     fontSize: 20,
@@ -385,12 +472,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 100,
   },
   addToBagText: {
     color: "#fff",
-    fontWeight: "bold",
-    fontSize: 16,
+    fontWeight: "800",
+    fontSize: 15,
   },
   topContainer: {
     display: "flex",
@@ -404,6 +491,43 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+
+  quantityContainer: {
+    paddingLeft: 20,
+    paddingRight: 20,
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: 500,
+    marginBottom: 10,
+  },
+  selectorContainer: {
+    flexDirection: "row",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 1000,
+    borderColor: "#ddd",
+    paddingHorizontal: 10,
+    width: "35%",
+  },
+  quantityButton: {
+    padding: 7,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    fontSize: 19,
+    fontWeight: "bold",
+    color: "#000",
+  },
+  quantity: {
+    fontSize: 14,
+    fontWeight: 500,
+    marginHorizontal: 15,
   },
 });
 

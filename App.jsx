@@ -14,7 +14,7 @@ import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
 import NotificationsScreen from "./screens/NotificatiosScreen";
 import { usePushNotifications } from "./usePushNotifications";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 // Removed the RootStackParamList type definition
@@ -76,19 +76,21 @@ export default function App() {
           <Stack.Screen
             name="Product"
             component={ProductScreen}
-            options={{
+            options={({ navigation }) => ({
               headerStyle: {
                 backgroundColor: "#fff",
               },
               headerTintColor: "#000",
               headerTitle: () => null,
               headerRight: () => (
-                <Ionicons
-                  name="bag-outline"
-                  size={24}
-                  color="#000"
-                  style={{ marginRight: 30 }}
-                />
+                <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+                  <Ionicons
+                    name="bag-outline"
+                    size={24}
+                    color="#000"
+                    style={{ marginRight: 30 }}
+                  />
+                </TouchableOpacity>
               ),
               headerBackTitle: null,
               headerBackImage: () => (
@@ -99,7 +101,7 @@ export default function App() {
                   style={{ marginLeft: 15 }} // Add margin if needed
                 />
               ),
-            }}
+            })}
           />
           {/* <Stack.Screen name="Checkout" component={CheckoutScreen} />
           <Stack.Screen name="WebViewScreen" component={WebViewScreen} /> */}
