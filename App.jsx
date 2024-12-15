@@ -48,7 +48,34 @@ export default function App() {
           {/* Set Collections as the initial route */}
           <Stack.Screen name="Collections" component={CollectionsScreen} />
           <Stack.Screen name="Products" component={ProductsScreen} />
-          <Stack.Screen name="Cart" component={CartScreen} />
+          <Stack.Screen
+            name="Cart"
+            component={CartScreen}
+            options={{
+              headerStyle: {
+                backgroundColor: "#fff",
+              },
+              headerTintColor: "#000",
+              headerTitle: () => null,
+              headerBackTitle: null,
+              headerBackImage: () => (
+                <Ionicons
+                  name="chevron-back-outline" // Back arrow icon
+                  size={25} // Adjust the size here
+                  color="#000"
+                  style={{ marginLeft: 15 }} // Add margin if needed
+                />
+              ),
+              // headerRight: () => (
+              //   <Ionicons
+              //     name="bag-outline"
+              //     size={24}
+              //     color="#000"
+              //     style={{ marginRight: 30 }}
+              //   />
+              // ),
+            }}
+          />
           <Stack.Screen
             name="MainScreen"
             component={MainScreen}
