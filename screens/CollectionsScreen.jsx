@@ -39,6 +39,8 @@ const CollectionsScreen = ({ navigation }) => {
     );
   }
 
+  console.log(collections);
+
   return (
     <View style={styles.container}>
       <FlatList
