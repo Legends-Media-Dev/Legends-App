@@ -1,16 +1,14 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 
-const ProductCard = ({ image, name, price, onLikePress }) => {
+const { height } = Dimensions.get("window");
+
+const ProductCard = ({ image, name, price }) => {
     return (
         <View style={styles.card}>
             {/* Product Image */}
             <View style={styles.imageContainer}>
                 <Image source={{uri: image}} style={styles.image} />
-                <TouchableOpacity style={styles.heartIcon} onPress={onLikePress}>
-                    <Ionicons name="heart-outline" size={20} color="#000" />
-                </TouchableOpacity>
             </View>
 
             {/* Product Name */}
@@ -24,8 +22,7 @@ const ProductCard = ({ image, name, price, onLikePress }) => {
 
 const styles = StyleSheet.create({
     card: {
-        width: 160, 
-        backgroundColor: "#3333",
+        width: "45%",
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -36,9 +33,7 @@ const styles = StyleSheet.create({
     imageContainer:{
         position: "relative",
         width: "100%",
-        height: 200,
-        borderTopLeftRadius: 8,
-        borderBottomRightRadius: 8,
+        height: 160,
         overflow: "hidden",
     },
     image: {
@@ -46,27 +41,17 @@ const styles = StyleSheet.create({
         height: "100%",
         resizeMode: "cover",
     },
-    heartIcon: {
-        position: "absolute",
-        top: 10,
-        right: 10,
-        backgroundColor: "#E8EAED",
-        borderRadius: 20,
-        padding: 5,
-        elevation: 3,
-    },
     productName: {
         textAlign: "left",
-        fontSize: 12,
+        fontSize: 11,
         fontFamily: "Futura-Bold",
-        color: "#777777",
         padding: 10,
     },
     productPrice: {
         textAlign: "left",
-        fontSize: 12,
+        fontSize: 10,
         fontFamily: "Futura-Bold",
-        color: "#777777",
+        color: "#A09E9E",
         paddingHorizontal: 10,
         paddingBottom: 10,
     },
