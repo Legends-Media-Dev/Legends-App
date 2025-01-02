@@ -7,7 +7,7 @@ import CheckoutScreen from "./screens/CheckoutScreen";
 import WebViewScreen from "./screens/WebViewScreen";
 import MainScreen from "./screens/MainScreen";
 import ProductScreen from "./screens/ProductScreen";
-import CartScreen from "./screens/CartScreenTest";
+import CartScreen from "./screens/CartScreen";
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
 // import AppLoading from "expo-app-loading";
