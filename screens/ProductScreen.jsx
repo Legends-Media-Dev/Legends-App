@@ -342,7 +342,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: "100%",
     bottom: 0,
-    backgroundColor: "red",
   },
   paginationDot: {
     height: 5,
@@ -386,7 +385,7 @@ const styles = StyleSheet.create({
   },
   productSoldOutTitle: {
     fontSize: 20,
-    color: "red",
+    color: "C8102F",
     marginBottom: 10,
     fontFamily: "Futura-Bold",
   },
@@ -400,13 +399,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Futura-Bold",
 
-    color: "#FF0000",
+    color: "#C8102F",
     marginRight: 10,
   },
   originalPrice: {
     fontSize: 18,
     fontFamily: "Futura-Bold",
-    color: "#A9A9A9",
+    color: "#A09E9E",
     textDecorationLine: "line-through",
   },
   sizeContainer: {

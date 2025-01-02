@@ -130,8 +130,8 @@ export default function App() {
               ),
             })}
           />
-          {/* <Stack.Screen name="Checkout" component={CheckoutScreen} />
-          <Stack.Screen name="WebViewScreen" component={WebViewScreen} /> */}
+          <Stack.Screen name="Checkout" component={CheckoutScreen} />
+          <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </CartProvider>

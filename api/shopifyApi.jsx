@@ -19,6 +19,12 @@ const CLOUD_FUNCTION_URL_FCC =
 const CLOUD_FUNCTION_URL_CCH =
   "https://us-central1-premier-ikon.cloudfunctions.net/createCheckoutHandler";
 
+const CLOUD_FUNCTION_URL_UUC =
+  "https://us-central1-premier-ikon.cloudfunctions.net/updateCartHandler";
+
+const CLOUD_FUNCTION_URL_DIFC =
+  "https://us-central1-premier-ikon.cloudfunctions.net/deleteItemHandler";
+
 /**
  * Fetch Collections
  */
@@ -110,8 +116,6 @@ export const fetchCart = async (cartId) => {
       params: { cartId },
     });
 
-    console.log("fetchCart response:", response.data);
-
     // Return the cart data
     return response.data;
   } catch (error) {
@@ -136,6 +140,57 @@ export const createCheckout = async (lineItems) => {
   } catch (error) {
     console.error(
       "Error creating checkout via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+export const updateCart = async (cartId, lines) => {
+  try {
+    if (!cartId || !Array.isArray(lines)) {
+      throw new Error("Invalid cartId or lines provided");
+    }
+
+    // Log the payload being sent to the server
+    console.log("Updating cart with payload:", { cartId, lines });
+
+    // Make the API request
+    const response = await axios.post(CLOUD_FUNCTION_URL_UUC, {
+      cartId,
+      lines, // Lines include quantity: 0 to inform server to remove these items
+    });
+
+    // Log and validate the response
+    console.log("updateCart response:", response.data);
+
+    if (!response.data || !response.data.lines) {
+      throw new Error("Invalid response: Missing lines in cart data");
+    }
+
+    // Return the updated cart data
+    return response.data;
+  } catch (error) {
+    // Log the error for debugging
+    console.error(
+      "Error updating cart via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+export const deleteItem = async (cartId, lineId) => {
+  try {
+    const response = await axios.post(CLOUD_FUNCTION_URL_DIFC, {
+      cartId,
+      lineId,
+    });
+    console.log("Item deleted successfully:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error deleting item from cart:",
       error.response?.data || error.message
     );
     throw error;
