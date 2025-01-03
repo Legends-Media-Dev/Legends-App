@@ -2,15 +2,18 @@ import React, { useEffect, useState, useRef } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import CollectionScreen from "./screens/CollectionScreen";
+import CollectionsScreen from "./screens/CollectionsScreen";
 import ProductsScreen from "./screens/ProductsScreen";
-import CartScreen from "./screens/CartScreenTest";
+import CartScreen from "./screens/CartScreen";
 import MainScreen from "./screens/MainScreen";
 import ProductScreen from "./screens/ProductScreen";
 import NotificationsScreen from "./screens/NotificatiosScreen";
+import WebViewScreen from "./screens/WebViewScreen";
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
-import { Animated, View, Text } from "react-native";
+import { Animated, View, Text, TouchableOpacity } from "react-native";
+import { usePushNotifications } from "./usePushNotifications";
 import { Ionicons } from "@expo/vector-icons";
 
 const Stack = createStackNavigator();
@@ -129,25 +132,27 @@ export default function App() {
           <Stack.Screen
             name="MainScreen"
             component={MainScreen}
-            options={{
+            options={({ navigation }) => ({
               headerTitle: () => <AnimatedHeader isCollection={false} />,
               headerLeft: null,
               headerRight: () => (
-                <Ionicons
-                  name="bag-outline"
-                  size={24}
-                  color="#000"
-                  style={{ marginRight: 30 }}
-                />
+                <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+                  <Ionicons
+                    name="bag-outline"
+                    size={24}
+                    color="#000"
+                    style={{ marginRight: 30 }}
+                  />
+                </TouchableOpacity>
               ),
-            }}
+            })}
           />
 
           {/* Collection Screen */}
           <Stack.Screen
             name="Collection"
             component={CollectionScreen}
-            options={({ route }) => ({
+            options={({ navigation, route }) => ({
               headerTitle: () => (
                 <AnimatedHeader
                   isCollection={true}
@@ -155,12 +160,14 @@ export default function App() {
                 />
               ),
               headerRight: () => (
-                <Ionicons
-                  name="bag-outline"
-                  size={24}
-                  color="#000"
-                  style={{ marginRight: 30 }}
-                />
+                <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+                  <Ionicons
+                    name="bag-outline"
+                    size={24}
+                    color="#000"
+                    style={{ marginRight: 30 }}
+                  />
+                </TouchableOpacity>
               ),
             })}
           />
@@ -172,53 +179,37 @@ export default function App() {
             options={({ route }) => ({
               title: route.params?.title || "Products",
               headerRight: () => (
-                <Ionicons
-                  name="bag-outline"
-                  size={24}
-                  color="#000"
-                  style={{ marginRight: 30 }}
-                />
+                <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+                  <Ionicons
+                    name="bag-outline"
+                    size={24}
+                    color="#000"
+                    style={{ marginRight: 30 }}
+                  />
+                </TouchableOpacity>
               ),
             })}
           />
 
-          {/* Product Details Screen */}
-          <Stack.Screen
-            name="Product"
-            component={ProductScreen}
-            options={{
-              title: "Product Details",
-              headerBackImage: () => (
-                <Ionicons
-                  name="chevron-back-outline"
-                  size={25}
-                  color="#000"
-                  style={{ marginLeft: 15 }}
-                />
-              ),
-              headerRight: () => (
-                <Ionicons
-                  name="bag-outline"
-                  size={24}
-                  color="#000"
-                  style={{ marginRight: 30 }}
-                />
-              ),
-            }}
-          />
-
-          {/* Cart Screen */}
+          {/* Set Collections as the initial route */}
+          <Stack.Screen name="Collections" component={CollectionsScreen} />
           <Stack.Screen
             name="Cart"
             component={CartScreen}
             options={{
               title: "Your Cart",
-              headerRight: () => (
+              headerStyle: {
+                backgroundColor: "#fff",
+              },
+              headerTintColor: "#000",
+              headerTitle: () => null,
+              headerBackTitle: null,
+              headerBackImage: () => (
                 <Ionicons
-                  name="bag-outline"
-                  size={24}
+                  name="chevron-back-outline" // Back arrow icon
+                  size={25} // Adjust the size here
                   color="#000"
-                  style={{ marginRight: 30 }}
+                  style={{ marginLeft: 15 }} // Add margin if needed
                 />
               ),
             }}
@@ -232,6 +223,37 @@ export default function App() {
               headerShown: false,
             }}
           />
+          <Stack.Screen
+            name="Product"
+            component={ProductScreen}
+            options={({ navigation }) => ({
+              headerStyle: {
+                backgroundColor: "#fff",
+              },
+              headerTintColor: "#000",
+              headerTitle: () => null,
+              headerRight: () => (
+                <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+                  <Ionicons
+                    name="bag-outline"
+                    size={24}
+                    color="#000"
+                    style={{ marginRight: 30 }}
+                  />
+                </TouchableOpacity>
+              ),
+              headerBackTitle: null,
+              headerBackImage: () => (
+                <Ionicons
+                  name="chevron-back-outline" // Back arrow icon
+                  size={25} // Adjust the size here
+                  color="#000"
+                  style={{ marginLeft: 15 }} // Add margin if needed
+                />
+              ),
+            })}
+          />
+          <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </CartProvider>

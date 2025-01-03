@@ -1,9 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, FlatList, Dimensions, Image, Text, } from "react-native";
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  Dimensions,
+  Image,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import RoundedBox from "../components/RoundedBox";
 import ProductCard from "../components/ProductCard";
 import { useCart } from "../context/CartContext";
-import { fetchAllProductsCollection, fetchCollections } from "../api/shopifyApi";
+import {
+  fetchAllProductsCollection,
+  fetchCollections,
+} from "../api/shopifyApi";
 import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
@@ -64,19 +75,29 @@ const MainScreen = () => {
         text={item.title || "No Title"}
         textColor="#000"
         textSize={16}
-        onClick={() => 
-          navigation.navigate("Collection", { collectionId: item.id, title: item.title})
+        onClick={() =>
+          navigation.navigate("Collection", {
+            collectionId: item.id,
+            title: item.title,
+          })
         }
       />
     </View>
   );
 
   const renderProductItem = ({ item }) => (
-    <ProductCard
-      image={item.images.edges[0]?.node.src || "https://via.placeholder.com/100"}
-      name={item.title || "No Name"}
-      price={item.priceRange?.minVariantPrice.amount || "N/A"}
-    />
+    <TouchableOpacity
+      style={{ width: "50%" }}
+      onPress={() => navigation.navigate("Product", { product: item })}
+    >
+      <ProductCard
+        image={
+          item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
+        }
+        name={item.title || "No Name"}
+        price={item.variants.edges[0].node.price.amount || "N/A"}
+      />
+    </TouchableOpacity>
   );
 
   if (loadingCollections || loadingProducts) {

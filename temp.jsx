@@ -8,11 +8,9 @@ import {
   Image,
 } from "react-native";
 import { useCart } from "../context/CartContext";
-import { createCheckout } from "../api/shopifyApi";
 
 const CartScreen = ({ navigation }) => {
-  const { cart, getCartDetails, updateCartDetails, deleteItemFromCart } =
-    useCart(); // Ensure updateCartDetails is implemented
+  const { cart, getCartDetails, updateCartDetails } = useCart(); // Ensure updateCartDetails is implemented
   const [quantities, setQuantities] = useState({}); // State to track quantities by item ID
   const [totalPrice, setTotalPrice] = useState(0); // State to track total price
   const isInitialized = useRef(false); // To track initialization
@@ -24,33 +22,24 @@ const CartScreen = ({ navigation }) => {
       isInitialized.current = true;
     }
 
-    // Initialize quantities and calculate total price only if cart has items
-    if (
-      cart?.lines?.edges?.length > 0 &&
-      Object.keys(quantities).length === 0
-    ) {
+    // Initialize quantities and calculate total price
+    if (cart?.lines?.edges && Object.keys(quantities).length === 0) {
       const initialQuantities = cart.lines.edges.reduce((acc, item) => {
         acc[item.node.id] = item.node.quantity;
         return acc;
       }, {});
       setQuantities(initialQuantities);
-      calculateTotalPrice(initialQuantities);
+      calculateTotalPrice(initialQuantities); // Initialize total price
     }
-  }, [cart, getCartDetails]);
+  }, [cart, quantities, getCartDetails]);
 
   const calculateTotalPrice = (updatedQuantities) => {
-    if (!cart?.lines?.edges || cart.lines.edges.length === 0) {
-      setTotalPrice(0); // Set total price to 0 when cart is empty
-      return;
-    }
-
-    const newTotalPrice = cart.lines.edges.reduce((total, item) => {
+    const newTotalPrice = cart?.lines?.edges?.reduce((total, item) => {
       const itemId = item.node.id;
-      const quantity = updatedQuantities[itemId] || 0; // Set to 0 if removed
+      const quantity = updatedQuantities[itemId] || item.node.quantity;
       const price = parseFloat(item.node.merchandise.price.amount) || 0;
       return total + price * quantity;
     }, 0);
-
     setTotalPrice(newTotalPrice);
   };
 
@@ -69,7 +58,7 @@ const CartScreen = ({ navigation }) => {
       }
 
       // Sync with the server
-      await updateCartDetails(updatedLines);
+      const updatedCart = await updateCartDetails(updatedLines);
 
       // Re-fetch cart details after syncing to ensure UI reflects updates
       await getCartDetails();
@@ -78,103 +67,45 @@ const CartScreen = ({ navigation }) => {
     }
   };
 
-  const handleIncrement = async (itemId) => {
-    try {
-      setQuantities((prevQuantities) => {
-        const updatedQuantities = {
-          ...prevQuantities,
-          [itemId]: prevQuantities[itemId] + 1,
-        };
-
-        calculateTotalPrice(updatedQuantities); // Recalculate total price
-        syncCartWithServer(updatedQuantities); // Sync with server
-        return updatedQuantities;
-      });
-
-      // Directly update the cart with the new quantity
-      await updateCartDetails([
-        { id: itemId, quantity: quantities[itemId] + 1 },
-      ]);
-      await getCartDetails(); // Refresh cart details
-    } catch (error) {
-      console.error("Failed to increment item quantity:", error);
-    }
+  const handleIncrement = (itemId) => {
+    setQuantities((prevQuantities) => {
+      const updatedQuantities = {
+        ...prevQuantities,
+        [itemId]: prevQuantities[itemId] + 1,
+      };
+      calculateTotalPrice(updatedQuantities); // Recalculate total price
+      return updatedQuantities;
+    });
   };
 
-  const handleDecrement = async (itemId) => {
-    try {
-      setQuantities((prevQuantities) => {
-        const updatedQuantities = {
-          ...prevQuantities,
-          [itemId]: prevQuantities[itemId] > 1 ? prevQuantities[itemId] - 1 : 1,
-        };
-
-        calculateTotalPrice(updatedQuantities); // Recalculate total price
-        syncCartWithServer(updatedQuantities); // Sync with server
-        return updatedQuantities;
-      });
-
-      // Directly update the cart with the new quantity
-      await updateCartDetails([
-        {
-          id: itemId,
-          quantity: quantities[itemId] - 1 > 0 ? quantities[itemId] - 1 : 1,
-        },
-      ]);
-      await getCartDetails(); // Refresh cart details
-    } catch (error) {
-      console.error("Failed to decrement item quantity:", error);
-    }
+  const handleDecrement = (itemId) => {
+    setQuantities((prevQuantities) => {
+      const updatedQuantities = {
+        ...prevQuantities,
+        [itemId]: prevQuantities[itemId] > 1 ? prevQuantities[itemId] - 1 : 1,
+      };
+      calculateTotalPrice(updatedQuantities); // Recalculate total price
+      return updatedQuantities;
+    });
   };
 
   const handleNavigateToCheckout = async () => {
-    try {
-      if (!cart || !cart.lines?.edges.length) {
-        alert("Your cart is empty!");
-        return;
-      }
-
-      // Map cart lines to lineItems expected by createCheckout
-      const lineItems = cart.lines.edges.map((line) => ({
-        variantId: line.node.merchandise.id,
-        quantity: line.node.quantity,
-      }));
-
-      console.log("Creating Shopify checkout...");
-      const checkout = await createCheckout(lineItems);
-      const { webUrl } = checkout;
-
-      console.log("Navigating to WebViewScreen...");
-      navigation.navigate("WebViewScreen", { checkoutUrl: webUrl });
-    } catch (error) {
-      console.error("Error during checkout:", error);
-      alert("An error occurred. Please try again.");
-    }
+    await syncCartWithServer(); // Sync cart before navigating
+    navigation.navigate("Checkout");
   };
 
+  // Update cart when navigating back
   useEffect(() => {
     const unsubscribe = navigation.addListener("beforeRemove", async () => {
       try {
-        const hasUpdates = Object.entries(quantities).some(([lineId, qty]) => {
-          const cartLine = cart?.lines?.edges.find(
-            (line) => line.node.id === lineId
-          );
-          return cartLine && cartLine.node.quantity !== qty;
-        });
-
-        if (hasUpdates) {
-          console.log("Syncing cart on navigation back...");
-          await syncCartWithServer();
-        } else {
-          console.log("No changes detected. Skipping sync.");
-        }
+        await syncCartWithServer();
       } catch (error) {
         console.error("Error syncing cart before navigating back:", error);
       }
     });
 
     return unsubscribe;
-  }, [navigation, quantities, cart]);
+  }, [navigation, quantities, syncCartWithServer]);
 
   // Helper function to calculate total number of items
   const getTotalItems = () => {
@@ -183,27 +114,28 @@ const CartScreen = ({ navigation }) => {
 
   const handleRemoveItem = async (itemId) => {
     try {
-      // Call the deleteItemFromCart function to remove the item from the cart
-      await deleteItemFromCart(itemId);
+      // Set the quantity of the item to 0
+      const updatedQuantities = { ...quantities, [itemId]: 0 };
 
-      // Update quantities state by removing the deleted item
-      const updatedQuantities = { ...quantities };
-      delete updatedQuantities[itemId];
+      // Update quantities state
       setQuantities(updatedQuantities);
 
-      // Refresh cart details
-      await getCartDetails();
+      // Sync updated cart with the server
+      const updatedLines = Object.entries(updatedQuantities).map(
+        ([lineId, quantity]) => ({
+          id: lineId,
+          quantity,
+        })
+      );
 
-      // Recalculate total price
+      await updateCartDetails(updatedLines); // Update cart details on the server
+
+      // Refresh cart details to reflect changes
+      await getCartDetails();
       calculateTotalPrice(updatedQuantities);
     } catch (error) {
       console.error("Failed to remove item from cart:", error);
     }
-  };
-
-  const calculateItemPrice = (price, quantity) => {
-    const parsedPrice = parseFloat(price) || 0; // Safely parse price
-    return parsedPrice * quantity; // Calculate total price for the item
   };
 
   // Render each cart item
@@ -213,9 +145,6 @@ const CartScreen = ({ navigation }) => {
     const compareAtPrice = product?.compareAtPrice?.amount || null;
     const itemId = item.node.id;
     const quantity = quantities[itemId] || item.node.quantity; // Use state or fallback to initial quantity
-
-    const totalItemPrice = calculateItemPrice(price, quantity); // Calculate total price for this item
-    const totalComparePrice = calculateItemPrice(compareAtPrice, quantity); // Calculate total price for this item
 
     // Fetch product image safely
     const productImage =
@@ -242,11 +171,11 @@ const CartScreen = ({ navigation }) => {
             {/* Price Section */}
             <View style={styles.priceContainer}>
               <Text style={styles.currentPrice}>
-                ${totalItemPrice.toFixed(2)} {/* Show total item price */}
+                ${parseFloat(price).toFixed(2)}
               </Text>
               {compareAtPrice && (
                 <Text style={styles.compareAtPrice}>
-                  ${totalComparePrice.toFixed(2)}
+                  ${parseFloat(compareAtPrice).toFixed(2)}
                 </Text>
               )}
             </View>
@@ -279,8 +208,8 @@ const CartScreen = ({ navigation }) => {
 
             {/* Remove Button */}
             <TouchableOpacity
-              style={styles.removeButton}
-              onPress={() => handleRemoveItem(itemId)}
+              style={styles.removeButton} // Add a style for the remove button
+              onPress={() => handleRemoveItem(itemId)} // Call the remove handler
             >
               <Text style={styles.removeButton}>Remove</Text>
             </TouchableOpacity>
@@ -294,43 +223,31 @@ const CartScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Top Cart Indicator */}
       <View style={styles.topContainer}>
-        <Text style={styles.cartIndicator}>My Bag ({getTotalItems()})</Text>
+        <Text style={styles.cartIndicator}>
+          My Bag ({getTotalItems()}) {/* Call the helper function here */}
+        </Text>
       </View>
 
       {/* Cart Items */}
-      {cart?.lines?.edges?.length > 0 ? (
-        <FlatList
-          data={cart.lines.edges}
-          keyExtractor={(item) => item.node.id}
-          renderItem={renderItem}
-        />
-      ) : (
-        <View style={styles.emptyCartContainer}>
-          <Text style={styles.emptyCartText}>Your cart is empty.</Text>
-        </View>
-      )}
+      <FlatList
+        data={cart?.lines?.edges || []} // Ensure cart lines exist
+        keyExtractor={(item) => item?.node?.id}
+        renderItem={renderItem}
+      />
 
-      <View style={styles.lowerCheckoutContainer}>
-        {/* Total Section */}
-        <View style={styles.costContainer}>
-          <Text style={styles.total}>Estimated Total:</Text>
-          <Text style={styles.cartTotal}>
-            ${cart?.lines?.edges?.length > 0 ? totalPrice.toFixed(2) : "0.00"}
-          </Text>
-        </View>
+      {/* Total Section */}
+      <Text style={styles.total}>
+        Total: ${totalPrice.toFixed(2)}{" "}
+        {cart?.estimatedCost?.totalAmount?.currencyCode || ""}
+      </Text>
 
-        {/* Checkout Button */}
-        <TouchableOpacity
-          style={[
-            styles.checkoutButton,
-            { opacity: cart?.lines?.edges?.length > 0 ? 1 : 0.5 },
-          ]}
-          onPress={handleNavigateToCheckout}
-          disabled={cart?.lines?.edges?.length === 0} // Disable button when cart is empty
-        >
-          <Text style={styles.checkoutText}>Checkout</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Checkout Button */}
+      <TouchableOpacity
+        style={styles.checkoutButton}
+        onPress={handleNavigateToCheckout}
+      >
+        <Text style={styles.checkoutText}>Proceed to Checkout</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -391,7 +308,7 @@ const styles = StyleSheet.create({
   currentPrice: {
     fontFamily: "Futura-Bold",
     fontSize: 16,
-    color: "#C8102F",
+    color: "#FF0000",
     marginRight: 10,
   },
   compareAtPrice: {
@@ -406,16 +323,10 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginLeft: 20,
   },
-  cartTotal: {
-    fontSize: 18,
-    fontWeight: "medium",
-    marginTop: 20,
-    marginLeft: 20,
-  },
   checkoutButton: {
-    backgroundColor: "#C8102F",
+    backgroundColor: "#007AFF",
     padding: 15,
-    borderRadius: 10,
+    borderRadius: 5,
     alignItems: "center",
     marginTop: 20,
     marginHorizontal: 20,
@@ -464,27 +375,6 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
     fontFamily: "Futura-Regular",
     fontSize: 13,
-  },
-  emptyCartContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  emptyCartText: {
-    fontSize: 16,
-    color: "gray",
-    fontFamily: "Futura-Regular",
-  },
-  lowerCheckoutContainer: {
-    borderTopColor: "black",
-    borderTopWidth: "0.5",
-    marginBottom: "10%",
-  },
-  costContainer: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginRight: 20,
   },
 });
 
