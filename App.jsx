@@ -3,7 +3,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import CollectionsScreen from "./screens/CollectionsScreen";
 import ProductsScreen from "./screens/ProductsScreen";
-import CheckoutScreen from "./screens/CheckoutScreen";
 import WebViewScreen from "./screens/WebViewScreen";
 import MainScreen from "./screens/MainScreen";
 import ProductScreen from "./screens/ProductScreen";
@@ -130,7 +129,6 @@ export default function App() {
               ),
             })}
           />
-          <Stack.Screen name="Checkout" component={CheckoutScreen} />
           <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
         </Stack.Navigator>
       </NavigationContainer>
