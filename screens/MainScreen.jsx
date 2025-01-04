@@ -50,7 +50,7 @@ const MainScreen = () => {
     const getProducts = async () => {
       try {
         const data = await fetchAllProductsCollection(
-          "gid://shopify/Collection/304611786925"
+          "gid://shopify/Collection/268601557146"
         );
         setProducts(data.products.edges.map((edge) => edge.node) || []);
       } catch (error) {
