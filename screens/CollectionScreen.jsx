@@ -1,4 +1,4 @@
-// Collections screen
+// Collection Screen
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, FlatList, Text, Dimensions } from "react-native";
 import ProductCard from "../components/ProductCard";
