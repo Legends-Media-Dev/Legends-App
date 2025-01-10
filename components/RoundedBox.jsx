@@ -14,12 +14,13 @@ const RoundedBox = ({
   textSize = 16,
   onClick,
   fontVariant = "bold",
+  isDisabled = false,
 }) => {
   const fontFamily = fontVariant === "bold" ? "Futura-Bold" : "Futura-Medium";
 
   return (
     <TouchableOpacity
-      onPress={onClick}
+      onPress={!isDisabled ? onClick : null} // Prevent clicks if disabled
       style={[
         styles.container,
         {
@@ -30,6 +31,7 @@ const RoundedBox = ({
           borderWidth,
           borderRadius,
         },
+        isDisabled && { opacity: 0.5 }, // Reduce opacity for a disabled state
       ]}
     >
       <Text

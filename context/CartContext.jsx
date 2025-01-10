@@ -114,24 +114,74 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(null);
 
   // Initialize the cart when the provider mounts
+  // useEffect(() => {
+  //   const initializeCart = async () => {
+  //     try {
+  //       const existingCartId = await AsyncStorage.getItem("shopifyCartId");
+
+  //       if (!existingCartId) {
+  //         const cart = await createCart();
+  //         if (!cart) {
+  //           console.error("Cart creation failed");
+  //           return;
+  //         }
+  //         const newCartId = cart.id;
+  //         console.log("New Cart ID:", newCartId);
+  //         await AsyncStorage.setItem("shopifyCartId", newCartId);
+  //         setCartId(newCartId);
+  //       } else {
+  //         console.log("Existing Cart ID:", existingCartId);
+  //         setCartId(existingCartId);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error initializing cart:", error);
+  //     }
+  //   };
+
+  //   initializeCart();
+  // }, []);
+
+  // Function to reset and create a new cart
+  const resetCart = async () => {
+    try {
+      console.log("Resetting cart...");
+      await AsyncStorage.removeItem("shopifyCartId"); // Clear stored cart ID
+      const newCart = await createCart(); // Create a new cart via API
+      if (newCart) {
+        const newCartId = newCart.id;
+        console.log("New Cart ID created:", newCartId);
+        await AsyncStorage.setItem("shopifyCartId", newCartId); // Save new cart ID
+        setCartId(newCartId);
+        setCart(newCart); // Update cart state with the new cart
+      } else {
+        console.error("Failed to create a new cart");
+      }
+    } catch (error) {
+      console.error("Error resetting cart:", error);
+    }
+  };
+
+  // Initialize cart logic
   useEffect(() => {
     const initializeCart = async () => {
       try {
         const existingCartId = await AsyncStorage.getItem("shopifyCartId");
 
         if (!existingCartId) {
-          const cart = await createCart();
-          if (!cart) {
-            console.error("Cart creation failed");
-            return;
-          }
-          const newCartId = cart.id;
-          console.log("New Cart ID:", newCartId);
-          await AsyncStorage.setItem("shopifyCartId", newCartId);
-          setCartId(newCartId);
+          console.log("No existing cart ID found. Creating a new cart...");
+          await resetCart(); // Create a new cart if no existing cart ID
         } else {
           console.log("Existing Cart ID:", existingCartId);
           setCartId(existingCartId);
+
+          // Fetch cart details to verify the cart is valid
+          const fetchedCart = await fetchCart(existingCartId);
+          if (fetchedCart) {
+            setCart(fetchedCart); // Update cart state with fetched details
+          } else {
+            console.log("Invalid or expired cart. Creating a new one...");
+            await resetCart(); // Reset the cart if the existing one is invalid
+          }
         }
       } catch (error) {
         console.error("Error initializing cart:", error);

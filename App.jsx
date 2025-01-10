@@ -9,12 +9,15 @@ import MainScreen from "./screens/MainScreen";
 import ProductScreen from "./screens/ProductScreen";
 import NotificationsScreen from "./screens/NotificatiosScreen";
 import WebViewScreen from "./screens/WebViewScreen";
+import LoginScreen from "./screens/LoginScreen";
+import SignUpScreen from "./screens/SignUpScreen";
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
-import { Animated, View, Text, TouchableOpacity } from "react-native";
+import { Animated, View, Text, TouchableOpacity, Image } from "react-native";
 import { usePushNotifications } from "./usePushNotifications";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Stack = createStackNavigator();
 
@@ -71,7 +74,7 @@ function AnimatedHeader({ isCollection, collectionName }) {
       {/* Logo */}
       {!showCollectionName && (
         <Animated.Image
-          source={require("./assets/legends.webp")}
+          source={require("./assets/legends_logo.png")}
           style={{
             width: 100,
             resizeMode: "contain",
@@ -99,6 +102,7 @@ function AnimatedHeader({ isCollection, collectionName }) {
 
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   const loadFonts = async () => {
     await Font.loadAsync({
@@ -107,8 +111,28 @@ export default function App() {
     });
   };
 
+  const checkAuthentication = async () => {
+    try {
+      console.log("Checking for token...");
+      const token = await AsyncStorage.getItem("shopifyAccessToken");
+      if (!token) {
+        console.log("No token found.");
+        setIsAuthenticated(false);
+        return;
+      }
+
+      const isValid = await isTokenValid();
+      console.log("Token is valid:", isValid);
+      setIsAuthenticated(isValid);
+    } catch (error) {
+      console.error("Error during authentication check:", error);
+      setIsAuthenticated(false);
+    }
+  };
+
   useEffect(() => {
     loadFonts().then(() => setFontsLoaded(true));
+    checkAuthentication();
   }, []);
 
   if (!fontsLoaded) {
@@ -119,7 +143,7 @@ export default function App() {
     <CartProvider>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="MainScreen"
+          initialRouteName={isAuthenticated ? "MainScreen" : "LoginScreen"}
           screenOptions={{
             headerStyle: { backgroundColor: "#fff" },
             headerTintColor: "#000",
@@ -254,6 +278,20 @@ export default function App() {
             })}
           />
           <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
+          <Stack.Screen
+            name="LoginScreen"
+            component={LoginScreen}
+            options={() => ({
+              headerShown: false,
+            })}
+          />
+          <Stack.Screen
+            name="SignUpScreen"
+            component={SignUpScreen}
+            options={() => ({
+              headerShown: false,
+            })}
+          />
         </Stack.Navigator>
       </NavigationContainer>
     </CartProvider>

@@ -25,6 +25,15 @@ const CLOUD_FUNCTION_URL_UUC =
 const CLOUD_FUNCTION_URL_DIFC =
   "https://us-central1-premier-ikon.cloudfunctions.net/deleteItemHandler";
 
+const CLOUD_FUNCTION_URL_CAL =
+  "https://us-central1-premier-ikon.cloudfunctions.net/customerLoginHandler";
+
+const CLOUD_FUNCTION_URL_CAC =
+  "https://us-central1-premier-ikon.cloudfunctions.net/createCustomerHandler";
+
+const CLOUD_FUNCTION_URL_FCD =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchCustomerDetailsHandler";
+
 /**
  * Fetch Collections
  */
@@ -191,6 +200,79 @@ export const deleteItem = async (cartId, lineId) => {
   } catch (error) {
     console.error(
       "Error deleting item from cart:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+/**
+ * Sign in Customer
+ */
+export const customerSignIn = async (email, password) => {
+  try {
+    // Call the Cloud Function
+    const response = await axios.post(CLOUD_FUNCTION_URL_CAL, {
+      email,
+      password,
+    });
+
+    console.log("customerSignIn response:", response.data);
+
+    // Return the customer access token
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error signing in customer via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+/**
+ * Sign up Customer
+ */
+export const customerSignUp = async (firstName, lastName, email, password) => {
+  try {
+    // Call the Cloud Function
+    const response = await axios.post(CLOUD_FUNCTION_URL_CAC, {
+      firstName,
+      lastName,
+      email,
+      password,
+    });
+
+    console.log("customerSignUp response:", response.data);
+
+    // Return the created customer details
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error signing up customer via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+/**
+ * Fetch Customer Details
+ */
+export const fetchCustomerDetails = async (accessToken) => {
+  try {
+    // Call the Cloud Function
+    const response = await axios.post(CLOUD_FUNCTION_URL_FCD, {
+      accessToken,
+    });
+
+    console.log("fetchCustomerDetails response:", response.data);
+
+    // Return the customer details
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching customer details via Cloud Function:",
       error.response?.data || error.message
     );
     throw error;
