@@ -13,6 +13,7 @@ import { fetchAllProductsCollection } from "../api/shopifyApi";
 
 const { width, height } = Dimensions.get("window");
 
+// Collection Screen
 const CollectionScreen = ({ route, navigation }) => {
   const { collectionId, title } = route.params;
   const [products, setProducts] = useState([]);
@@ -48,6 +49,7 @@ const CollectionScreen = ({ route, navigation }) => {
     </TouchableOpacity>
   );
 
+  // Collection Screen
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
