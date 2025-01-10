@@ -6,7 +6,8 @@ import { fetchAllProductsCollection } from "../api/shopifyApi";
 
 const { width, height } = Dimensions.get("window");
 
-const CollectionScreen = ({ route }) => {
+// Collection Screen
+const CollectionScreen = ({ route, navigation }) => {
   const { collectionId, title } = route.params;
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +37,7 @@ const CollectionScreen = ({ route }) => {
     />
   );
 
+  // Collection Screen
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
