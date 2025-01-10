@@ -23,7 +23,7 @@ const ProductCard = ({ image, name, price }) => {
 const styles = StyleSheet.create({
   card: {
     // width: "45%",
-    shadowColor: "#000",
+    shadowColor: "#000", 
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,

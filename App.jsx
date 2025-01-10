@@ -1,57 +1,53 @@
 import React, { useEffect, useState, useRef } from "react";
 import { NavigationContainer } from "@react-navigation/native";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import CollectionScreen from "./screens/CollectionScreen";
-import CollectionsScreen from "./screens/CollectionsScreen";
-import ProductsScreen from "./screens/ProductsScreen";
-import CartScreen from "./screens/CartScreen";
 import MainScreen from "./screens/MainScreen";
 import ProductScreen from "./screens/ProductScreen";
-import NotificationsScreen from "./screens/NotificatiosScreen";
-import WebViewScreen from "./screens/WebViewScreen";
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
 import { Animated, View, Text, TouchableOpacity } from "react-native";
-import { usePushNotifications } from "./usePushNotifications";
 import { Ionicons } from "@expo/vector-icons";
+import ShopScreen from "./screens/ShopScreen";
+import SweepstakesScreen from "./screens/SweepstakesScreen";
+import AccountScreen from "./screens/AccountScreen";
 
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
 function AnimatedHeader({ isCollection, collectionName }) {
-  const logoPosition = useRef(new Animated.Value(0)).current; // Logo position
-  const logoOpacity = useRef(new Animated.Value(1)).current; // Logo opacity
-  const [showCollectionName, setShowCollectionName] = useState(false); // Track if the name should show
+  const logoPosition = useRef(new Animated.Value(0)).current;
+  const logoOpacity = useRef(new Animated.Value(1)).current;
+  const [showCollectionName, setShowCollectionName] = useState(false);
 
   useEffect(() => {
     if (isCollection) {
-      // Animate logo sliding out and reducing opacity
       Animated.parallel([
         Animated.timing(logoPosition, {
-          toValue: -200, // Move far enough to exit the screen
+          toValue: -200,
           duration: 300,
           useNativeDriver: true,
         }),
         Animated.timing(logoOpacity, {
-          toValue: 0.1, // Reduce opacity to 75%
+          toValue: 0.1,
           duration: 100,
           useNativeDriver: true,
         }),
       ]).start(() => {
-        // Show collection name after logo exits
         setShowCollectionName(true);
       });
     } else {
-      // Reset position and opacity when returning to MainScreen
       setShowCollectionName(false);
       Animated.parallel([
         Animated.timing(logoPosition, {
-          toValue: 0, // Reset to center
+          toValue: 0,
           duration: 300,
           useNativeDriver: true,
         }),
         Animated.timing(logoOpacity, {
-          toValue: 1, // Reset opacity to 100%
+          toValue: 1,
           duration: 300,
           useNativeDriver: true,
         }),
@@ -68,7 +64,6 @@ function AnimatedHeader({ isCollection, collectionName }) {
         justifyContent: "center",
       }}
     >
-      {/* Logo */}
       {!showCollectionName && (
         <Animated.Image
           source={require("./assets/legends.webp")}
@@ -76,20 +71,12 @@ function AnimatedHeader({ isCollection, collectionName }) {
             width: 100,
             resizeMode: "contain",
             transform: [{ translateX: logoPosition }],
-            opacity: logoOpacity, // Apply animated opacity
+            opacity: logoOpacity,
           }}
         />
       )}
-
-      {/* Collection Name */}
       {showCollectionName && (
-        <Text
-          style={{
-            fontSize: 18,
-            fontWeight: "bold",
-            color: "#000",
-          }}
-        >
+        <Text style={{ fontSize: 18, fontWeight: "bold", color: "#000" }}>
           {collectionName || ""}
         </Text>
       )}
@@ -97,6 +84,64 @@ function AnimatedHeader({ isCollection, collectionName }) {
   );
 }
 
+// Main Stack Navigator
+function MainStack() {
+  return (
+    <Stack.Navigator
+      initialRouteName="MainScreen"
+      screenOptions={{
+        headerStyle: { backgroundColor: "#fff" },
+        headerTintColor: "#000",
+        headerTitleStyle: { fontWeight: "bold" },
+        headerBackTitleVisible: false,
+      }}
+    >
+      <Stack.Screen
+        name="MainScreen"
+        component={MainScreen}
+        options={({ navigation }) => ({
+          headerTitle: () => <AnimatedHeader isCollection={false} />,
+          headerLeft: null,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+              <Ionicons
+                name="bag-outline"
+                size={24}
+                color="#000"
+                style={{ marginRight: 30 }}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="Collection"
+        component={CollectionScreen}
+        options={({ route }) => ({
+          headerBackTitle: "",
+          headerBackTitleVisible: false,
+          headerTitle: () => (
+            <AnimatedHeader
+              isCollection={true}
+              collectionName={route.params?.title}
+            />
+          ),
+        })}
+      />
+      <Stack.Screen 
+        name="Product" 
+        component={ProductScreen}
+        options={{
+          headerBackTitle: "",
+          headerBackTitleVisible: false,
+          title: "",
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+// App Component with Bottom Tabs
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
 
@@ -118,143 +163,33 @@ export default function App() {
   return (
     <CartProvider>
       <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="MainScreen"
-          screenOptions={{
-            headerStyle: { backgroundColor: "#fff" },
-            headerTintColor: "#000",
-            headerTitleStyle: { fontWeight: "bold" },
-            headerBackTitleVisible: false,
-            headerBackTitle: "",
-          }}
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+
+              if (route.name === "Home") {
+                iconName = focused ? "home" : "home-outline";
+              } else if (route.name === "Shop") {
+                iconName = focused ? "bag" : "bag-outline";
+              } else if (route.name === "Sweepstakes") {
+                iconName = focused ? "cart" : "cart-outline";
+              } else if (route.name === "Account") {
+                iconName = focused ? "person" : "person-outline";
+              }
+
+              return <Ionicons name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: "#000",
+            tabBarInactiveTintColor: "gray",
+            headerShown: false,
+          })}
         >
-          {/* Main Screen */}
-          <Stack.Screen
-            name="MainScreen"
-            component={MainScreen}
-            options={({ navigation }) => ({
-              headerTitle: () => <AnimatedHeader isCollection={false} />,
-              headerLeft: null,
-              headerRight: () => (
-                <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-                  <Ionicons
-                    name="bag-outline"
-                    size={24}
-                    color="#000"
-                    style={{ marginRight: 30 }}
-                  />
-                </TouchableOpacity>
-              ),
-            })}
-          />
-
-          {/* Collection Screen */}
-          <Stack.Screen
-            name="Collection"
-            component={CollectionScreen}
-            options={({ navigation, route }) => ({
-              headerTitle: () => (
-                <AnimatedHeader
-                  isCollection={true}
-                  collectionName={route.params?.title}
-                />
-              ),
-              headerRight: () => (
-                <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-                  <Ionicons
-                    name="bag-outline"
-                    size={24}
-                    color="#000"
-                    style={{ marginRight: 30 }}
-                  />
-                </TouchableOpacity>
-              ),
-            })}
-          />
-
-          {/* Products Screen */}
-          <Stack.Screen
-            name="Products"
-            component={ProductsScreen}
-            options={({ route }) => ({
-              title: route.params?.title || "Products",
-              headerRight: () => (
-                <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-                  <Ionicons
-                    name="bag-outline"
-                    size={24}
-                    color="#000"
-                    style={{ marginRight: 30 }}
-                  />
-                </TouchableOpacity>
-              ),
-            })}
-          />
-
-          {/* Set Collections as the initial route */}
-          <Stack.Screen name="Collections" component={CollectionsScreen} />
-          <Stack.Screen
-            name="Cart"
-            component={CartScreen}
-            options={{
-              title: "Your Cart",
-              headerStyle: {
-                backgroundColor: "#fff",
-              },
-              headerTintColor: "#000",
-              headerTitle: () => null,
-              headerBackTitle: null,
-              headerBackImage: () => (
-                <Ionicons
-                  name="chevron-back-outline" // Back arrow icon
-                  size={25} // Adjust the size here
-                  color="#000"
-                  style={{ marginLeft: 15 }} // Add margin if needed
-                />
-              ),
-            }}
-          />
-
-          {/* Notifications Screen */}
-          <Stack.Screen
-            name="Notifications"
-            component={NotificationsScreen}
-            options={{
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="Product"
-            component={ProductScreen}
-            options={({ navigation }) => ({
-              headerStyle: {
-                backgroundColor: "#fff",
-              },
-              headerTintColor: "#000",
-              headerTitle: () => null,
-              headerRight: () => (
-                <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-                  <Ionicons
-                    name="bag-outline"
-                    size={24}
-                    color="#000"
-                    style={{ marginRight: 30 }}
-                  />
-                </TouchableOpacity>
-              ),
-              headerBackTitle: null,
-              headerBackImage: () => (
-                <Ionicons
-                  name="chevron-back-outline" // Back arrow icon
-                  size={25} // Adjust the size here
-                  color="#000"
-                  style={{ marginLeft: 15 }} // Add margin if needed
-                />
-              ),
-            })}
-          />
-          <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
-        </Stack.Navigator>
+          <Tab.Screen name="Home" component={MainStack} />
+          <Tab.Screen name="Shop" component={ShopScreen} />
+          <Tab.Screen name="Sweepstakes" component={SweepstakesScreen} />
+          <Tab.Screen name="Account" component={AccountScreen} />
+        </Tab.Navigator>
       </NavigationContainer>
     </CartProvider>
   );

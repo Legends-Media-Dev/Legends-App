@@ -109,7 +109,8 @@ const MainScreen = () => {
   }
 
   return (
-    <FlatList
+    <View style={styles.container}>
+      <FlatList
       data={products}
       keyExtractor={(item) => item.id}
       renderItem={renderProductItem}
@@ -138,14 +139,15 @@ const MainScreen = () => {
           </View>
         </>
       }
-    />
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
   },
   loadingContainer: {
     flex: 1,
