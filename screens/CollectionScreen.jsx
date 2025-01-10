@@ -1,6 +1,13 @@
 // Collection Screen
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View, FlatList, Text, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  View,
+  FlatList,
+  Text,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import ProductCard from "../components/ProductCard";
 import { fetchAllProductsCollection } from "../api/shopifyApi";
 
@@ -27,13 +34,18 @@ const CollectionScreen = ({ route, navigation }) => {
   }, [collectionId]);
 
   const renderProductItem = ({ item }) => (
-    <ProductCard
-      image={
-        item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
-      }
-      name={item.title || "No Name"}
-      price={item.variants.edges[0].node.price.amount || "N/A"}
-    />
+    <TouchableOpacity
+      style={{ width: "50%" }}
+      onPress={() => navigation.navigate("Product", { product: item })}
+    >
+      <ProductCard
+        image={
+          item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
+        }
+        name={item.title || "No Name"}
+        price={item.variants.edges[0].node.price.amount || "N/A"}
+      />
+    </TouchableOpacity>
   );
 
   if (loading) {
@@ -59,9 +71,11 @@ const CollectionScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    padding: 16,
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: height * 0.02,
+    marginBottom: height * 0.01,
   },
   loadingContainer: {
     flex: 1,
