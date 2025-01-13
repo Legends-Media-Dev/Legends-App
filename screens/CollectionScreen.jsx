@@ -34,28 +34,19 @@ const CollectionScreen = ({ route, navigation }) => {
   }, [collectionId]);
 
   const renderProductItem = ({ item }) => (
-    <ProductCard
-      image={
-        item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
-      }
-      name={item.title || "No Name"}
-      price={item.variants.edges[0].node.price.amount || "N/A"}
-    />
+    <TouchableOpacity
+      style={{ width: "50%" }}
+      onPress={() => navigation.navigate("Product", { product: item })}
+    >
+      <ProductCard
+        image={
+          item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
+        }
+        name={item.title || "No Name"}
+        price={item.variants.edges[0].node.price.amount || "N/A"}
+      />
+    </TouchableOpacity>
   );
-  // const renderProductItem = ({ item }) => (
-  //   <TouchableOpacity
-  //     style={{ width: "50%" }}
-  //     onPress={() => navigation.navigate("Product", { product: item })}
-  //   >
-  //     <ProductCard
-  //       image={
-  //         item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
-  //       }
-  //       name={item.title || "No Name"}
-  //       price={item.variants.edges[0].node.price.amount || "N/A"}
-  //     />
-  //   </TouchableOpacity>
-  // );
 
   if (loading) {
     return (
