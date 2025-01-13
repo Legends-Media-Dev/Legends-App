@@ -17,6 +17,8 @@ import {
 } from "../api/shopifyApi";
 import { useNavigation } from "@react-navigation/native";
 
+import { Ionicons } from "@expo/vector-icons";
+
 const { width, height } = Dimensions.get("window");
 
 const MainScreen = () => {
@@ -116,6 +118,17 @@ const MainScreen = () => {
       numColumns={2}
       ListHeaderComponent={
         <>
+          <TouchableOpacity
+            onPress={() => navigation.navigate("ProfileScreen")}
+          >
+            <Ionicons
+              name="person-circle-outline"
+              size={24}
+              color="#000"
+              style={{ marginRight: 20 }}
+            />
+          </TouchableOpacity>
+
           {/* Banner Image */}
           <Image
             source={require("../assets/MainScreenBanner.jpeg")}

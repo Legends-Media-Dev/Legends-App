@@ -10,6 +10,7 @@ import ProductScreen from "./screens/ProductScreen";
 import NotificationsScreen from "./screens/NotificatiosScreen";
 import WebViewScreen from "./screens/WebViewScreen";
 import LoginScreen from "./screens/LoginScreen";
+import ProfileScreen from "./screens/ProfileScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
@@ -18,6 +19,7 @@ import { Animated, View, Text, TouchableOpacity, Image } from "react-native";
 import { usePushNotifications } from "./usePushNotifications";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { isTokenValid } from "./utils/storage";
 
 const Stack = createStackNavigator();
 
@@ -291,6 +293,16 @@ export default function App() {
             options={() => ({
               headerShown: false,
             })}
+          />
+          <Stack.Screen
+            name="ProfileScreen"
+            component={ProfileScreen}
+            options={{
+              title: "Profile",
+              headerStyle: { backgroundColor: "#fff" },
+              headerTintColor: "#000",
+              headerTitleStyle: { fontWeight: "bold" },
+            }}
           />
         </Stack.Navigator>
       </NavigationContainer>
