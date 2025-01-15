@@ -1,7 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
-import { fetchCollections } from "../api/shopifyApi";
+import { fetchCollections, fetchAllProductsCollection } from "../api/shopifyApi";
 import { FlatList } from "react-native-gesture-handler";
 
 const { width, height } = Dimensions.get("window");
@@ -26,15 +26,23 @@ const ShopScreen = () => {
     getCollections();
   }, []);
 
+  const handleCollectionPress = async (collectionId, title) => {
+    try {
+      const data = await fetchAllProductsCollection(collectionId); // Fetch products for the collection
+      navigation.navigate("Collection", {
+        collectionId,
+        title,
+        products: data.products.edges.map((edge) => edge.node), // Pass products to CollectionScreen
+      });
+    } catch (error) {
+      console.error("Error fetching collection products:", error);
+    }
+  };
+
   const renderCollectionItem = ({ item }) => (
     <TouchableOpacity
         style ={styles.collectionItem}
-        onPress={() =>
-            navigation.navigate("Collection", {
-                collectionId: item.id,
-                title: item.title,
-            })
-        }
+        onPress={() => handleCollectionPress(item.id, item.title)}
     >
         <Text style={styles.collectionText}>{item.title || "No Title"}</Text>
     </TouchableOpacity>

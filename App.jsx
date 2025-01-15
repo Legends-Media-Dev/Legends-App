@@ -36,7 +36,7 @@ function AnimatedHeader() {
       }}
     >
       <Animated.Image
-        source={require("./assets/legends.webp")}
+        source={require("./assets/Legends.png")}
         style={{
           width: 100,
           resizeMode: "contain",
@@ -77,12 +77,12 @@ function MainStack() {
           ),
         })}
       />
+      {/* Commented this out because we took out the carousel on the mains screen 
       <Stack.Screen
         name="Collection"
         component={CollectionScreen}
-        options={({ route, navigation }) => ({
+        options={({ navigation }) => ({
           headerBackTitle: "",
-          headerBackTitleVisible: false,
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => (
             <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
@@ -95,7 +95,7 @@ function MainStack() {
             </TouchableOpacity>
           ),
         })}
-      />
+      /> */}
       <Stack.Screen
         name="Product"
         component={ProductScreen}
@@ -151,7 +151,33 @@ function ShopStack() {
         options={{
           headerBackTitle: false,
           headerTitle: "Your Cart",
+        }}
+      />
+      <Stack.Screen
+        name="Collection"
+        component={CollectionScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+              <Ionicons
+                name="bag-outline"
+                size={24}
+                color="#000"
+                style={{ marginRight: 30 }}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="Product"
+        component={ProductScreen}
+        options={{
+          headerBackTitle: "",
           headerBackTitleVisible: false,
+          headerTitle: () => <AnimatedHeader />,
         }}
       />
     </Stack.Navigator>
