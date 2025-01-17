@@ -12,6 +12,7 @@ import WebViewScreen from "./screens/WebViewScreen";
 import LoginScreen from "./screens/LoginScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import SignUpScreen from "./screens/SignUpScreen";
+import TestLoadingScreen from "./screens/TestLoadingScreen";
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
@@ -145,7 +146,8 @@ export default function App() {
     <CartProvider>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName={isAuthenticated ? "MainScreen" : "LoginScreen"}
+          // initialRouteName={isAuthenticated ? "MainScreen" : "LoginScreen"}
+          initialRouteName={"MainScreen"}
           screenOptions={{
             headerStyle: { backgroundColor: "#fff" },
             headerTintColor: "#000",
@@ -299,6 +301,16 @@ export default function App() {
             component={ProfileScreen}
             options={{
               title: "Profile",
+              headerStyle: { backgroundColor: "#fff" },
+              headerTintColor: "#000",
+              headerTitleStyle: { fontWeight: "bold" },
+            }}
+          />
+          <Stack.Screen
+            name="TestLoadingScreen"
+            component={TestLoadingScreen}
+            options={{
+              title: "Test",
               headerStyle: { backgroundColor: "#fff" },
               headerTintColor: "#000",
               headerTitleStyle: { fontWeight: "bold" },

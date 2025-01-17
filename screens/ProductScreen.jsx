@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -11,6 +11,7 @@ import {
 
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
+import LottieView from "lottie-react-native";
 
 import { useCart } from "../context/CartContext"; // Import CartContext
 
@@ -20,6 +21,7 @@ const ProductScreen = ({ route }) => {
   const { product } = route.params;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Extract photos from product.images.edges
   const extractPhotos = (imagesEdges) => {
@@ -29,12 +31,55 @@ const ProductScreen = ({ route }) => {
     }));
   };
 
+  const photos = extractPhotos(product.images.edges);
+
+  // useEffect(() => {
+  //   // Simulate loading images (this could be replaced with actual image loading logic)
+  //   const imagePromises = photos.map((photo) => {
+  //     return new Promise((resolve) => {
+  //       Image.prefetch(photo.uri).then(resolve).catch(resolve);
+  //     });
+  //   });
+
+  //   Promise.all(imagePromises).then(() => setIsLoading(false)); // Set loading to false after all images are loaded
+  // }, [photos]);
+
+  useEffect(() => {
+    // Minimum loading time (e.g., 3 seconds)
+    const minLoadingTime = 3000; // 3 seconds
+
+    // Start the timer
+    const timer = setTimeout(() => {
+      setIsLoading(false); // Set loading to false after 3 seconds
+    }, minLoadingTime);
+
+    // Load images
+    const imagePromises = photos.map((photo) => {
+      return new Promise((resolve) => {
+        Image.prefetch(photo.uri).then(resolve).catch(resolve);
+      });
+    });
+
+    Promise.all(imagePromises).then(() => {
+      // Ensure the loading animation lasts for the minimum time
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, remainingTime);
+    });
+
+    // Cleanup the timer
+    return () => clearTimeout(timer);
+  }, [photos]);
+
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => {
     if (quantity > 1) setQuantity((prev) => prev - 1);
   };
 
-  const photos = extractPhotos(product.images.edges);
+  // const photos = extractPhotos(product.images.edges);
 
   const getProductSize = (size) => {
     if (size === "S") {
@@ -146,6 +191,20 @@ const ProductScreen = ({ route }) => {
       </Text>
     </TouchableOpacity>
   );
+
+  // Render loading animation
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LottieView
+          style={{ width: 400, height: 400 }}
+          source={require("../assets/data.json")}
+          autoPlay
+          loop
+        />
+      </View>
+    );
+  }
 
   return (
     <ScrollView style={styles.container}>
@@ -537,6 +596,18 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     marginHorizontal: 15,
     fontFamily: "Futura-Medium",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    // backgroundColor: "#fff", // Ensure no content shows behind the loading animation
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
   },
 });
 
