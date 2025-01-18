@@ -34,6 +34,9 @@ const CLOUD_FUNCTION_URL_CAC =
 const CLOUD_FUNCTION_URL_FCD =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchCustomerDetailsHandler";
 
+const CLOUD_FUNCTION_URL_UFP =
+  "https://us-central1-premier-ikon.cloudfunctions.net/customerRecoverHandler";
+
 /**
  * Fetch Collections
  */
@@ -276,5 +279,37 @@ export const fetchCustomerDetails = async (accessToken) => {
       error.response?.data || error.message
     );
     throw error;
+  }
+};
+
+/**
+ * Forgot Password
+ * Sends a password recovery email to the provided email address.
+ */
+export const forgotPassword = async (email) => {
+  try {
+    // Call the Cloud Function for customer recovery
+    const response = await axios.post(CLOUD_FUNCTION_URL_UFP, {
+      email,
+    });
+
+    console.log("forgotPassword response:", response.data);
+
+    if (
+      response.data.customerUserErrors &&
+      response.data.customerUserErrors.length > 0
+    ) {
+      throw new Error(response.data.customerUserErrors[0].message);
+    }
+
+    return { success: true, message: "Recovery email sent successfully." };
+  } catch (error) {
+    console.error(
+      "Error sending password recovery email:",
+      error.response?.data || error.message
+    );
+    throw new Error(
+      error.response?.data?.error || "Failed to send recovery email."
+    );
   }
 };

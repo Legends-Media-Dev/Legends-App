@@ -2,11 +2,56 @@ import React, { useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import AuthInput from "../components/AuthContainer";
 import RoundedBox from "../components/RoundedBox";
+import { customerSignUp, customerSignIn } from "../api/shopifyApi";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SignUpScreen = ({ route, navigation }) => {
   // State for managing input values
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+
+  const handleSignUp = async () => {
+    try {
+      if (!email || !password || !firstName || !lastName) {
+        console.error("All fields are required");
+        return;
+      }
+
+      // Call the sign-up API
+      const signUpResponse = await customerSignUp(
+        firstName,
+        lastName,
+        email,
+        password
+      );
+      console.log("customerSignUp response:", signUpResponse);
+
+      if (signUpResponse?.id) {
+        console.log("Sign-up successful. Attempting to sign in...");
+
+        // Call the sign-in API
+        const signInResponse = await customerSignIn(email, password);
+        const accessToken = signInResponse?.accessToken;
+        const expiresAt = signInResponse?.expiresAt;
+
+        if (accessToken && expiresAt) {
+          await AsyncStorage.setItem("shopifyAccessToken", accessToken);
+          await AsyncStorage.setItem("accessTokenExpiry", expiresAt);
+
+          console.log("Signed in successfully. Access Token:", accessToken);
+          navigation.replace("MainScreen"); // Navigate to MainScreen
+        } else {
+          console.error("Failed to retrieve access token during sign-in.");
+        }
+      } else {
+        console.error("Sign-up failed. No customer ID returned.");
+      }
+    } catch (error) {
+      console.error("Sign-up error:", error.message || error);
+    }
+  };
 
   return (
     <View style={styles.outerContainer}>
@@ -29,6 +74,30 @@ const SignUpScreen = ({ route, navigation }) => {
 
         {/* Input Fields Section */}
         <View style={styles.authContainer}>
+          <View style={styles.topContainer}>
+            <AuthInput
+              label="First Name"
+              placeholder="First name"
+              value={firstName}
+              onChangeText={setFirstName}
+              borderColor="#ccc"
+              labelColor="#000"
+              textColor="#000"
+              width={"49%"}
+            />
+            <AuthInput
+              label="Last Name"
+              placeholder="Last name"
+              value={lastName}
+              onChangeText={setLastName}
+              borderColor="#ccc"
+              labelColor="#000"
+              textColor="#000"
+              width={"49%"}
+            />
+          </View>
+          <View style={{ marginTop: 10 }} />
+
           <AuthInput
             label="Email"
             placeholder="Enter your email"
@@ -61,12 +130,8 @@ const SignUpScreen = ({ route, navigation }) => {
             textColor="white"
             fontVariant="medium"
             textSize={18}
-            onClick={() =>
-              navigation.navigate("Collection", {
-                collectionId: item.id,
-                title: item.title,
-              })
-            }
+            onClick={handleSignUp}
+            isDisabled={!email || !password || !firstName || !lastName}
           />
         </View>
       </View>
@@ -163,6 +228,11 @@ const styles = StyleSheet.create({
   signUpButton: {
     color: "#C8102F", // Highlight color for the button
     fontWeight: "bold", // Bold to differentiate it as a button
+  },
+  topContainer: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
 

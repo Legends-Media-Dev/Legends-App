@@ -13,6 +13,7 @@ import LoginScreen from "./screens/LoginScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import SignUpScreen from "./screens/SignUpScreen";
 import TestLoadingScreen from "./screens/TestLoadingScreen";
+import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
@@ -147,7 +148,7 @@ export default function App() {
       <NavigationContainer>
         <Stack.Navigator
           // initialRouteName={isAuthenticated ? "MainScreen" : "LoginScreen"}
-          initialRouteName={"MainScreen"}
+          initialRouteName={"LoginScreen"}
           screenOptions={{
             headerStyle: { backgroundColor: "#fff" },
             headerTintColor: "#000",
@@ -315,6 +316,13 @@ export default function App() {
               headerTintColor: "#000",
               headerTitleStyle: { fontWeight: "bold" },
             }}
+          />
+          <Stack.Screen
+            name="ForgotPasswordScreen"
+            component={ForgotPasswordScreen}
+            options={() => ({
+              headerShown: false,
+            })}
           />
         </Stack.Navigator>
       </NavigationContainer>
