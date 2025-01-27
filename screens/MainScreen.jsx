@@ -88,19 +88,19 @@ const MainScreen = () => {
   return (
     <View style={styles.container}>
       <FlatList
-      data={products}
-      keyExtractor={(item) => item.id}
-      renderItem={renderProductItem}
-      numColumns={2}
-      ListHeaderComponent={
-        <>
-          {/* Banner Image */}
-          <Image
-            source={require("../assets/MainScreenBanner.jpeg")}
-            style={styles.banner}
-          />
-        </>
-      }
+        data={products}
+        keyExtractor={(item) => item.id}
+        renderItem={renderProductItem}
+        numColumns={2}
+        ListHeaderComponent={
+          <>
+            {/* Banner Image */}
+            <Image
+              source={require("../assets/MainScreenBanner.jpeg")}
+              style={styles.banner}
+            />
+          </>
+        }
       />
     </View>
   );

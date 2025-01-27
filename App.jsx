@@ -15,7 +15,17 @@ import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
 import { Animated, View, TouchableOpacity } from "react-native";
+import NotificationsScreen from "./screens/NotificatiosScreen";
+import WebViewScreen from "./screens/WebViewScreen";
+import LoginScreen from "./screens/LoginScreen";
+import ProfileScreen from "./screens/ProfileScreen";
+import SignUpScreen from "./screens/SignUpScreen";
+import TestLoadingScreen from "./screens/TestLoadingScreen";
+import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
+import { usePushNotifications } from "./usePushNotifications";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { isTokenValid } from "./utils/storage";
 
 // Create navigators
 const Stack = createStackNavigator();
@@ -77,25 +87,14 @@ function MainStack() {
           ),
         })}
       />
-      {/* Commented this out because we took out the carousel on the mains screen 
       <Stack.Screen
-        name="Collection"
-        component={CollectionScreen}
-        options={({ navigation }) => ({
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            </TouchableOpacity>
-          ),
-        })}
-      /> */}
+        name="WebViewScreen"
+        component={WebViewScreen}
+        options={{
+          headerBackTitle: false,
+          headerTitle: "",
+        }}
+      />
       <Stack.Screen
         name="Product"
         component={ProductScreen}
@@ -151,6 +150,14 @@ function ShopStack() {
         options={{
           headerBackTitle: false,
           headerTitle: "Your Cart",
+        }}
+      />
+      <Stack.Screen
+        name="WebViewScreen"
+        component={WebViewScreen}
+        options={{
+          headerBackTitle: false,
+          headerTitle: "",
         }}
       />
       <Stack.Screen
@@ -213,6 +220,14 @@ function SweepstakesStack() {
         })}
       />
       <Stack.Screen
+        name="WebViewScreen"
+        component={WebViewScreen}
+        options={{
+          headerBackTitle: false,
+          headerTitle: "",
+        }}
+      />
+      <Stack.Screen
         name="Cart"
         component={CartScreen}
         options={{
@@ -225,8 +240,34 @@ function SweepstakesStack() {
   );
 }
 
-// Account Stack Navigator
+// Account Stack Navigator with Conditional Navigation
 function AccountStack() {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+
+  useEffect(() => {
+    const checkAuthentication = async () => {
+      try {
+        const token = await AsyncStorage.getItem("shopifyAccessToken");
+        if (!token) {
+          setIsAuthenticated(false);
+          return;
+        }
+        const isValid = await isTokenValid(token);
+        setIsAuthenticated(isValid);
+      } catch (error) {
+        console.error("Error checking authentication:", error);
+        setIsAuthenticated(false);
+      }
+    };
+
+    checkAuthentication();
+  }, []);
+
+  // Show nothing while checking authentication
+  if (isAuthenticated === null) {
+    return null; // Optional: Replace with a loading spinner if desired
+  }
+
   return (
     <Stack.Navigator
       screenOptions={{
@@ -236,21 +277,46 @@ function AccountStack() {
         headerBackTitleVisible: false,
       }}
     >
+      {isAuthenticated ? (
+        <Stack.Screen
+          name="Account"
+          component={AccountScreen}
+          options={({ navigation }) => ({
+            headerTitle: () => <AnimatedHeader />,
+            headerRight: () => (
+              <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+                <Ionicons
+                  name="bag-outline"
+                  size={24}
+                  color="#000"
+                  style={{ marginRight: 30 }}
+                />
+              </TouchableOpacity>
+            ),
+          })}
+        />
+      ) : (
+        <Stack.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{
+            headerTitle: "Login",
+            headerShown: false,
+          }}
+        />
+      )}
       <Stack.Screen
-        name="Account"
-        component={AccountScreen}
-        options={({ navigation }) => ({
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            </TouchableOpacity>
-          ),
+        name="SignUpScreen"
+        component={SignUpScreen}
+        options={() => ({
+          headerShown: false,
+        })}
+      />
+      <Stack.Screen
+        name="ForgotPasswordScreen"
+        component={ForgotPasswordScreen}
+        options={() => ({
+          headerShown: false,
         })}
       />
     </Stack.Navigator>
@@ -260,6 +326,7 @@ function AccountStack() {
 // App Component with Bottom Tabs
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   const loadFonts = async () => {
     await Font.loadAsync({
@@ -269,8 +336,28 @@ export default function App() {
     });
   };
 
+  const checkAuthentication = async () => {
+    try {
+      console.log("Checking for token...");
+      const token = await AsyncStorage.getItem("shopifyAccessToken");
+      if (!token) {
+        console.log("No token found.");
+        setIsAuthenticated(false);
+        return;
+      }
+
+      const isValid = await isTokenValid();
+      console.log("Token is valid:", isValid);
+      setIsAuthenticated(isValid);
+    } catch (error) {
+      console.error("Error during authentication check:", error);
+      setIsAuthenticated(false);
+    }
+  };
+
   useEffect(() => {
     loadFonts().then(() => setFontsLoaded(true));
+    checkAuthentication();
   }, []);
 
   if (!fontsLoaded) {

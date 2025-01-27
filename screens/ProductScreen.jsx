@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -7,21 +7,21 @@ import {
   TouchableOpacity,
   Dimensions,
   FlatList,
+  ActivityIndicator,
 } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
-
 import { useCart } from "../context/CartContext"; // Import CartContext
-
 const { width } = Dimensions.get("window");
 
 const ProductScreen = ({ route }) => {
+  const { addItemToCart } = useCart();
   const { product } = route.params;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Extract photos from product.images.edges
   const extractPhotos = (imagesEdges) => {
     return imagesEdges.map((edge, index) => ({
       id: index.toString(), // Unique id for each photo
@@ -29,12 +29,37 @@ const ProductScreen = ({ route }) => {
     }));
   };
 
+  const photos = extractPhotos(product.images.edges);
+
+  useEffect(() => {
+    const minLoadingTime = 500;
+
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, minLoadingTime);
+
+    const imagePromises = photos.map((photo) => {
+      return new Promise((resolve) => {
+        Image.prefetch(photo.uri).then(resolve).catch(resolve);
+      });
+    });
+
+    Promise.all(imagePromises).then(() => {
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, remainingTime);
+    });
+
+    return () => clearTimeout(timer);
+  }, [photos]);
+
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => {
     if (quantity > 1) setQuantity((prev) => prev - 1);
   };
-
-  const photos = extractPhotos(product.images.edges);
 
   const getProductSize = (size) => {
     if (size === "S") {
@@ -50,12 +75,7 @@ const ProductScreen = ({ route }) => {
     }
   };
 
-  // Use the CartContext
-  const { addItemToCart } = useCart();
-
   const handleAddToCart = async () => {
-    console.log("testing add");
-    console.log(product?.variants?.edges?.[0]?.node?.id);
     if (product?.variants?.edges?.[0]?.node?.id) {
       const variantId = product.variants.edges[0].node.id;
       try {
@@ -65,7 +85,6 @@ const ProductScreen = ({ route }) => {
       } catch (error) {
         console.error("Error handling add to cart:", error);
       } finally {
-        // closeModal();
         console.log("finsihed add");
       }
     } else {
@@ -73,27 +92,21 @@ const ProductScreen = ({ route }) => {
     }
   };
 
-  // Extract sizes from product.variants.edges
   const extractSizes = (variantsEdges) => {
     return variantsEdges.map((edge, index) => {
       const sizeOption = edge.node.selectedOptions.find(
         (option) => option.name === "Size" || option.name === "Title"
-      ); // Check for "Size" or fallback to "Title"
-
-      console.log(edge.node);
+      );
 
       return {
-        id: index.toString(), // Unique id for each size/variant
-        label: getProductSize(sizeOption?.value) || "Default", // Use the value or fallback to "Default"
-        available: edge.node.availableForSale, // Check if the variant is available for sale
+        id: index.toString(),
+        label: getProductSize(sizeOption?.value) || "Default",
+        available: edge.node.availableForSale,
       };
     });
   };
 
-  // Use the function to extract sizes
   const sizes = extractSizes(product.variants.edges);
-
-  // Automatically set the selected size to the first available one
   const [selectedSize, setSelectedSize] = useState(() => {
     const firstAvailable = sizes.find((size) => size.available);
     return firstAvailable ? firstAvailable.label : null;
@@ -130,16 +143,16 @@ const ProductScreen = ({ route }) => {
       style={[
         styles.sizeOption,
         selectedSize === item.label && styles.selectedSize,
-        !item.available && styles.unavailableSize, // Apply unavailable style if not available
+        !item.available && styles.unavailableSize,
       ]}
-      onPress={() => item.available && setSelectedSize(item.label)} // Prevent selection if not available
-      disabled={!item.available} // Disable button if not available
+      onPress={() => item.available && setSelectedSize(item.label)}
+      disabled={!item.available}
     >
       <Text
         style={[
           styles.sizeText,
           selectedSize === item.label && styles.selectedSizeText,
-          !item.available && styles.unavailableSizeText, // Apply unavailable text style
+          !item.available && styles.unavailableSizeText,
         ]}
       >
         {item.label}
@@ -147,15 +160,22 @@ const ProductScreen = ({ route }) => {
     </TouchableOpacity>
   );
 
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.container}>
-      {/* Product Image Carousel */}
       <View style={styles.imageContainer}>
         <FlatList
           data={photos}
           horizontal
           pagingEnabled
-          showsHorizontalScrollIndicator={false} // Disable the horizontal scroll bar
+          showsHorizontalScrollIndicator={false}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           onScroll={handleScroll}
@@ -537,6 +557,18 @@ const styles = StyleSheet.create({
     fontWeight: 500,
     marginHorizontal: 15,
     fontFamily: "Futura-Medium",
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    // backgroundColor: "#fff", // Ensure no content shows behind the loading animation
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
   },
 });
 
