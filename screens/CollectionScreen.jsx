@@ -71,11 +71,10 @@ const CollectionScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: "#FFFFFF",
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: height * 0.02,
-    marginBottom: height * 0.01,
   },
   loadingContainer: {
     flex: 1,

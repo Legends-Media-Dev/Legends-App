@@ -8,7 +8,6 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
-import RoundedBox from "../components/RoundedBox";
 import ProductCard from "../components/ProductCard";
 import { useCart } from "../context/CartContext";
 import {
@@ -63,28 +62,6 @@ const MainScreen = () => {
     getProducts();
   }, []);
 
-  const renderCarouselItem = ({ item }) => (
-    <View style={styles.carouselItem}>
-      <RoundedBox
-        width={width * 0.5}
-        height={height * 0.05}
-        isFilled={false}
-        borderColor="#000"
-        borderWidth={2}
-        borderRadius={5}
-        text={item.title || "No Title"}
-        textColor="#000"
-        textSize={16}
-        onClick={() =>
-          navigation.navigate("Collection", {
-            collectionId: item.id,
-            title: item.title,
-          })
-        }
-      />
-    </View>
-  );
-
   const renderProductItem = ({ item }) => (
     <TouchableOpacity
       style={{ width: "50%" }}
@@ -109,7 +86,8 @@ const MainScreen = () => {
   }
 
   return (
-    <FlatList
+    <View style={styles.container}>
+      <FlatList
       data={products}
       keyExtractor={(item) => item.id}
       renderItem={renderProductItem}
@@ -121,31 +99,17 @@ const MainScreen = () => {
             source={require("../assets/MainScreenBanner.jpeg")}
             style={styles.banner}
           />
-
-          {/* Carousel Section */}
-          <View style={styles.carouselContainer}>
-            {collections.length > 0 ? (
-              <FlatList
-                data={collections}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                keyExtractor={(item) => item.id}
-                renderItem={renderCarouselItem}
-              />
-            ) : (
-              <Text style={styles.noDataText}>No Collections Available</Text>
-            )}
-          </View>
         </>
       }
-    />
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FFFFFF",
   },
   loadingContainer: {
     flex: 1,
@@ -156,16 +120,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 180,
     resizeMode: "cover",
-  },
-  carouselContainer: {
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: height * 0.02,
-    marginBottom: height * 0.01,
-  },
-  carouselItem: {
-    marginHorizontal: 10,
   },
   noDataText: {
     fontSize: 16,
