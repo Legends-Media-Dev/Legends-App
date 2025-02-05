@@ -19,6 +19,9 @@ const CLOUD_FUNCTION_URL_FCC =
 const CLOUD_FUNCTION_URL_CCH =
   "https://us-central1-premier-ikon.cloudfunctions.net/createCheckoutHandler";
 
+const CLOUD_FUNCTION_URL_CCHU =
+  "https://us-central1-premier-ikon.cloudfunctions.net/createCheckoutUpdatedHandler";
+
 const CLOUD_FUNCTION_URL_UUC =
   "https://us-central1-premier-ikon.cloudfunctions.net/updateCartHandler";
 
@@ -139,19 +142,38 @@ export const fetchCart = async (cartId) => {
   }
 };
 
-// Create Checkout
-export const createCheckout = async (lineItems) => {
+// // Create Checkout DEPRECATED
+// export const createCheckout = async (lineItems) => {
+//   try {
+//     // Send a POST request to the Cloud Function with lineItems in the body
+//     const response = await axios.post(CLOUD_FUNCTION_URL_CCH, { lineItems });
+
+//     console.log("createCheckout response:", response.data);
+
+//     // Return the checkout object from the Cloud Function response
+//     return response.data;
+//   } catch (error) {
+//     console.error(
+//       "Error creating checkout via Cloud Function:",
+//       error.response?.data || error.message
+//     );
+//     throw error;
+//   }
+// };
+
+// Create Checkout Updated
+export const createCheckoutUpdated = async (lineItems) => {
   try {
-    // Send a POST request to the Cloud Function with lineItems in the body
-    const response = await axios.post(CLOUD_FUNCTION_URL_CCH, { lineItems });
+    // Send a POST request to the updated Cloud Function with lineItems in the body
+    const response = await axios.post(CLOUD_FUNCTION_URL_CCHU, { lineItems });
 
-    console.log("createCheckout response:", response.data);
+    console.log("createCheckoutUpdated response:", response.data);
 
-    // Return the checkout object from the Cloud Function response
+    // Return the cart object (including checkoutUrl) from the Cloud Function response
     return response.data;
   } catch (error) {
     console.error(
-      "Error creating checkout via Cloud Function:",
+      "Error creating checkout via updated Cloud Function:",
       error.response?.data || error.message
     );
     throw error;

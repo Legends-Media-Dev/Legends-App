@@ -8,7 +8,7 @@ import {
   Image,
 } from "react-native";
 import { useCart } from "../context/CartContext";
-import { createCheckout } from "../api/shopifyApi";
+import { createCheckout, createCheckoutUpdated } from "../api/shopifyApi";
 
 const CartScreen = ({ navigation }) => {
   const { cart, getCartDetails, updateCartDetails, deleteItemFromCart } =
@@ -127,25 +127,26 @@ const CartScreen = ({ navigation }) => {
     }
   };
 
-  const handleNavigateToCheckout = async () => {
+  const handleNavigateToCheckoutUpdated = async () => {
+    console.log("Cart Object Before Checkout:", JSON.stringify(cart, null, 2));
+    console.log(cart.checkoutUrl);
+    if (!cart || !cart.id) {
+      alert("Your cart is empty!");
+      return;
+    }
+
     try {
-      if (!cart || !cart.lines?.edges.length) {
-        alert("Your cart is empty!");
+      console.log("Fetching Checkout URL...");
+      await getCartDetails(); // Ensure cart details are updated before checkout
+
+      if (!cart.checkoutUrl) {
+        console.error("Checkout URL is missing from the cart response.");
+        alert("Failed to retrieve the checkout URL. Please try again.");
         return;
       }
 
-      // Map cart lines to lineItems expected by createCheckout
-      const lineItems = cart.lines.edges.map((line) => ({
-        variantId: line.node.merchandise.id,
-        quantity: line.node.quantity,
-      }));
-
-      console.log("Creating Shopify checkout...");
-      const checkout = await createCheckout(lineItems);
-      const { webUrl } = checkout;
-
-      console.log("Navigating to WebViewScreen...");
-      navigation.navigate("WebViewScreen", { checkoutUrl: webUrl });
+      console.log("Navigating to WebViewScreen with URL:", cart.checkoutUrl);
+      navigation.navigate("WebViewScreen", { checkoutUrl: cart.checkoutUrl });
     } catch (error) {
       console.error("Error during checkout:", error);
       alert("An error occurred. Please try again.");
@@ -325,7 +326,7 @@ const CartScreen = ({ navigation }) => {
             styles.checkoutButton,
             { opacity: cart?.lines?.edges?.length > 0 ? 1 : 0.5 },
           ]}
-          onPress={handleNavigateToCheckout}
+          onPress={handleNavigateToCheckoutUpdated}
           disabled={cart?.lines?.edges?.length === 0} // Disable button when cart is empty
         >
           <Text style={styles.checkoutText}>Checkout</Text>
