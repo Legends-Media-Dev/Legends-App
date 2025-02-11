@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import AuthInput from "../components/AuthContainer";
-import RoundedBox from "../components/RoundedBox";
-import { customerSignUp, customerSignIn } from "../api/shopifyApi";
+import AuthInput from "../../components/AuthContainer";
+import RoundedBox from "../../components/RoundedBox";
+import { customerSignUp, customerSignIn } from "../../api/shopifyApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const SignUpScreen = ({ route, navigation }) => {
@@ -59,7 +59,7 @@ const SignUpScreen = ({ route, navigation }) => {
         {/* Logo Section */}
         <View style={styles.imageContainer}>
           <Image
-            source={require("../assets/legends_logo.png")}
+            source={require("../../assets/legends_logo.png")}
             style={styles.headerImage}
           />
         </View>

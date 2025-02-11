@@ -8,8 +8,8 @@ import {
   Dimensions,
   TouchableOpacity,
 } from "react-native";
-import ProductCard from "../components/ProductCard";
-import { fetchAllProductsCollection } from "../api/shopifyApi";
+import ProductCard from "../../components/ProductCard";
+import { fetchAllProductsCollection } from "../../api/shopifyApi";
 
 const { width, height } = Dimensions.get("window");
 

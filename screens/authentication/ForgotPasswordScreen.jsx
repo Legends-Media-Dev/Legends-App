@@ -1,41 +1,41 @@
 import React, { useState } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
-import AuthInput from "../components/AuthContainer";
-import RoundedBox from "../components/RoundedBox";
-import { setItem } from "../utils/storage";
-import { customerSignIn } from "../api/shopifyApi";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import AuthInput from "../../components/AuthContainer";
+import RoundedBox from "../../components/RoundedBox";
+import { forgotPassword } from "../../api/shopifyApi";
 
-const LoginScreen = ({ route, navigation }) => {
+const ForgotPasswordScreen = ({ route, navigation }) => {
   // State for managing input values
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSignIn = async () => {
+  const handleForgotPassword = async () => {
     try {
-      if (!email || !password) {
-        console.error("Email and password are required");
+      setMessage("");
+      setError("");
+
+      if (!email) {
+        setError("Email is required.");
         return;
       }
 
-      const response = await customerSignIn(email, password);
-      console.log(response);
-      const accessToken = response?.accessToken;
-      const expiresAt = response?.expiresAt;
+      const response = await forgotPassword(email);
 
-      console.log(accessToken);
+      if (response && response.success) {
+        setMessage("Password reset link sent to your email.");
+        setEmail("");
 
-      if (accessToken && expiresAt) {
-        await AsyncStorage.setItem("shopifyAccessToken", accessToken);
-        await AsyncStorage.setItem("accessTokenExpiry", expiresAt);
-
-        console.log("Signed in successfully. Access Token:", accessToken);
-        navigation.replace("ACCOUNT"); // Navigate to MainScreen
+        // Navigate back to Sign In with a "pop" effect after 3 seconds
+        setTimeout(() => {
+          navigation.goBack(); // Use goBack for a pop-like effect
+        }, 3000);
       } else {
-        console.error("Invalid credentials or failed to retrieve access token");
+        setError("Failed to send reset link. Please try again.");
       }
     } catch (error) {
-      console.error("Sign-in failed:", error.message);
+      console.error("Forgot Password Error:", error.message);
+      setError("An error occurred. Please try again later.");
     }
   };
 
@@ -45,16 +45,17 @@ const LoginScreen = ({ route, navigation }) => {
         {/* Logo Section */}
         <View style={styles.imageContainer}>
           <Image
-            source={require("../assets/legends_logo.png")}
+            source={require("../../assets/legends_logo.png")}
             style={styles.headerImage}
           />
         </View>
 
         {/* Header Text Section */}
         <View style={styles.infoContainer}>
-          <Text style={styles.header}>SIGN IN</Text>
+          <Text style={styles.header}>FORGOT PASSWORD</Text>
           <Text style={styles.subHeader}>
-            Sign in to view your rewards and benefits.
+            Enter your email below, and we’ll send you a link to reset your
+            password.
           </Text>
         </View>
 
@@ -69,27 +70,15 @@ const LoginScreen = ({ route, navigation }) => {
             labelColor="#000"
             textColor="#000"
           />
-          <View style={{ marginTop: 10 }} />
-          <AuthInput
-            label="Password"
-            placeholder="Enter your password"
-            value={password}
-            onChangeText={setPassword}
-            borderColor="#ccc"
-            labelColor="#000"
-            textColor="#000"
-            secureTextEntry={true}
-          />
-          <View style={styles.forgotPasswordContainer}>
-            <TouchableOpacity
-              onPress={() => navigation.navigate("ForgotPasswordScreen")}
-            >
-              <Text style={styles.forgotPasswordText}>
-                Forgot your password?
-              </Text>
-            </TouchableOpacity>
-          </View>
         </View>
+
+        {/* Error or Success Message */}
+        {message ? (
+          <Text style={styles.successMessage}>{message}</Text>
+        ) : error ? (
+          <Text style={styles.errorMessage}>{error}</Text>
+        ) : null}
+
         <View style={styles.buttonContainer}>
           <RoundedBox
             isFilled={true}
@@ -97,15 +86,16 @@ const LoginScreen = ({ route, navigation }) => {
             borderColor="#C8102F"
             borderWidth={2}
             borderRadius={10}
-            text="Sign In"
+            text="Reset Password"
             textColor="white"
             fontVariant="medium"
             textSize={18}
-            onClick={handleSignIn}
-            isDisabled={!email || !password}
+            onClick={handleForgotPassword}
+            isDisabled={!email}
           />
         </View>
       </View>
+
       <View style={styles.lowerContainer}>
         <View
           style={{
@@ -117,12 +107,12 @@ const LoginScreen = ({ route, navigation }) => {
         />
         <View style={styles.signUpContainer}>
           <Text style={styles.textButton}>
-            Don’t have an account?{" "}
+            Remember your password?{" "}
             <Text
               style={styles.signUpButton}
-              onPress={() => navigation.navigate("SignUpScreen")}
+              onPress={() => navigation.goBack()}
             >
-              Sign Up.
+              Sign In.
             </Text>
           </Text>
         </View>
@@ -160,24 +150,15 @@ const styles = StyleSheet.create({
   },
   subHeader: {
     fontFamily: "Futura-Medium",
+    textAlign: "center",
     fontSize: 16, // Corrected as a number
+    width: "85%",
   },
   authContainer: {
     display: "flex",
     width: "90%",
     alignSelf: "center", // Align inputs and text within the container
     marginTop: 30,
-  },
-  forgotPasswordContainer: {
-    marginTop: 10,
-    paddingRight: 5,
-    width: "100%", // Ensures the "Forgot your password?" spans the width of the container
-    alignItems: "flex-end", // Aligns the text to the right
-  },
-  forgotPasswordText: {
-    color: "black", // Button-like color (blue)
-    fontSize: 14,
-    fontFamily: "Futura-Medium",
   },
   buttonContainer: {
     display: "flex",
@@ -200,6 +181,16 @@ const styles = StyleSheet.create({
     color: "#C8102F", // Highlight color for the button
     fontWeight: "bold", // Bold to differentiate it as a button
   },
+  successMessage: {
+    color: "green",
+    textAlign: "center",
+    marginTop: 10,
+  },
+  errorMessage: {
+    color: "red",
+    textAlign: "center",
+    marginTop: 10,
+  },
 });
 
-export default LoginScreen;
+export default ForgotPasswordScreen;

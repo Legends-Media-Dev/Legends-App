@@ -7,8 +7,8 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import { useCart } from "../context/CartContext";
-import { createCheckout, createCheckoutUpdated } from "../api/shopifyApi";
+import { useCart } from "../../context/CartContext";
+import { createCheckout, createCheckoutUpdated } from "../../api/shopifyApi";
 
 const CartScreen = ({ navigation }) => {
   const { cart, getCartDetails, updateCartDetails, deleteItemFromCart } =

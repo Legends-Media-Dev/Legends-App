@@ -12,7 +12,7 @@ import {
 
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
-import { useCart } from "../context/CartContext"; // Import CartContext
+import { useCart } from "../../context/CartContext"; // Import CartContext
 const { width } = Dimensions.get("window");
 
 const ProductScreen = ({ route }) => {

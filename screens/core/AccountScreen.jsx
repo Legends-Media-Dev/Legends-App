@@ -9,9 +9,9 @@ import {
 import Modal from "react-native-modal";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
-import RoundedBox from "../components/RoundedBox";
+import RoundedBox from "../../components/RoundedBox";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fetchCustomerDetails } from "../api/shopifyApi"; // Import API function
+import { fetchCustomerDetails } from "../../api/shopifyApi"; // Import API function
 
 const AccountScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);

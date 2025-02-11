@@ -8,17 +8,17 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
-import ProductCard from "../components/ProductCard";
-import { useCart } from "../context/CartContext";
+import ProductCard from "../../components/ProductCard";
+import { useCart } from "../../context/CartContext";
 import {
   fetchAllProductsCollection,
   fetchCollections,
-} from "../api/shopifyApi";
+} from "../../api/shopifyApi";
 import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 
-const MainScreen = () => {
+const HomeScreen = () => {
   const navigation = useNavigation();
   const [collections, setCollections] = useState([]);
   const [products, setProducts] = useState([]);
@@ -96,7 +96,7 @@ const MainScreen = () => {
           <>
             {/* Banner Image */}
             <Image
-              source={require("../assets/MainScreenBanner.jpeg")}
+              source={require("../../assets/MainScreenBanner.jpeg")}
               style={styles.banner}
             />
           </>
@@ -128,4 +128,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MainScreen;
+export default HomeScreen;

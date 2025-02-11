@@ -4,28 +4,32 @@ import { NavigationContainer, Modal, Text } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import CollectionScreen from "./screens/CollectionScreen";
-import MainScreen from "./screens/MainScreen";
-import ProductScreen from "./screens/ProductScreen";
-import ShopScreen from "./screens/ShopScreen";
-import SweepstakesScreen from "./screens/SweepstakesScreen";
-import AccountScreen from "./screens/AccountScreen";
-import CartScreen from "./screens/CartScreen";
+
+import MainScreen from "./screens/core/HomeScreen";
+import ShopScreen from "./screens/core/ShopScreen";
+import SweepstakesScreen from "./screens/core/SweepstakesScreen";
+import AccountScreen from "./screens/core/AccountScreen";
+
+import CollectionScreen from "./screens/products/CollectionScreen";
+import ProductScreen from "./screens/products/ProductScreen";
+
+import CartScreen from "./screens/shopflow/CartScreen";
+import WebViewScreen from "./screens/shopflow/WebViewScreen";
+
+import LoginScreen from "./screens/authentication/LoginScreen";
+import SignUpScreen from "./screens/authentication/SignUpScreen";
+import ForgotPasswordScreen from "./screens/authentication/ForgotPasswordScreen";
+
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
 import { Animated, View, TouchableOpacity } from "react-native";
-import NotificationsScreen from "./screens/NotificatiosScreen";
-import WebViewScreen from "./screens/WebViewScreen";
-import LoginScreen from "./screens/LoginScreen";
-import ProfileScreen from "./screens/ProfileScreen";
-import SignUpScreen from "./screens/SignUpScreen";
-import TestLoadingScreen from "./screens/TestLoadingScreen";
-import ForgotPasswordScreen from "./screens/ForgotPasswordScreen";
-import { usePushNotifications } from "./usePushNotifications";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { isTokenValid } from "./utils/storage";
+import NotificationsScreen from "./screens/NotificationsScreen";
+import TestLoadingScreen from "./screens/TestLoadingScreen";
+import { usePushNotifications } from "./usePushNotifications";
 
 // Create navigators
 const Stack = createStackNavigator();
