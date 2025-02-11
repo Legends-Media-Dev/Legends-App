@@ -30,7 +30,7 @@ const LoginScreen = ({ route, navigation }) => {
         await AsyncStorage.setItem("accessTokenExpiry", expiresAt);
 
         console.log("Signed in successfully. Access Token:", accessToken);
-        navigation.replace("MainScreen"); // Navigate to MainScreen
+        navigation.replace("ACCOUNT"); // Navigate to MainScreen
       } else {
         console.error("Invalid credentials or failed to retrieve access token");
       }

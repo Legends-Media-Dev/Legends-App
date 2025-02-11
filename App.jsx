@@ -1,6 +1,6 @@
 // Import React and all dependencies
 import React, { useEffect, useState, useRef } from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, Modal, Text } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -281,19 +281,9 @@ function AccountStack() {
         <Stack.Screen
           name="Account"
           component={AccountScreen}
-          options={({ navigation }) => ({
+          options={{
             headerTitle: () => <AnimatedHeader />,
-            headerRight: () => (
-              <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-                <Ionicons
-                  name="bag-outline"
-                  size={24}
-                  color="#000"
-                  style={{ marginRight: 30 }}
-                />
-              </TouchableOpacity>
-            ),
-          })}
+          }}
         />
       ) : (
         <Stack.Screen
