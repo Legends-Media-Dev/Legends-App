@@ -43,7 +43,7 @@ const AccountScreen = () => {
     getCustomerData();
   }, []);
 
-  console.log(customerData.email);
+  // console.log(customerData.email);
 
   // Update header with logout button
   useEffect(() => {
