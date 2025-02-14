@@ -20,6 +20,9 @@ import LoginScreen from "./screens/authentication/LoginScreen";
 import SignUpScreen from "./screens/authentication/SignUpScreen";
 import ForgotPasswordScreen from "./screens/authentication/ForgotPasswordScreen";
 
+import VIPPortalScreen from "./screens/vip/VIPPortalScreen";
+import JoinVIPScreen from "./screens/vip/JoinVIPScreen";
+
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
@@ -311,6 +314,22 @@ function AccountStack() {
         component={ForgotPasswordScreen}
         options={() => ({
           headerShown: false,
+        })}
+      />
+      <Stack.Screen
+        name="JoinVIPScreen"
+        component={JoinVIPScreen}
+        options={() => ({
+          headerShown: true,
+          headerBackTitle: "",
+        })}
+      />
+      <Stack.Screen
+        name="VIPPortalScreen"
+        component={VIPPortalScreen}
+        options={() => ({
+          headerShown: true,
+          headerBackTitleVisible: true,
         })}
       />
     </Stack.Navigator>

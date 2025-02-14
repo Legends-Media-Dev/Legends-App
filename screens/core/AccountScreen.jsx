@@ -43,7 +43,7 @@ const AccountScreen = () => {
     getCustomerData();
   }, []);
 
-  // console.log(customerData.email);
+  // console.log(customerData.tags);
 
   // Update header with logout button
   useEffect(() => {
@@ -120,7 +120,7 @@ const AccountScreen = () => {
       {/* Display Customer Data */}
       <ScrollView style={styles.screenContainer}>
         {loading ? (
-          <Text style={styles.loadingText}></Text>
+          <Text style={[styles.loadingText, { opacity: 0 }]}>Placeholder</Text>
         ) : customerData ? (
           <View style={styles.profileContainer}>
             <Text style={styles.customerName}>
@@ -130,6 +130,77 @@ const AccountScreen = () => {
         ) : (
           <Text>No customer data available.</Text>
         )}
+
+        {/* button Containers */}
+        <View style={styles.buttonContainer}>
+          <View style={styles.topButtonContainer}>
+            <View style={styles.leftSide}>
+              <Ionicons
+                name="pricetags-outline"
+                size={24}
+                color="#000"
+                style={{ marginRight: 0 }}
+              />
+              <Text style={styles.buttonText}>ORDERS</Text>
+            </View>
+            <View>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={24}
+                color="#000"
+                style={{ marginRight: 0 }}
+              />
+            </View>
+          </View>
+          <TouchableOpacity
+            style={styles.innerButtonContainer}
+            onPress={() => {
+              if (
+                customerData?.tags?.includes("Active Subscriber") &&
+                customerData?.tags?.includes("VIP Gold")
+              ) {
+                navigation.navigate("VIPPortalScreen"); // Navigate to VIP Portal screen
+              } else {
+                navigation.navigate("JoinVIPScreen"); // Navigate to Join VIP screen
+              }
+            }}
+          >
+            <View style={styles.leftSide}>
+              <Ionicons name="pricetags-outline" size={24} color="#000" />
+              <Text style={styles.buttonText}>
+                {customerData?.tags?.includes("Active Subscriber") &&
+                customerData?.tags?.includes("VIP Gold")
+                  ? "VIP PORTAL"
+                  : "JOIN VIP"}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward-outline" size={24} color="#000" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.innerButtonContainer}
+            onPress={() => {
+              navigation.navigate("JoinVIPScreen"); // Navigate to Join VIP screen
+            }}
+          >
+            <View style={styles.leftSide}>
+              <Ionicons name="pricetags-outline" size={24} color="#000" />
+              <Text style={styles.buttonText}>SWEEPSTAKES</Text>
+            </View>
+            <Ionicons name="chevron-forward-outline" size={24} color="#000" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.lowerButtonContainer}
+            onPress={() => {
+              navigation.navigate("JoinVIPScreen"); // Navigate to Join VIP screen
+            }}
+          >
+            <View style={styles.leftSide}>
+              <Ionicons name="pricetags-outline" size={24} color="#000" />
+              <Text style={styles.buttonText}>PRIVACY POLICY</Text>
+            </View>
+            <Ionicons name="chevron-forward-outline" size={24} color="#000" />
+          </TouchableOpacity>
+        </View>
       </ScrollView>
     </View>
   );
@@ -163,10 +234,57 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Futura-Bold",
   },
+
   buttonContainer: {
+    marginTop: 20,
+  },
+  buttonText: {
+    fontFamily: "Futura-Medium",
+    fontSize: 17,
+  },
+  topButtonContainer: {
+    width: "100%",
     flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderColor: "red",
+    borderWidth: 1,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+  },
+  innerButtonContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderColor: "red",
+    borderBottomWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+  },
+  lowerButtonContainer: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderColor: "red",
+    borderBottomWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  leftSide: {
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
     gap: 10,
-    marginTop: 15,
   },
 });
 
