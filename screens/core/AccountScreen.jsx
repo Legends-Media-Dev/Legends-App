@@ -133,7 +133,12 @@ const AccountScreen = () => {
 
         {/* button Containers */}
         <View style={styles.buttonContainer}>
-          <View style={styles.topButtonContainer}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("OrdersScreen"); // Navigate to Join VIP screen
+            }}
+            style={styles.topButtonContainer}
+          >
             <View style={styles.leftSide}>
               <Ionicons
                 name="pricetags-outline"
@@ -151,7 +156,7 @@ const AccountScreen = () => {
                 style={{ marginRight: 0 }}
               />
             </View>
-          </View>
+          </TouchableOpacity>
           <TouchableOpacity
             style={styles.innerButtonContainer}
             onPress={() => {
@@ -166,7 +171,7 @@ const AccountScreen = () => {
             }}
           >
             <View style={styles.leftSide}>
-              <Ionicons name="pricetags-outline" size={24} color="#000" />
+              <Ionicons name="diamond-outline" size={24} color="#000" />
               <Text style={styles.buttonText}>
                 {customerData?.tags?.includes("Active Subscriber") &&
                 customerData?.tags?.includes("VIP Gold")
@@ -179,11 +184,11 @@ const AccountScreen = () => {
           <TouchableOpacity
             style={styles.innerButtonContainer}
             onPress={() => {
-              navigation.navigate("JoinVIPScreen"); // Navigate to Join VIP screen
+              navigation.navigate("SweepstakesScreen"); // Navigate to Join VIP screen
             }}
           >
             <View style={styles.leftSide}>
-              <Ionicons name="pricetags-outline" size={24} color="#000" />
+              <Ionicons name="gift-outline" size={24} color="#000" />
               <Text style={styles.buttonText}>SWEEPSTAKES</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={24} color="#000" />
@@ -191,15 +196,18 @@ const AccountScreen = () => {
           <TouchableOpacity
             style={styles.lowerButtonContainer}
             onPress={() => {
-              navigation.navigate("JoinVIPScreen"); // Navigate to Join VIP screen
+              navigation.navigate("PrivacyPolicyScreen"); // Navigate to Join VIP screen
             }}
           >
             <View style={styles.leftSide}>
-              <Ionicons name="pricetags-outline" size={24} color="#000" />
+              <Ionicons name="newspaper-outline" size={24} color="#000" />
               <Text style={styles.buttonText}>PRIVACY POLICY</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={24} color="#000" />
           </TouchableOpacity>
+        </View>
+        <View style={styles.lowerContainer}>
+          <Text style={styles.lowerText}>Recently Viewed</Text>
         </View>
       </ScrollView>
     </View>
@@ -237,7 +245,15 @@ const styles = StyleSheet.create({
 
   buttonContainer: {
     marginTop: 20,
+    backgroundColor: "#fff", // Ensure background is set for shadow visibility
+    borderRadius: 10, // Rounded corners
+    shadowColor: "#000", // Shadow color
+    shadowOffset: { width: 0, height: 2 }, // Shadow position
+    shadowOpacity: 0.15, // Shadow transparency
+    shadowRadius: 5, // Shadow blur
+    elevation: 4, // For Android shadows
   },
+
   buttonText: {
     fontFamily: "Futura-Medium",
     fontSize: 17,
@@ -249,8 +265,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 15,
     paddingHorizontal: 20,
-    borderColor: "red",
-    borderWidth: 1,
+    borderColor: "#D3D3D3",
+    borderBottomWidth: 1,
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },
@@ -261,10 +277,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 15,
     paddingHorizontal: 20,
-    borderColor: "red",
+    borderColor: "#D3D3D3",
     borderBottomWidth: 1,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
+    // borderLeftWidth: 1,
+    // borderRightWidth: 1,
   },
   lowerButtonContainer: {
     width: "100%",
@@ -273,10 +289,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 15,
     paddingHorizontal: 20,
-    borderColor: "red",
-    borderBottomWidth: 1,
-    borderLeftWidth: 1,
-    borderRightWidth: 1,
+    // borderBottomWidth: 1,
+    // borderLeftWidth: 1,
+    // borderRightWidth: 1,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
   },
@@ -285,6 +300,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
+  },
+  lowerContainer: {
+    marginTop: 30,
+  },
+  lowerText: {
+    fontFamily: "Futura-Medium",
+    fontSize: 18,
   },
 });
 

@@ -23,6 +23,9 @@ import ForgotPasswordScreen from "./screens/authentication/ForgotPasswordScreen"
 import VIPPortalScreen from "./screens/vip/VIPPortalScreen";
 import JoinVIPScreen from "./screens/vip/JoinVIPScreen";
 
+import PrivacyPolicyScreen from "./screens/account/PrivacyPolicyScreen";
+import OrdersScreen from "./screens/account/OrdersScreen";
+
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
@@ -327,6 +330,30 @@ function AccountStack() {
       <Stack.Screen
         name="VIPPortalScreen"
         component={VIPPortalScreen}
+        options={() => ({
+          headerShown: true,
+          headerBackTitleVisible: true,
+        })}
+      />
+      <Stack.Screen
+        name="SweepstakesScreen"
+        component={SweepstakesScreen}
+        options={() => ({
+          headerShown: true,
+          headerBackTitleVisible: true,
+        })}
+      />
+      <Stack.Screen
+        name="OrdersScreen"
+        component={OrdersScreen}
+        options={() => ({
+          headerShown: true,
+          headerBackTitleVisible: true,
+        })}
+      />
+      <Stack.Screen
+        name="PrivacyPolicyScreen"
+        component={PrivacyPolicyScreen}
         options={() => ({
           headerShown: true,
           headerBackTitleVisible: true,
