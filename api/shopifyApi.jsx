@@ -40,6 +40,9 @@ const CLOUD_FUNCTION_URL_FCD =
 const CLOUD_FUNCTION_URL_UFP =
   "https://us-central1-premier-ikon.cloudfunctions.net/customerRecoverHandler";
 
+const CLOUD_FUNCTION_URL_FPBI =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchProductByIdHandler";
+
 /**
  * Fetch Collections
  */
@@ -333,5 +336,30 @@ export const forgotPassword = async (email) => {
     throw new Error(
       error.response?.data?.error || "Failed to send recovery email."
     );
+  }
+};
+
+/**
+ * Fetch Product by ID
+ */
+export const fetchProductById = async (productId) => {
+  try {
+    if (!productId) throw new Error("Missing productId parameter");
+
+    // Call the Cloud Function with productId as a query parameter
+    const response = await axios.get(CLOUD_FUNCTION_URL_FPBI, {
+      params: { productId },
+    });
+
+    console.log("fetchProductById response:", response.data);
+
+    // Return the product details
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching product by ID via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
   }
 };

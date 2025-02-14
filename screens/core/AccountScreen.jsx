@@ -1,23 +1,29 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  FlatList,
 } from "react-native";
+import ProductCard from "../../components/ProductCard";
 import Modal from "react-native-modal";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import RoundedBox from "../../components/RoundedBox";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fetchCustomerDetails } from "../../api/shopifyApi"; // Import API function
+import { fetchCustomerDetails, fetchProductById } from "../../api/shopifyApi"; // Import API function
+import { getRecentlyViewedProducts } from "../../utils/storage";
 
 const AccountScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [loadingRecentlyViewed, setLoadingRecentlyViewed] = useState(true);
 
   // Fetch customer details when the screen loads
   useEffect(() => {
@@ -60,6 +66,35 @@ const AccountScreen = () => {
       ),
     });
   }, [navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchRecentlyViewed = async () => {
+        try {
+          setLoadingRecentlyViewed(true);
+
+          // Retrieve stored product IDs
+          const productIds = await getRecentlyViewedProducts();
+
+          if (productIds.length > 0) {
+            // Fetch full product details for each ID
+            const products = await Promise.all(
+              productIds.map(fetchProductById)
+            );
+            setRecentlyViewed(products);
+          } else {
+            setRecentlyViewed([]); // Clear when no recently viewed products exist
+          }
+        } catch (error) {
+          console.error("Error fetching recently viewed products:", error);
+        } finally {
+          setLoadingRecentlyViewed(false);
+        }
+      };
+
+      fetchRecentlyViewed();
+    }, [])
+  );
 
   const handleLogout = async () => {
     try {
@@ -208,6 +243,39 @@ const AccountScreen = () => {
         </View>
         <View style={styles.lowerContainer}>
           <Text style={styles.lowerText}>Recently Viewed</Text>
+
+          {loadingRecentlyViewed ? (
+            <Text style={styles.noProductsText}>Loading...</Text>
+          ) : recentlyViewed.length === 0 ? (
+            <Text style={styles.noProductsText}>
+              No recently viewed products.
+            </Text>
+          ) : (
+            <FlatList
+              data={recentlyViewed}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.recentlyViewedScroll}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={{ width: 150, marginRight: 10 }}
+                  onPress={() =>
+                    navigation.navigate("Product", { product: item })
+                  }
+                >
+                  <ProductCard
+                    image={
+                      item.images.edges[0]?.node.src ||
+                      "https://via.placeholder.com/100"
+                    }
+                    name={item.title || "No Name"}
+                    price={item.variants.edges[0].node.price.amount || "N/A"}
+                  />
+                </TouchableOpacity>
+              )}
+            />
+          )}
         </View>
       </ScrollView>
     </View>
@@ -303,10 +371,24 @@ const styles = StyleSheet.create({
   },
   lowerContainer: {
     marginTop: 30,
+    height: "100%",
   },
   lowerText: {
     fontFamily: "Futura-Medium",
     fontSize: 18,
+  },
+  recentlyViewedScroll: {
+    marginTop: 10,
+    paddingHorizontal: 10,
+  },
+  noProductsText: {
+    textAlign: "center",
+    color: "#888",
+    marginTop: 170,
+  },
+  loadingText: {
+    textAlign: "center",
+    color: "#666",
   },
 });
 
