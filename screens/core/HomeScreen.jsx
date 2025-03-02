@@ -6,8 +6,7 @@ import { useCart } from "../../context/CartContext";
 import { fetchAllProductsCollection, fetchCollections } from "../../api/shopifyApi";
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
-
-const { width, height } = Dimensions.get("window");
+import NewsScreen from "../homeTabViews/NewsScreen";
 
 const ForYou = () => (
   <ScrollView style={[styles.container]} >
@@ -16,11 +15,6 @@ const ForYou = () => (
       </Text>
   </ScrollView>
 );
-
-const News = () => (
-  <ScrollView style={[styles.container]} >
-  </ScrollView>
-)
 
 class HomeScreen extends Component {
   // const navigation = useNavigation();
@@ -37,8 +31,8 @@ class HomeScreen extends Component {
     this.state = {
       index: 0,
       routes: [
+        { key: "news", title: "NEWS" },
         { key: "forYou", title: "FOR YOU" },
-        { key: "news", title: "NEWS" }
       ],
     };
   }
@@ -69,8 +63,6 @@ class HomeScreen extends Component {
               <Animated.Text style={[styles.tabText, { opacity }]}>
                 {route.title}
               </Animated.Text>
-
-              {/* Red Line for Active Tab */}
               {this.state.index === i && <View style={styles.activeTabLine} />}
             </TouchableOpacity>
           );
@@ -80,8 +72,8 @@ class HomeScreen extends Component {
   };
 
   _renderScene = SceneMap({
+    news: NewsScreen,
     forYou: ForYou,
-    news: News,
   });
 
   render() {
@@ -101,7 +93,7 @@ class HomeScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    //backgroundColor: "#ffffff",
   },
   tabBar: {
     flexDirection: "row",
