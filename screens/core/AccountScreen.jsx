@@ -100,9 +100,15 @@ const AccountScreen = () => {
     try {
       await AsyncStorage.removeItem("shopifyAccessToken");
       await AsyncStorage.removeItem("accessTokenExpiry");
+
       console.log("User logged out.");
       setModalVisible(false);
-      navigation.replace("Login"); // Redirect to login screen after logout
+
+      // Navigate back to the ACCOUNT tab, which will show the Login screen
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "ACCOUNT" }],
+      });
     } catch (error) {
       console.error("Error during logout:", error);
     }
@@ -121,7 +127,7 @@ const AccountScreen = () => {
           <Text style={styles.modalText}>
             Are you sure you want to log out?
           </Text>
-          <View style={styles.buttonContainer}>
+          <View style={styles.modalButtonContainer}>
             <RoundedBox
               isFilled={true}
               fillColor="transparent"
@@ -169,8 +175,19 @@ const AccountScreen = () => {
         {/* button Containers */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity
-            onPress={() => {
-              navigation.navigate("OrdersScreen"); // Navigate to Join VIP screen
+            onPress={async () => {
+              const accessToken = await AsyncStorage.getItem(
+                "shopifyAccessToken"
+              );
+              console.log(
+                "Access token being passed to OrdersScreen:",
+                accessToken
+              );
+              if (accessToken) {
+                navigation.navigate("OrdersScreen", { accessToken });
+              } else {
+                console.log("Access token not found.");
+              }
             }}
             style={styles.topButtonContainer}
           >
@@ -235,8 +252,8 @@ const AccountScreen = () => {
             }}
           >
             <View style={styles.leftSide}>
-              <Ionicons name="newspaper-outline" size={24} color="#000" />
-              <Text style={styles.buttonText}>PRIVACY POLICY</Text>
+              <Ionicons name="car-outline" size={24} color="#000" />
+              <Text style={styles.buttonText}>CAR SHOWS</Text>
             </View>
             <Ionicons name="chevron-forward-outline" size={24} color="#000" />
           </TouchableOpacity>
@@ -310,7 +327,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: "Futura-Bold",
   },
-
+  modalButtonContainer: {
+    marginTop: 20,
+    display: "flex",
+    gap: 10,
+    flexDirection: "row",
+  },
   buttonContainer: {
     marginTop: 20,
     backgroundColor: "#fff", // Ensure background is set for shadow visibility
@@ -319,7 +341,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 }, // Shadow position
     shadowOpacity: 0.15, // Shadow transparency
     shadowRadius: 5, // Shadow blur
-    elevation: 4, // For Android shadows
   },
 
   buttonText: {

@@ -25,6 +25,7 @@ import JoinVIPScreen from "./screens/vip/JoinVIPScreen";
 
 import PrivacyPolicyScreen from "./screens/account/PrivacyPolicyScreen";
 import OrdersScreen from "./screens/account/OrdersScreen";
+import OrderConfirmationScreen from "./screens/shopflow/OrderConfirmationScreen";
 
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
@@ -346,9 +347,9 @@ function AccountStack() {
       <Stack.Screen
         name="OrdersScreen"
         component={OrdersScreen}
-        options={() => ({
-          headerShown: true,
-          headerBackTitleVisible: true,
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          title: "Order History",
         })}
       />
       <Stack.Screen
@@ -358,6 +359,14 @@ function AccountStack() {
           headerShown: true,
           headerBackTitleVisible: true,
         })}
+      />
+      <Stack.Screen
+        name="OrderConfirmationScreen"
+        component={OrderConfirmationScreen}
+        options={{
+          headerTitle: "Order Confirmation",
+          headerBackTitle: "Back",
+        }}
       />
     </Stack.Navigator>
   );

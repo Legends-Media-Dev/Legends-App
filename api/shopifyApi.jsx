@@ -43,6 +43,9 @@ const CLOUD_FUNCTION_URL_UFP =
 const CLOUD_FUNCTION_URL_FPBI =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchProductByIdHandler";
 
+const CLOUD_FUNCTION_URL_FACO =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllCustomerOrdersHandler";
+
 /**
  * Fetch Collections
  */
@@ -358,6 +361,33 @@ export const fetchProductById = async (productId) => {
   } catch (error) {
     console.error(
       "Error fetching product by ID via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+/**
+ * Fetch All Orders for a Specific Customer
+ */
+export const fetchAllCustomerOrders = async (accessToken) => {
+  try {
+    if (!accessToken) throw new Error("Missing accessToken parameter");
+
+    console.log("Access token being sent to Cloud Function:", accessToken);
+
+    // Call the Cloud Function with accessToken in the request body (POST)
+    const response = await axios.post(CLOUD_FUNCTION_URL_FACO, {
+      accessToken, // Send in body, not as query params
+    });
+
+    console.log("fetchAllCustomerOrders response:", response.data);
+
+    // Return the customer orders
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching all customer orders via Cloud Function:",
       error.response?.data || error.message
     );
     throw error;

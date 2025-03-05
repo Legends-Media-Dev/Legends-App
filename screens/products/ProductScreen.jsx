@@ -169,7 +169,7 @@ const ProductScreen = ({ route }) => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="medium" color="#000" />
       </View>
     );
   }
