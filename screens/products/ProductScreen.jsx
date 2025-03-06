@@ -15,6 +15,8 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useCart } from "../../context/CartContext"; // Import CartContext
 const { width } = Dimensions.get("window");
 
+import { addRecentlyViewedProduct } from "../../utils/storage";
+
 const ProductScreen = ({ route }) => {
   const { addItemToCart } = useCart();
   const { product } = route.params;
@@ -53,8 +55,12 @@ const ProductScreen = ({ route }) => {
       }, remainingTime);
     });
 
+    if (product?.id) {
+      addRecentlyViewedProduct(product.id);
+    }
+
     return () => clearTimeout(timer);
-  }, [photos]);
+  }, [photos, product]);
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => {
@@ -163,7 +169,7 @@ const ProductScreen = ({ route }) => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#000" />
+        <ActivityIndicator size="medium" color="#000" />
       </View>
     );
   }

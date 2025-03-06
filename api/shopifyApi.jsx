@@ -40,6 +40,12 @@ const CLOUD_FUNCTION_URL_FCD =
 const CLOUD_FUNCTION_URL_UFP =
   "https://us-central1-premier-ikon.cloudfunctions.net/customerRecoverHandler";
 
+const CLOUD_FUNCTION_URL_FPBI =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchProductByIdHandler";
+
+const CLOUD_FUNCTION_URL_FACO =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllCustomerOrdersHandler";
+
 /**
  * Fetch Collections
  */
@@ -333,5 +339,57 @@ export const forgotPassword = async (email) => {
     throw new Error(
       error.response?.data?.error || "Failed to send recovery email."
     );
+  }
+};
+
+/**
+ * Fetch Product by ID
+ */
+export const fetchProductById = async (productId) => {
+  try {
+    if (!productId) throw new Error("Missing productId parameter");
+
+    // Call the Cloud Function with productId as a query parameter
+    const response = await axios.get(CLOUD_FUNCTION_URL_FPBI, {
+      params: { productId },
+    });
+
+    console.log("fetchProductById response:", response.data);
+
+    // Return the product details
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching product by ID via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+/**
+ * Fetch All Orders for a Specific Customer
+ */
+export const fetchAllCustomerOrders = async (accessToken) => {
+  try {
+    if (!accessToken) throw new Error("Missing accessToken parameter");
+
+    console.log("Access token being sent to Cloud Function:", accessToken);
+
+    // Call the Cloud Function with accessToken in the request body (POST)
+    const response = await axios.post(CLOUD_FUNCTION_URL_FACO, {
+      accessToken, // Send in body, not as query params
+    });
+
+    console.log("fetchAllCustomerOrders response:", response.data);
+
+    // Return the customer orders
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching all customer orders via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
   }
 };

@@ -20,6 +20,13 @@ import LoginScreen from "./screens/authentication/LoginScreen";
 import SignUpScreen from "./screens/authentication/SignUpScreen";
 import ForgotPasswordScreen from "./screens/authentication/ForgotPasswordScreen";
 
+import VIPPortalScreen from "./screens/vip/VIPPortalScreen";
+import JoinVIPScreen from "./screens/vip/JoinVIPScreen";
+
+import PrivacyPolicyScreen from "./screens/account/PrivacyPolicyScreen";
+import OrdersScreen from "./screens/account/OrdersScreen";
+import OrderConfirmationScreen from "./screens/shopflow/OrderConfirmationScreen";
+
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
 import AppLoading from "expo-app-loading";
@@ -312,6 +319,54 @@ function AccountStack() {
         options={() => ({
           headerShown: false,
         })}
+      />
+      <Stack.Screen
+        name="JoinVIPScreen"
+        component={JoinVIPScreen}
+        options={() => ({
+          headerShown: true,
+          headerBackTitle: "",
+        })}
+      />
+      <Stack.Screen
+        name="VIPPortalScreen"
+        component={VIPPortalScreen}
+        options={() => ({
+          headerShown: true,
+          headerBackTitleVisible: true,
+        })}
+      />
+      <Stack.Screen
+        name="SweepstakesScreen"
+        component={SweepstakesScreen}
+        options={() => ({
+          headerShown: true,
+          headerBackTitleVisible: true,
+        })}
+      />
+      <Stack.Screen
+        name="OrdersScreen"
+        component={OrdersScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          title: "Order History",
+        })}
+      />
+      <Stack.Screen
+        name="PrivacyPolicyScreen"
+        component={PrivacyPolicyScreen}
+        options={() => ({
+          headerShown: true,
+          headerBackTitleVisible: true,
+        })}
+      />
+      <Stack.Screen
+        name="OrderConfirmationScreen"
+        component={OrderConfirmationScreen}
+        options={{
+          headerTitle: "",
+          headerBackTitle: "",
+        }}
       />
     </Stack.Navigator>
   );
