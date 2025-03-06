@@ -364,8 +364,8 @@ function AccountStack() {
         name="OrderConfirmationScreen"
         component={OrderConfirmationScreen}
         options={{
-          headerTitle: "Order Confirmation",
-          headerBackTitle: "Back",
+          headerTitle: "",
+          headerBackTitle: "",
         }}
       />
     </Stack.Navigator>
