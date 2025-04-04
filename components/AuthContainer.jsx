@@ -9,7 +9,7 @@ import {
 } from "react-native";
 
 const AuthInput = ({
-  width = 386,
+  width = "100%",
   height = 50,
   borderColor = "#ccc",
   borderWidth = 1,
