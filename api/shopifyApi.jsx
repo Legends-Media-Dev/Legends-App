@@ -7,6 +7,9 @@ const CLOUD_FUNCTION_URL_FC =
 const CLOUD_FUNCTION_URL_FAPC =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllProductsCollectionHandler";
 
+  const CLOUD_FUNCTION_URL_FAPCA =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllProductsCollectionHandlerAdmin";
+
 const CLOUD_FUNCTION_URL_CC =
   "https://us-central1-premier-ikon.cloudfunctions.net/createCartHandler";
 
@@ -85,6 +88,37 @@ export const fetchAllProductsCollection = async (
     throw error;
   }
 };
+
+/**
+ * Fetch Products in a Collection (Admin API version)
+ */
+export const fetchAllProductsCollectionAdmin = async (
+  handle,
+  cursor = null
+) => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_FAPCA, {
+      params: {
+        handle,
+        cursor,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    // Enhanced error logging
+    if (error.response) {
+      console.error("❌ Backend responded with error:", error.response.status);
+      console.error("🛑 Error details:", error.response.data);
+    } else {
+      console.error("❌ Network or unknown error:", error.message);
+    }
+    throw error;
+  }
+};
+
+
+
 
 /**
  * Create a New Cart

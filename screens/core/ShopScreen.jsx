@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import {
   fetchCollections,
-  fetchAllProductsCollection,
+  fetchAllProductsCollectionAdmin,
 } from "../../api/shopifyApi";
 import { FlatList } from "react-native-gesture-handler";
 
@@ -35,23 +35,27 @@ const ShopScreen = () => {
     getCollections();
   }, []);
 
-  const handleCollectionPress = async (collectionId, title) => {
+  console.log(collections)
+
+  const handleCollectionPress = async (handle, title) => {
+    console.log(handle)
     try {
-      const data = await fetchAllProductsCollection(collectionId); // Fetch products for the collection
+      const data = await fetchAllProductsCollectionAdmin(handle); // Uses Admin API
+  
       navigation.navigate("Collection", {
-        collectionId,
+        handle,
         title,
-        products: data.products.edges.map((edge) => edge.node), // Pass products to CollectionScreen
+        products: data.products,
       });
     } catch (error) {
       console.error("Error fetching collection products:", error);
     }
   };
-
+  
   const renderCollectionItem = ({ item }) => (
     <TouchableOpacity
       style={styles.collectionItem}
-      onPress={() => handleCollectionPress(item.id, item.title)}
+      onPress={() => handleCollectionPress(item.handle, item.title)}
     >
       <Text style={styles.collectionText}>{item.title || "No Title"}</Text>
     </TouchableOpacity>
