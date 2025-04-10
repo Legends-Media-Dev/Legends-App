@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -35,13 +36,11 @@ const ShopScreen = () => {
     getCollections();
   }, []);
 
-  console.log(collections)
-
   const handleCollectionPress = async (handle, title) => {
-    console.log(handle)
+    console.log(handle);
     try {
       const data = await fetchAllProductsCollectionAdmin(handle); // Uses Admin API
-  
+
       navigation.navigate("Collection", {
         handle,
         title,
@@ -51,15 +50,25 @@ const ShopScreen = () => {
       console.error("Error fetching collection products:", error);
     }
   };
-  
-  const renderCollectionItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.collectionItem}
-      onPress={() => handleCollectionPress(item.handle, item.title)}
-    >
-      <Text style={styles.collectionText}>{item.title || "No Title"}</Text>
-    </TouchableOpacity>
-  );
+
+  const renderCollectionItem = ({ item }) => {
+    console.log("Rendering collection item:", item);
+
+    return (
+      <TouchableOpacity
+        style={styles.collectionItem}
+        onPress={() => {
+          if (item.handle && item.title) {
+            handleCollectionPress(item.handle, item.title);
+          } else {
+            console.warn("Missing handle or title:", item);
+          }
+        }}
+      >
+        <Text style={styles.collectionText}>{item.title || "No Title"}</Text>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (

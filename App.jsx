@@ -75,7 +75,11 @@ function MainStack() {
     <Stack.Navigator
       initialRouteName="MainScreen"
       screenOptions={{
-        headerStyle: { backgroundColor: "#fff", elevation: 0, shadowColor: "transparent"},
+        headerStyle: {
+          backgroundColor: "#fff",
+          elevation: 0,
+          shadowColor: "transparent",
+        },
         headerTintColor: "#000",
         headerTitleStyle: { fontWeight: "bold" },
         headerBackTitleVisible: false,
@@ -132,7 +136,11 @@ function ShopStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: "#fff", elevation: 0, shadowColor: "transparent"},
+        headerStyle: {
+          backgroundColor: "#fff",
+          elevation: 0,
+          shadowColor: "transparent",
+        },
         headerTintColor: "#000",
         headerTitleStyle: { fontWeight: "bold" },
         headerBackTitleVisible: false,
@@ -207,7 +215,11 @@ function SweepstakesStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: "#fff", elevation: 0, shadowColor: "transparent"},
+        headerStyle: {
+          backgroundColor: "#fff",
+          elevation: 0,
+          shadowColor: "transparent",
+        },
         headerTintColor: "#000",
         headerTitleStyle: { fontWeight: "bold" },
         headerBackTitleVisible: false,
