@@ -4,10 +4,13 @@ import axios from "axios";
 const CLOUD_FUNCTION_URL_FC =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchCollectionsHandler";
 
+const CLOUD_FUNCTION_URL_FCBH =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchCollectionByHandleHandler";
+
 const CLOUD_FUNCTION_URL_FAPC =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllProductsCollectionHandler";
 
-  const CLOUD_FUNCTION_URL_FAPCA =
+const CLOUD_FUNCTION_URL_FAPCA =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllProductsCollectionHandlerAdmin";
 
 const CLOUD_FUNCTION_URL_CC =
@@ -65,6 +68,18 @@ export const fetchCollections = async () => {
   }
 };
 
+export const fetchCollectionByHandle = async (handle) => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_FCBH, {
+      params: { handle },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching collection by handle:", error);
+    throw error;
+  }
+};
+
 /**
  * Fetch Products in a Collection
  */
@@ -116,9 +131,6 @@ export const fetchAllProductsCollectionAdmin = async (
     throw error;
   }
 };
-
-
-
 
 /**
  * Create a New Cart

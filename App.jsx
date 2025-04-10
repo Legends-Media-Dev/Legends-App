@@ -111,6 +111,24 @@ function MainStack() {
         }}
       />
       <Stack.Screen
+        name="Collection"
+        component={CollectionScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+              <Ionicons
+                name="bag-outline"
+                size={24}
+                color="#000"
+                style={{ marginRight: 30 }}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
         name="Product"
         component={ProductScreen}
         options={{
