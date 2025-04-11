@@ -38,7 +38,7 @@ const CollectionScreen = ({ route, navigation }) => {
     console.log(item.variants.edges);
     return (
       <TouchableOpacity
-        style={{ width: "50%" }}
+        style={styles.productWrapper}
         onPress={() => navigation.navigate("Product", { product: item })}
       >
         <ProductCard
@@ -93,7 +93,12 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     paddingBottom: 16,
-    paddingTop: 0, // Prevent any unintended padding
+    paddingTop: 0,
+  },
+  productWrapper: {
+    width: width / 2,
+    height: height / 2.5,
+    padding: 8,
   },
 });
 

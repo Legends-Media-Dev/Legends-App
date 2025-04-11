@@ -1,0 +1,132 @@
+import React, { useState, useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  ScrollView,
+} from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
+import ProductCard from "../../components/ProductCard";
+import { getRecentlyViewedProducts } from "../../utils/storage";
+import { fetchProductById } from "../../api/shopifyApi";
+
+const ForYouScreen = () => {
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchRecentlyViewed = async () => {
+        try {
+          setLoading(true);
+          const productIds = await getRecentlyViewedProducts();
+
+          if (productIds.length > 0) {
+            const products = await Promise.all(
+              productIds.map(fetchProductById)
+            );
+            setRecentlyViewed(products);
+          } else {
+            setRecentlyViewed([]);
+          }
+        } catch (error) {
+          console.error("Error fetching recently viewed products:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchRecentlyViewed();
+
+      // TODO: Fetch "New Drops" from Shopify collection when ready
+      // const fetchNewDrops = async () => { ... }
+
+    }, [])
+  );
+
+  return (
+    <ScrollView style={styles.container}>
+      <Text style={styles.subheading}>Recently Viewed</Text>
+      {loading ? (
+        <Text style={styles.loadingText}>Loading...</Text>
+      ) : recentlyViewed.length === 0 ? (
+        <Text style={styles.noProductsText}>
+          No recently viewed products yet.
+        </Text>
+      ) : (
+        <FlatList
+          data={recentlyViewed.filter(Boolean)}
+          keyExtractor={(item) => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.productList}
+          renderItem={({ item }) => {
+            const variant = item.variants.edges[0]?.node;
+            const price = parseFloat(variant?.price.amount || 0).toFixed(2);
+            const compareAt = variant?.compareAtPrice?.amount
+              ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
+              : null;
+
+            return (
+              <TouchableOpacity
+                style={{ width: 160, marginRight: 12 }}
+                onPress={() =>
+                  navigation.navigate("Product", { product: item })
+                }
+              >
+                <ProductCard
+                  image={
+                    item.images.edges[0]?.node.src ||
+                    "https://via.placeholder.com/100"
+                  }
+                  name={item.title || "No Name"}
+                  price={price}
+                  compareAtPrice={compareAt}
+                />
+              </TouchableOpacity>
+            );
+          }}
+        />
+      )}
+
+      {/* TODO: Add "New Drops" section here once API call is ready */}
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    paddingHorizontal: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: "Futura-Bold",
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  subheading: {
+    fontSize: 18,
+    fontFamily: "Futura-Medium",
+    marginTop: 10,
+  },
+  loadingText: {
+    fontSize: 14,
+    color: "#888",
+  },
+  noProductsText: {
+    fontSize: 14,
+    color: "#888",
+    marginTop: 10,
+  },
+  productList: {
+    paddingBottom: 20,
+  },
+});
+
+export default ForYouScreen;

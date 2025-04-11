@@ -6,54 +6,56 @@ const { height } = Dimensions.get("window");
 const ProductCard = ({ image, name, price }) => {
   return (
     <View style={styles.card}>
-      {/* Product Image */}
       <View style={styles.imageContainer}>
         <Image source={{ uri: image }} style={styles.image} />
       </View>
-
-      {/* Product Name */}
-      <Text style={styles.productName}>{name}</Text>
-
-      {/* Product Price */}
-      <Text style={styles.productPrice}>${parseFloat(price).toFixed(2)}</Text>
+      
+      <View style={styles.textContainer}>
+        <Text numberOfLines={2} style={styles.productName}>
+          {name}
+        </Text>
+        <Text style={styles.productPrice}>${parseFloat(price).toFixed(2)}</Text>
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   card: {
-    // width: "45%",
-    shadowColor: "#000", 
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-    margin: 10,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "flex-start",
+    paddingVertical: 12,
   },
   imageContainer: {
-    position: "relative",
-    width: "100%",
-    height: 160,
-    overflow: "hidden",
+    width: "90%",
+    height: 180,
+    marginBottom: 10,
   },
   image: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
+    resizeMode: "contain",
+  },
+  textContainer: {
+    width: "90%",
   },
   productName: {
     textAlign: "left",
-    fontSize: 11,
+    fontSize: 12,
     fontFamily: "Futura-Bold",
-    padding: 10,
+    paddingHorizontal: 8,
+    color: "#000000",
+    textTransform: "uppercase",
+    lineHeight: 16,
   },
   productPrice: {
+    marginTop: 5,
     textAlign: "left",
-    fontSize: 10,
-    fontFamily: "Futura-Medium",
-    color: "#A09E9E",
-    paddingHorizontal: 10,
-    paddingBottom: 10,
+    fontSize: 12,
+    fontFamily: "Futura-Regular",
+    paddingHorizontal: 8,
+    color: "#6E6E6E",
   },
 });
 

@@ -7,14 +7,7 @@ import { fetchAllProductsCollection, fetchCollections } from "../../api/shopifyA
 import { useNavigation } from "@react-navigation/native";
 import { ScrollView } from "react-native-gesture-handler";
 import NewsScreen from "../homeTabViews/NewsScreen";
-
-const ForYou = () => (
-  <ScrollView style={[styles.container]} >
-      <Text>
-        Hello
-      </Text>
-  </ScrollView>
-);
+import ForYouScreen from "../homeTabViews/ForYouScreen";
 
 class HomeScreen extends Component {
   // const navigation = useNavigation();
@@ -43,37 +36,40 @@ class HomeScreen extends Component {
 
   _renderTabBar = (props) => {
     const inputRange = props.navigationState.routes.map((x, i) => i);
-
+  
     return (
-      <View style={styles.tabBar}>
-        {props.navigationState.routes.map((route, i) => {
-          const opacity = props.position.interpolate({
-            inputRange,
-            outputRange: inputRange.map((inputIndex) =>
-              inputIndex === i ? 1 : 0.5
-            ),
-          });
-
-          return (
-            <TouchableOpacity
-              key={route.key}
-              style={styles.tabItem}
-              onPress={() => this.setState({ index: i })}
-            >
-              <Animated.Text style={[styles.tabText, { opacity }]}>
-                {route.title}
-              </Animated.Text>
-              {this.state.index === i && <View style={styles.activeTabLine} />}
-            </TouchableOpacity>
-          );
-        })}
+      <View style={styles.tabBarContainer}>
+        <View style={styles.tabBarLine}/>
+        <View style={styles.tabBar}>
+          {props.navigationState.routes.map((route, i) => {
+            const opacity = props.position.interpolate({
+              inputRange,
+              outputRange: inputRange.map((inputIndex) =>
+                inputIndex === i ? 1 : 0.5
+              ),
+            });
+  
+            return (
+              <TouchableOpacity
+                key={route.key}
+                style={styles.tabItem}
+                onPress={() => this.setState({ index: i })}
+              >
+                <Animated.Text style={[styles.tabText, { opacity }]}>
+                  {route.title}
+                </Animated.Text>
+                {this.state.index === i && <View style={styles.activeTabLine} />}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
     );
-  };
+  };  
 
   _renderScene = SceneMap({
     news: NewsScreen,
-    forYou: ForYou,
+    forYou: ForYouScreen,
   });
 
   render() {
@@ -93,12 +89,6 @@ class HomeScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    //backgroundColor: "#ffffff",
-  },
-  tabBar: {
-    flexDirection: "row",
-    backgroundColor: "#ffffff",
-    paddingTop: StatusBar.currentHeight,
   },
   tabItem: {
     flex: 1,
@@ -109,15 +99,32 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontFamily: "Futura-Medium",
   },
+  tabBarContainer: {
+    backgroundColor: "#fff",
+  },
+  tabBarLine: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 1,
+    backgroundColor: "#e0e0e0", // light grey line
+    zIndex: 0,
+  },
+  tabBar: {
+    flexDirection: "row",
+    paddingTop: StatusBar.currentHeight,
+    position: "relative",
+    zIndex: 1, // ensures active red line appears above the grey one
+  },
   activeTabLine: {
     position: "absolute",
     bottom: 0,
     right: "10%",
     left: "10%",
-    width: "100%",
-    height: 2, 
+    height: 2,
     backgroundColor: "red",
-    //borderRadius: 2,
+    borderRadius: 1,
   },
 });
 
