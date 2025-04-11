@@ -68,17 +68,24 @@ const ProductScreen = ({ route }) => {
   };
 
   const getProductSize = (size) => {
-    if (size === "S") {
-      return "Small";
-    } else if (size === "M") {
-      return "Medium";
-    } else if (size === "L") {
+    if (!size) return null;
+
+    if (size.toLowerCase().includes("small")) return "Small";
+    if (size.toLowerCase().includes("medium")) return "Medium";
+    if (
+      size.toLowerCase().includes("large") &&
+      !size.toLowerCase().includes("x")
+    )
       return "Large";
-    } else if (size === "XL") {
+    if (
+      size.toLowerCase().includes("xlarge") &&
+      !size.toLowerCase().includes("2x")
+    )
       return "XLarge";
-    } else if (size === "2XL") {
-      return "2XLarge";
-    }
+    if (size.toLowerCase().includes("2xlarge")) return "2XLarge";
+    if (size.toLowerCase().includes("3xlarge")) return "3XLarge";
+
+    return size;
   };
 
   const handleAddToCart = async () => {
@@ -99,6 +106,7 @@ const ProductScreen = ({ route }) => {
   };
 
   const extractSizes = (variantsEdges) => {
+    console.log(variantsEdges);
     return variantsEdges.map((edge, index) => {
       const sizeOption = edge.node.selectedOptions.find(
         (option) => option.name === "Size" || option.name === "Title"
@@ -113,6 +121,7 @@ const ProductScreen = ({ route }) => {
   };
 
   const sizes = extractSizes(product.variants.edges);
+  console.log(sizes);
   const [selectedSize, setSelectedSize] = useState(() => {
     const firstAvailable = sizes.find((size) => size.available);
     return firstAvailable ? firstAvailable.label : null;
@@ -210,23 +219,18 @@ const ProductScreen = ({ route }) => {
       {/* Product Details */}
       <View style={styles.detailsContainer}>
         <View style={{ padding: 20, paddingBottom: 5 }}>
-          {!product.variants.edges[0].node.availableForSale ? (
+          {!product.variants.edges.some((v) => v.node.availableForSale) ? (
             <Text style={styles.productSoldOutTitle}>SOLD OUT</Text>
           ) : null}
+
           <Text style={styles.productTitle}>{product.title}</Text>
           <View style={styles.priceContainer}>
             <Text style={styles.currentPrice}>
-              $
-              {parseFloat(product.variants.edges[0].node.price.amount).toFixed(
-                2
-              )}
+              ${product.variants.edges[0]?.node.price || "N/A"}
             </Text>
             {product.variants.edges[0].node.compareAtPrice ? (
               <Text style={styles.originalPrice}>
-                $
-                {parseFloat(
-                  product.variants.edges[0].node.compareAtPrice.amount
-                ).toFixed(2)}
+                $ {product.variants.edges[0]?.node.compareAtPrice || "N/A"}
               </Text>
             ) : null}
           </View>
@@ -308,13 +312,16 @@ const ProductScreen = ({ route }) => {
               style={[
                 styles.addToBagButton,
                 {
-                  backgroundColor: !product.variants.edges[0].node
-                    .availableForSale
-                    ? "grey"
-                    : "black",
+                  backgroundColor: product.variants.edges.some(
+                    (v) => v.node.availableForSale
+                  )
+                    ? "black"
+                    : "grey",
                 },
               ]}
-              disabled={!product.variants.edges[0].node.availableForSale} // Disable button if sold out
+              disabled={
+                !product.variants.edges.some((v) => v.node.availableForSale)
+              }
               onPress={handleAddToCart}
             >
               <Text style={styles.addToBagText}>Add to cart</Text>

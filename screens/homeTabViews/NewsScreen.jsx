@@ -53,8 +53,9 @@ const NewsScreen = () => {
         <View style={styles.contentWrapper}>
           <ContentBox
             topTitle="MORE PERKS? SAY LESS. JOIN VIP."
-            topColor="#E64A19"
+            image={require("../../assets/vip-background.png")}
             screenName="JoinVIPScreen"
+            handle="vip"
           />
         </View>
       </View>
@@ -80,7 +81,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   contentContainer: {
-    gap: 4,
+    gap: 5,
   },
   contentWrapper: {
     paddingLeft: 5,

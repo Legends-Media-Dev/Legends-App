@@ -1,20 +1,26 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ImageBackground,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { fetchAllProductsCollectionAdmin } from "../api/shopifyApi"; // only needed if you're navigating to a Collection screen
+import { fetchAllProductsCollectionAdmin } from "../api/shopifyApi";
 
 const ContentBox = ({
   topTitle,
   topColor = "#4CAF50",
   screenName,
   handle = null,
+  image = null,
 }) => {
   const navigation = useNavigation();
 
   const handlePress = async () => {
     try {
       if (handle) {
-        // Navigate to a collection screen and pass the products
         const data = await fetchAllProductsCollectionAdmin(handle);
         navigation.navigate("Collection", {
           handle,
@@ -22,7 +28,6 @@ const ContentBox = ({
           products: data.products,
         });
       } else {
-        // Navigate normally if no handle
         navigation.navigate(screenName);
       }
     } catch (error) {
@@ -36,9 +41,23 @@ const ContentBox = ({
       onPress={handlePress}
       activeOpacity={0.99}
     >
-      <View style={[styles.box, { backgroundColor: topColor }]}>
-        <Text style={styles.title}>{topTitle}</Text>
-      </View>
+      {image ? (
+        <ImageBackground
+          source={typeof image === "string" ? { uri: image } : image}
+          style={styles.imageBox}
+          imageStyle={styles.imageStyle}
+        >
+          <View style={styles.overlay}>
+            <View style={styles.overlayContent}>
+              <Text style={styles.title}>{topTitle}</Text>
+            </View>
+          </View>
+        </ImageBackground>
+      ) : (
+        <View style={[styles.imageBox, { backgroundColor: topColor }]}>
+          <Text style={styles.title}>{topTitle}</Text>
+        </View>
+      )}
     </TouchableOpacity>
   );
 };
@@ -46,17 +65,25 @@ const ContentBox = ({
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    alignItems: "center",
-    justifyContent: "center",
   },
-  box: {
+  imageBox: {
     width: "100%",
     height: 160,
-    justifyContent: "flex-end",
-    alignItems: "flex-start",
-    padding: 16,
-    marginTop: 2,
     borderRadius: 10,
+    overflow: "hidden",
+    justifyContent: "flex-end",
+  },
+  imageStyle: {
+    resizeMode: "cover",
+    borderRadius: 10,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.3)", // Full coverage
+    justifyContent: "flex-end",
+  },
+  overlayContent: {
+    padding: 16,
   },
   title: {
     fontSize: 16,
