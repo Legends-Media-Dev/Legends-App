@@ -41,7 +41,7 @@ const CollectionScreen = ({ route, navigation }) => {
         style={styles.productWrapper}
         onPress={() => navigation.navigate("Product", { product: item })}
       >
-        <ProductCard
+        <ProductCard 
           image={
             item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
           }
@@ -97,7 +97,6 @@ const styles = StyleSheet.create({
   },
   productWrapper: {
     width: width / 2,
-    height: height / 2.5,
     padding: 8,
   },
 });
