@@ -1,20 +1,45 @@
-// components/ContentBox.jsx
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { fetchAllProductsCollectionAdmin } from "../api/shopifyApi"; // only needed if you're navigating to a Collection screen
 
-const ContentBox = ({ topTitle, bottomTitle, topColor = "#4CAF50", bottomColor = "#FF5722" }) => {
+const ContentBox = ({
+  topTitle,
+  topColor = "#4CAF50",
+  screenName,
+  handle = null,
+}) => {
+  const navigation = useNavigation();
+
+  const handlePress = async () => {
+    try {
+      if (handle) {
+        // Navigate to a collection screen and pass the products
+        const data = await fetchAllProductsCollectionAdmin(handle);
+        navigation.navigate("Collection", {
+          handle,
+          title: topTitle,
+          products: data.products,
+        });
+      } else {
+        // Navigate normally if no handle
+        navigation.navigate(screenName);
+      }
+    } catch (error) {
+      console.error("Navigation error in ContentBox:", error);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      {/* Top Box */}
-      <View style={[styles.box, {backgroundColor: topColor }]}>
-          <Text style={styles.title}>{topTitle}</Text>
+    <TouchableOpacity
+      style={styles.container}
+      onPress={handlePress}
+      activeOpacity={0.99}
+    >
+      <View style={[styles.box, { backgroundColor: topColor }]}>
+        <Text style={styles.title}>{topTitle}</Text>
       </View>
-
-      {/* Bottom Box */}
-      <View style={[styles.box, { backgroundColor: bottomColor }]}>
-        <Text style={styles.title}>{bottomTitle}</Text>
-      </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -30,11 +55,12 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "flex-start",
     padding: 16,
-    marginVertical: 2,
+    marginTop: 2,
+    borderRadius: 10,
   },
   title: {
     fontSize: 16,
-    fontWeight: "600",
+    fontFamily: "Futura-Bold",
     color: "#fff",
   },
 });

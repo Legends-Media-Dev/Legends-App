@@ -52,6 +52,9 @@ const CLOUD_FUNCTION_URL_FPBI =
 const CLOUD_FUNCTION_URL_FACO =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllCustomerOrdersHandler";
 
+  const CLOUD_FUNCTION_URL_FMRY =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchLatestYouTubeVideoHandler";
+
 /**
  * Fetch Collections
  */
@@ -76,6 +79,20 @@ export const fetchCollectionByHandle = async (handle) => {
     return response.data;
   } catch (error) {
     console.error("Error fetching collection by handle:", error);
+    throw error;
+  }
+};
+
+
+/**
+ * Fetch the latest full-length YouTube video
+ */
+export const fetchLatestYouTubeVideo = async () => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_FMRY);
+    return response.data; // { videoId, title, thumbnail, publishedAt }
+  } catch (error) {
+    console.error("Error fetching YouTube video from Cloud Function:", error);
     throw error;
   }
 };

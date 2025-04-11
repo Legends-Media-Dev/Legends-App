@@ -90,7 +90,7 @@ const HeroImage = ({
   title,
   subtitle,
   backgroundColor = "#000000",
-  collectionHandle = "new-release",
+  collectionHandle,
 }) => {
   const navigation = useNavigation();
   const [image, setImage] = useState(null);

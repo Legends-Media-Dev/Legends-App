@@ -1,33 +1,70 @@
-import React from "react";
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  Linking,
-  ImageBackground,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import HeroImage from "../../components/HeroImage";
 import ContentBox from "../../components/ContentBox";
+import YoutubeContentBox from "../../components/YoutubeContentBox";
+import { fetchLatestYouTubeVideo } from "../../api/shopifyApi"; // ✅ Make sure this is the correct path
 
 const NewsScreen = () => {
+  const [latestVideo, setLatestVideo] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadVideo = async () => {
+      try {
+        const data = await fetchLatestYouTubeVideo();
+        setLatestVideo(data);
+      } catch (err) {
+        console.error("Failed to load video:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadVideo();
+  }, []);
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* 🔹 Hero Banner */}
-      <HeroImage
-        title="THE NEW RELEASE IS LIVE!"
-        subtitle="YOUR NEXT FAVORITE PIECES JUST DROPPED. GET IT BEFORE IT'S GONE!"
-        backgroundColor="#D32F2F"
-      />
+      <View style={styles.topHero}>
+        <HeroImage
+          title="THE NEW RELEASE IS LIVE!"
+          subtitle="YOUR NEXT FAVORITE PIECES JUST DROPPED. GET IT BEFORE IT'S GONE!"
+          backgroundColor="#D32F2F"
+          collectionHandle="new-release"
+        />
+      </View>
 
-      {/* 🔹 News Content Boxes */}
-      <View style={styles.contentWrapper}>
-        <ContentBox
-          topTitle="GHOST® ENERGY 'PEACHES' SECURE A CAN"
-          bottomTitle="GHOST® APPAREL 'KNITS' LOOKBOOK"
-          topColor="#E64A19"
-          bottomColor="#263238"
+      {/* 🔹 Latest YouTube Video Box */}
+      <View style={styles.contentContainer}>
+        <View style={styles.contentWrapper}>
+          {loading ? (
+            <ActivityIndicator />
+          ) : latestVideo ? (
+            <YoutubeContentBox
+              topTitle={latestVideo.title}
+              thumbnail={latestVideo.thumbnail}
+              videoId={latestVideo.videoId} // 👈 Pass the YouTube video ID here
+            />
+          ) : null}
+        </View>
+
+        <View style={styles.contentWrapper}>
+          <ContentBox
+            topTitle="MORE PERKS? SAY LESS. JOIN VIP."
+            topColor="#E64A19"
+            screenName="JoinVIPScreen"
+          />
+        </View>
+      </View>
+
+      <View style={styles.lowerHero}>
+        <HeroImage
+          title="THE NEW RELEASE IS LIVE!"
+          subtitle="YOUR NEXT FAVORITE PIECES JUST DROPPED. GET IT BEFORE IT'S GONE!"
+          backgroundColor="#D32F2F"
+          collectionHandle="tshirts"
         />
       </View>
     </ScrollView>
@@ -39,9 +76,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FAFAFA",
   },
+  topHero: {
+    marginBottom: 10,
+  },
+  contentContainer: {
+    gap: 4,
+  },
   contentWrapper: {
-    padding: 4,
-    gap: 15, // Space between content boxes
+    paddingLeft: 5,
+    paddingRight: 5,
+  },
+  lowerHero: {
+    marginTop: 10,
   },
 });
 

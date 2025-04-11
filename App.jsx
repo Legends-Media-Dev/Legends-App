@@ -145,6 +145,22 @@ function MainStack() {
           headerBackTitle: false,
         }}
       />
+      <Stack.Screen
+        name="JoinVIPScreen"
+        component={JoinVIPScreen}
+        options={() => ({
+          headerShown: true,
+          headerBackTitle: "",
+        })}
+      />
+      <Stack.Screen
+        name="VIPPortalScreen"
+        component={VIPPortalScreen}
+        options={() => ({
+          headerShown: true,
+          headerBackTitleVisible: true,
+        })}
+      />
     </Stack.Navigator>
   );
 }
