@@ -49,6 +49,9 @@ const CLOUD_FUNCTION_URL_UFP =
 const CLOUD_FUNCTION_URL_FPBI =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchProductByIdHandler";
 
+  const CLOUD_FUNCTION_URL_FPBIA =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchProductByIdHandlerAdmin";
+
 const CLOUD_FUNCTION_URL_FACO =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllCustomerOrdersHandler";
 
@@ -427,6 +430,33 @@ export const fetchProductById = async (productId) => {
       error.response?.data || error.message
     );
     throw error;
+  }
+};
+
+/**
+ * Fetch Product by ID using Admin API Cloud Function
+ */
+export const fetchProductByIdAdmin = async (productId) => {
+  try {
+    if (!productId) throw new Error("Missing productId parameter");
+
+    const response = await axios.get(CLOUD_FUNCTION_URL_FPBIA, {
+      params: { productId },
+    });
+
+    if (!response.data || !response.data.id) {
+      console.warn("Product not found or malformed response:", response.data);
+      return null;
+    }
+
+    console.log("fetchProductById response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching product by ID via Admin API Cloud Function:",
+      error.response?.data || error.message
+    );
+    return null;
   }
 };
 

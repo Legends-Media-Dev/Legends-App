@@ -35,6 +35,7 @@ const ProductScreen = ({ route }) => {
 
   useEffect(() => {
     const minLoadingTime = 500;
+    const startTime = Date.now();
 
     const timer = setTimeout(() => {
       setIsLoading(false);
