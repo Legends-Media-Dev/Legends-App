@@ -14,7 +14,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import RoundedBox from "../../components/RoundedBox";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { fetchCustomerDetails, fetchProductById } from "../../api/shopifyApi"; // Import API function
+import {
+  fetchCustomerDetails,
+  fetchProductByIdAdmin,
+} from "../../api/shopifyApi"; // Import API function
 import { getRecentlyViewedProducts } from "../../utils/storage";
 
 const AccountScreen = () => {
@@ -73,17 +76,25 @@ const AccountScreen = () => {
         try {
           setLoadingRecentlyViewed(true);
 
-          // Retrieve stored product IDs
           const productIds = await getRecentlyViewedProducts();
+          console.log("Retrieved product IDs from storage:", productIds);
 
-          if (productIds.length > 0) {
-            // Fetch full product details for each ID
+          if (productIds && productIds.length > 0) {
             const products = await Promise.all(
-              productIds.map(fetchProductById)
+              productIds.map(async (id) => {
+                try {
+                  return await fetchProductByIdAdmin(id);
+                } catch (err) {
+                  console.error(`Failed to fetch product ${id}:`, err);
+                  return null;
+                }
+              })
             );
-            setRecentlyViewed(products);
+
+            const filtered = products.filter(Boolean);
+            setRecentlyViewed(filtered);
           } else {
-            setRecentlyViewed([]); // Clear when no recently viewed products exist
+            setRecentlyViewed([]);
           }
         } catch (error) {
           console.error("Error fetching recently viewed products:", error);
@@ -274,23 +285,32 @@ const AccountScreen = () => {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.recentlyViewedScroll}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={{ width: 150, marginRight: 10 }}
-                  onPress={() =>
-                    navigation.navigate("Product", { product: item })
-                  }
-                >
-                  <ProductCard
-                    image={
-                      item.images.edges[0]?.node.src ||
-                      "https://via.placeholder.com/100"
+              renderItem={({ item }) => {
+                const variant = item.variants.edges[0]?.node;
+                const price = parseFloat(variant?.price || "0").toFixed(2);
+                const compareAt = variant?.compareAtPrice
+                  ? parseFloat(variant.compareAtPrice).toFixed(2)
+                  : null;
+
+                return (
+                  <TouchableOpacity
+                    style={{ width: 150, marginRight: 10 }}
+                    onPress={() =>
+                      navigation.navigate("Product", { product: item })
                     }
-                    name={item.title || "No Name"}
-                    price={item.variants.edges[0].node.price.amount || "N/A"}
-                  />
-                </TouchableOpacity>
-              )}
+                  >
+                    <ProductCard
+                      image={
+                        item.images.edges[0]?.node.src ||
+                        "https://via.placeholder.com/100"
+                      }
+                      name={item.title || "No Name"}
+                      price={price}
+                      compareAtPrice={compareAt}
+                    />
+                  </TouchableOpacity>
+                );
+              }}
             />
           )}
         </View>

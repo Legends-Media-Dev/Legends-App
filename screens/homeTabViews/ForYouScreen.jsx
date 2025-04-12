@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import ProductCard from "../../components/ProductCard";
 import { getRecentlyViewedProducts } from "../../utils/storage";
-import { fetchProductById } from "../../api/shopifyApi";
+import { fetchProductById, fetchProductByIdAdmin } from "../../api/shopifyApi";
+import { clearRecentlyViewedProducts } from "../../utils/storage";
 
 const ForYouScreen = () => {
   const [recentlyViewed, setRecentlyViewed] = useState([]);
@@ -23,13 +23,24 @@ const ForYouScreen = () => {
       const fetchRecentlyViewed = async () => {
         try {
           setLoading(true);
-          const productIds = await getRecentlyViewedProducts();
 
-          if (productIds.length > 0) {
+          const productIds = await getRecentlyViewedProducts();
+          console.log("Retrieved product IDs from storage:", productIds);
+
+          if (productIds && productIds.length > 0) {
             const products = await Promise.all(
-              productIds.map(fetchProductById)
+              productIds.map(async (id) => {
+                try {
+                  return await fetchProductByIdAdmin(id);
+                } catch (err) {
+                  console.error(`Failed to fetch product ${id}:`, err);
+                  return null;
+                }
+              })
             );
-            setRecentlyViewed(products);
+
+            const filtered = products.filter(Boolean);
+            setRecentlyViewed(filtered);
           } else {
             setRecentlyViewed([]);
           }
@@ -41,16 +52,13 @@ const ForYouScreen = () => {
       };
 
       fetchRecentlyViewed();
-
-      // TODO: Fetch "New Drops" from Shopify collection when ready
-      // const fetchNewDrops = async () => { ... }
-
     }, [])
   );
 
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.subheading}>Recently Viewed</Text>
+
       {loading ? (
         <Text style={styles.loadingText}>Loading...</Text>
       ) : recentlyViewed.length === 0 ? (
@@ -59,16 +67,16 @@ const ForYouScreen = () => {
         </Text>
       ) : (
         <FlatList
-          data={recentlyViewed.filter(Boolean)}
+          data={recentlyViewed}
           keyExtractor={(item) => item.id}
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.productList}
           renderItem={({ item }) => {
             const variant = item.variants.edges[0]?.node;
-            const price = parseFloat(variant?.price.amount || 0).toFixed(2);
-            const compareAt = variant?.compareAtPrice?.amount
-              ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
+            const price = parseFloat(variant?.price || "0").toFixed(2);
+            const compareAt = variant?.compareAtPrice
+              ? parseFloat(variant.compareAtPrice).toFixed(2)
               : null;
 
             return (
@@ -92,8 +100,24 @@ const ForYouScreen = () => {
           }}
         />
       )}
-
-      {/* TODO: Add "New Drops" section here once API call is ready */}
+      <TouchableOpacity
+        style={{
+          backgroundColor: "#C8102F",
+          padding: 10,
+          marginVertical: 10,
+          borderRadius: 5,
+        }}
+        onPress={async () => {
+          await clearRecentlyViewedProducts();
+          setRecentlyViewed([]);
+        }}
+      >
+        <Text
+          style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}
+        >
+          Clear Recently Viewed
+        </Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
