@@ -75,7 +75,7 @@ const CollectionScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#FFFFFF",
+    backgroundColor: "#F2F2F2",
     width: "100%",
     justifyContent: "center",
     alignItems: "center",
@@ -97,6 +97,7 @@ const styles = StyleSheet.create({
   },
   productWrapper: {
     width: width / 2,
+    height: height / 3.3,
     padding: 8,
   },
 });

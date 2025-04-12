@@ -28,14 +28,17 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   imageContainer: {
-    width: "90%",
+    width: "100%",
     height: 180,
     marginBottom: 10,
+    borderRadius: 12,
+    overflow: "hidden",
   },
   image: {
     width: "100%",
     height: "100%",
-    resizeMode: "contain"
+    resizeMode: "conver",
+    borderRadius: 12,
   },
   textContainer: {
     width: "90%",
@@ -55,7 +58,7 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontFamily: "Futura-Regular",
     paddingHorizontal: 8,
-    color: "#6E6E6E",
+    color: "#000000",
   },
 });
 
