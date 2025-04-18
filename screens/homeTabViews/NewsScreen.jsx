@@ -21,7 +21,7 @@ const NewsScreen = () => {
       }
     };
 
-    loadVideo();
+    // loadVideo();
   }, []);
 
   return (
@@ -62,11 +62,22 @@ const NewsScreen = () => {
 
       <View style={styles.lowerHero}>
         <HeroImage
-          title="THE NEW RELEASE IS LIVE!"
-          subtitle="YOUR NEXT FAVORITE PIECES JUST DROPPED. GET IT BEFORE IT'S GONE!"
+          title="SHOP ALL TEES!"
+          subtitle="FROM EVERYDAY STAPLES TO STANDOUT GRAPHICS, YOUR NEW FAVORITE TEE IS WAITING."
           backgroundColor="#D32F2F"
           collectionHandle="tshirts"
         />
+      </View>
+
+      {/* 🔹 Latest YouTube Video Box */}
+      <View style={{ marginTop: 8, marginBottom: 10 }}>
+        <View style={styles.contentWrapper}>
+          <ContentBox
+            topTitle="CURIOUS ABOUT OUR SWEEPSTAKES?"
+            image={require("../../assets/vip-background.png")}
+            screenName="Sweepstakes"
+          />
+        </View>
       </View>
     </ScrollView>
   );

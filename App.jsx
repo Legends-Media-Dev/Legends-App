@@ -12,6 +12,8 @@ import AccountScreen from "./screens/core/AccountScreen";
 
 import CollectionScreen from "./screens/products/CollectionScreen";
 import ProductScreen from "./screens/products/ProductScreen";
+import SearchScreen from "./screens/products/SearchProductsScreen";
+import SearchResultsScreen from "./screens/products/SearchResultsScreen";
 
 import CartScreen from "./screens/shopflow/CartScreen";
 import WebViewScreen from "./screens/shopflow/WebViewScreen";
@@ -60,6 +62,8 @@ function AnimatedHeader() {
         source={require("./assets/Legends.png")}
         style={{
           width: 100,
+          height: undefined, // Let height scale based on width & aspect ratio
+          aspectRatio: 2, // Set this to your logo's actual width/height ratio (see below)
           resizeMode: "contain",
           transform: [{ translateX: logoPosition }],
           opacity: logoOpacity,
@@ -161,6 +165,23 @@ function MainStack() {
           headerBackTitleVisible: true,
         })}
       />
+      <Stack.Screen
+        name="Sweepstakes"
+        component={SweepstakesScreen}
+        options={({ navigation }) => ({
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+              <Ionicons
+                name="bag-outline"
+                size={24}
+                color="#000"
+                style={{ marginRight: 30 }}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
     </Stack.Navigator>
   );
 }
@@ -216,6 +237,42 @@ function ShopStack() {
       <Stack.Screen
         name="Collection"
         component={CollectionScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+              <Ionicons
+                name="bag-outline"
+                size={24}
+                color="#000"
+                style={{ marginRight: 30 }}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => (
+            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+              <Ionicons
+                name="bag-outline"
+                size={24}
+                color="#000"
+                style={{ marginRight: 30 }}
+              />
+            </TouchableOpacity>
+          ),
+        })}
+      />
+      <Stack.Screen
+        name="SearchResults"
+        component={SearchResultsScreen}
         options={({ navigation }) => ({
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,

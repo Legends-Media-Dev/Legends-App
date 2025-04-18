@@ -79,6 +79,13 @@ const ShopScreen = () => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.searchButton}
+        onPress={() => navigation.navigate("Search")}
+      >
+        <Text style={styles.searchButtonText}>Search Products</Text>
+      </TouchableOpacity>
+
       <FlatList
         data={collections}
         keyExtractor={(item) => item.id}
@@ -122,6 +129,21 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontFamily: "Futura-Bold",
     color: "#000",
+  },
+  searchButton: {
+    backgroundColor: "#C8102F",
+    paddingVertical: 10,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 10,
+  },
+
+  searchButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontFamily: "Futura-Bold",
+    textTransform: "uppercase",
   },
 });
 

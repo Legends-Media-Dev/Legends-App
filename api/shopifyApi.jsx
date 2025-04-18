@@ -7,6 +7,9 @@ const CLOUD_FUNCTION_URL_FC =
 const CLOUD_FUNCTION_URL_FCBH =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchCollectionByHandleHandler";
 
+const CLOUD_FUNCTION_URL_SP =
+  "https://us-central1-premier-ikon.cloudfunctions.net/searchProductsHandler";
+
 const CLOUD_FUNCTION_URL_FAPC =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllProductsCollectionHandler";
 
@@ -49,13 +52,13 @@ const CLOUD_FUNCTION_URL_UFP =
 const CLOUD_FUNCTION_URL_FPBI =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchProductByIdHandler";
 
-  const CLOUD_FUNCTION_URL_FPBIA =
+const CLOUD_FUNCTION_URL_FPBIA =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchProductByIdHandlerAdmin";
 
 const CLOUD_FUNCTION_URL_FACO =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllCustomerOrdersHandler";
 
-  const CLOUD_FUNCTION_URL_FMRY =
+const CLOUD_FUNCTION_URL_FMRY =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchLatestYouTubeVideoHandler";
 
 /**
@@ -85,7 +88,6 @@ export const fetchCollectionByHandle = async (handle) => {
     throw error;
   }
 };
-
 
 /**
  * Fetch the latest full-length YouTube video
@@ -481,6 +483,29 @@ export const fetchAllCustomerOrders = async (accessToken) => {
   } catch (error) {
     console.error(
       "Error fetching all customer orders via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+/**
+ * Search Products by Keyword
+ */
+export const searchProducts = async (searchTerm) => {
+  try {
+    if (!searchTerm) throw new Error("Missing searchTerm parameter");
+
+    const response = await axios.post(CLOUD_FUNCTION_URL_SP, {
+      searchTerm: searchTerm,
+    });
+
+    console.log("searchProducts response:", response.data);
+
+    return response.data.products || [];
+  } catch (error) {
+    console.error(
+      "Error searching products via Cloud Function:",
       error.response?.data || error.message
     );
     throw error;

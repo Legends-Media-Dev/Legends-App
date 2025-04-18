@@ -76,7 +76,6 @@ import {
   TouchableOpacity,
   Dimensions,
   ImageBackground,
-  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -86,15 +85,9 @@ import {
 
 const { width, height } = Dimensions.get("window");
 
-const HeroImage = ({
-  title,
-  subtitle,
-  backgroundColor = "#000000",
-  collectionHandle,
-}) => {
+const HeroImage = ({ title, subtitle, collectionHandle }) => {
   const navigation = useNavigation();
   const [image, setImage] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -104,7 +97,6 @@ const HeroImage = ({
       } catch (error) {
         console.error("Error fetching collection image:", error);
       } finally {
-        setLoading(false);
       }
     };
 
@@ -123,14 +115,6 @@ const HeroImage = ({
       console.error("Error navigating to collection:", error);
     }
   };
-
-  if (loading) {
-    return (
-      <View style={[styles.heroContainer, { backgroundColor }]}>
-        <ActivityIndicator color="#fff" size="large" />
-      </View>
-    );
-  }
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.99}>
