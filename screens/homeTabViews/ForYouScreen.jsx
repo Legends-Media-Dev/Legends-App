@@ -25,7 +25,6 @@ const ForYouScreen = () => {
           setLoading(true);
 
           const productIds = await getRecentlyViewedProducts();
-          console.log("Retrieved product IDs from storage:", productIds);
 
           if (productIds && productIds.length > 0) {
             const products = await Promise.all(

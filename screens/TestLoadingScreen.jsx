@@ -3,8 +3,6 @@ import { View, StyleSheet } from "react-native";
 import LottieView from "lottie-react-native";
 
 const LoadingAnimation = () => {
-  console.log(require("../assets/loading_animation.json"));
-
   return (
     <View style={styles.container}>
       <LottieView

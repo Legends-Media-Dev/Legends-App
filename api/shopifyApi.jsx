@@ -182,7 +182,7 @@ export const addToCart = async (cartId, variantId, quantity = 1) => {
       quantity,
     });
 
-    console.log("addToCart response:", response.data);
+    // console.log("addToCart response:", response.data);
 
     // Return the updated cart
     return response.data;
@@ -241,7 +241,7 @@ export const createCheckoutUpdated = async (lineItems) => {
     // Send a POST request to the updated Cloud Function with lineItems in the body
     const response = await axios.post(CLOUD_FUNCTION_URL_CCHU, { lineItems });
 
-    console.log("createCheckoutUpdated response:", response.data);
+    // console.log("createCheckoutUpdated response:", response.data);
 
     // Return the cart object (including checkoutUrl) from the Cloud Function response
     return response.data;
@@ -261,7 +261,7 @@ export const updateCart = async (cartId, lines) => {
     }
 
     // Log the payload being sent to the server
-    console.log("Updating cart with payload:", { cartId, lines });
+    // console.log("Updating cart with payload:", { cartId, lines });
 
     // Make the API request
     const response = await axios.post(CLOUD_FUNCTION_URL_UUC, {
@@ -270,7 +270,7 @@ export const updateCart = async (cartId, lines) => {
     });
 
     // Log and validate the response
-    console.log("updateCart response:", response.data);
+    // console.log("updateCart response:", response.data);
 
     if (!response.data || !response.data.lines) {
       throw new Error("Invalid response: Missing lines in cart data");
@@ -294,7 +294,7 @@ export const deleteItem = async (cartId, lineId) => {
       cartId,
       lineId,
     });
-    console.log("Item deleted successfully:", response.data);
+    // console.log("Item deleted successfully:", response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -316,7 +316,7 @@ export const customerSignIn = async (email, password) => {
       password,
     });
 
-    console.log("customerSignIn response:", response.data);
+    // console.log("customerSignIn response:", response.data);
 
     // Return the customer access token
     return response.data;
@@ -342,7 +342,7 @@ export const customerSignUp = async (firstName, lastName, email, password) => {
       password,
     });
 
-    console.log("customerSignUp response:", response.data);
+    // console.log("customerSignUp response:", response.data);
 
     // Return the created customer details
     return response.data;
@@ -365,7 +365,7 @@ export const fetchCustomerDetails = async (accessToken) => {
       accessToken,
     });
 
-    console.log("fetchCustomerDetails response:", response.data);
+    // console.log("fetchCustomerDetails response:", response.data);
 
     // Return the customer details
     return response.data;
@@ -389,7 +389,7 @@ export const forgotPassword = async (email) => {
       email,
     });
 
-    console.log("forgotPassword response:", response.data);
+    // console.log("forgotPassword response:", response.data);
 
     if (
       response.data.customerUserErrors &&
@@ -422,7 +422,7 @@ export const fetchProductById = async (productId) => {
       params: { productId },
     });
 
-    console.log("fetchProductById response:", response.data);
+    // console.log("fetchProductById response:", response.data);
 
     // Return the product details
     return response.data;
@@ -451,7 +451,7 @@ export const fetchProductByIdAdmin = async (productId) => {
       return null;
     }
 
-    console.log("fetchProductById response:", response.data);
+    // console.log("fetchProductById response:", response.data);
     return response.data;
   } catch (error) {
     console.error(
@@ -469,14 +469,14 @@ export const fetchAllCustomerOrders = async (accessToken) => {
   try {
     if (!accessToken) throw new Error("Missing accessToken parameter");
 
-    console.log("Access token being sent to Cloud Function:", accessToken);
+    // console.log("Access token being sent to Cloud Function:", accessToken);
 
     // Call the Cloud Function with accessToken in the request body (POST)
     const response = await axios.post(CLOUD_FUNCTION_URL_FACO, {
       accessToken, // Send in body, not as query params
     });
 
-    console.log("fetchAllCustomerOrders response:", response.data);
+    // console.log("fetchAllCustomerOrders response:", response.data);
 
     // Return the customer orders
     return response.data;
@@ -500,7 +500,7 @@ export const searchProducts = async (searchTerm) => {
       searchTerm: searchTerm,
     });
 
-    console.log("searchProducts response:", response.data);
+    // console.log("searchProducts response:", response.data);
 
     return response.data.products || [];
   } catch (error) {

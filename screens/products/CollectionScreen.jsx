@@ -22,7 +22,6 @@ const CollectionScreen = ({ route, navigation }) => {
     const getProducts = async () => {
       try {
         const data = await fetchAllProductsCollectionAdmin(handle);
-        console.log("Fetched Admin products data:", data);
         setProducts(data.products || []);
       } catch (error) {
         console.error("Error fetching products:", error);
@@ -35,13 +34,12 @@ const CollectionScreen = ({ route, navigation }) => {
   }, [handle]);
 
   const renderProductItem = ({ item }) => {
-    console.log(item.variants.edges);
     return (
       <TouchableOpacity
         style={styles.productWrapper}
         onPress={() => navigation.navigate("Product", { product: item })}
       >
-        <ProductCard 
+        <ProductCard
           image={
             item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
           }
@@ -68,6 +66,7 @@ const CollectionScreen = ({ route, navigation }) => {
         renderItem={renderProductItem}
         numColumns={2}
         contentContainerStyle={styles.flatListContent}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );

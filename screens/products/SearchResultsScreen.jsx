@@ -20,7 +20,6 @@ const SearchResultsScreen = ({ route, navigation }) => {
   useEffect(() => {
     const getResults = async () => {
       try {
-        console.log(query);
         const products = await searchProducts(query);
         setResults(products || []);
       } catch (error) {

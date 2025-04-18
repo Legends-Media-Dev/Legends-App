@@ -107,7 +107,6 @@ const ProductScreen = ({ route }) => {
   };
 
   const extractSizes = (variantsEdges) => {
-    console.log(variantsEdges);
     return variantsEdges.map((edge, index) => {
       const sizeOption = edge.node.selectedOptions.find(
         (option) => option.name === "Size" || option.name === "Title"
@@ -122,7 +121,6 @@ const ProductScreen = ({ route }) => {
   };
 
   const sizes = extractSizes(product.variants.edges);
-  console.log(sizes);
   const [selectedSize, setSelectedSize] = useState(() => {
     const firstAvailable = sizes.find((size) => size.available);
     return firstAvailable ? firstAvailable.label : null;

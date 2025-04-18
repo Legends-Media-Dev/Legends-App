@@ -23,8 +23,6 @@ const LoginScreen = ({ route, navigation }) => {
       const accessToken = response?.accessToken;
       const expiresAt = response?.expiresAt;
 
-      console.log(accessToken);
-
       if (accessToken && expiresAt) {
         await AsyncStorage.setItem("shopifyAccessToken", accessToken);
         await AsyncStorage.setItem("accessTokenExpiry", expiresAt);

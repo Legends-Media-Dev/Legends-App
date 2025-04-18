@@ -50,7 +50,6 @@ const SearchScreen = () => {
   };
 
   const renderProductItem = ({ item }) => {
-    console.log(item.variants.edges);
     return (
       <TouchableOpacity
         style={styles.productWrapper}

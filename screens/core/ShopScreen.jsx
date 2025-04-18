@@ -24,7 +24,6 @@ const ShopScreen = () => {
     const getCollections = async () => {
       try {
         const data = await fetchCollections();
-        console.log("Fetched collections: ", data);
         setCollections(data || []);
       } catch (error) {
         console.error("Error fetching collections:", error);
@@ -36,7 +35,6 @@ const ShopScreen = () => {
   }, []);
 
   const handleCollectionPress = async (handle, title) => {
-    console.log(handle);
     try {
       const data = await fetchAllProductsCollectionAdmin(handle); // Uses Admin API
 
@@ -51,8 +49,6 @@ const ShopScreen = () => {
   };
 
   const renderCollectionItem = ({ item }) => {
-    console.log("Rendering collection item:", item);
-
     return (
       <TouchableOpacity
         style={styles.collectionItem}
@@ -90,6 +86,7 @@ const ShopScreen = () => {
         data={collections}
         keyExtractor={(item) => item.id}
         renderItem={renderCollectionItem}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.flatListContent}
       />
     </View>

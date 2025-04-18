@@ -52,8 +52,6 @@ const AccountScreen = () => {
     getCustomerData();
   }, []);
 
-  // console.log(customerData.tags);
-
   // Update header with logout button
   useEffect(() => {
     navigation.setOptions({

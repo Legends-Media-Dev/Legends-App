@@ -16,8 +16,6 @@ function OrdersScreen({ route }) {
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
-  console.log(accessToken);
-
   useEffect(() => {
     const getOrders = async () => {
       if (!accessToken) {
