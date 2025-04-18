@@ -68,7 +68,7 @@
 // });
 
 // export default HeroImage;
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   View,
   Text,
@@ -78,56 +78,43 @@ import {
   ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import {
-  fetchCollectionByHandle,
-  fetchAllProductsCollectionAdmin,
-} from "../api/shopifyApi";
+import { fetchAllProductsCollectionAdmin } from "../api/shopifyApi";
 
 const { width, height } = Dimensions.get("window");
-
-const HeroImage = ({ title, subtitle, collectionHandle }) => {
+const HeroImage = ({
+  title,
+  subtitle,
+  collectionHandle,
+  image,
+  onImageLoadEnd,
+}) => {
   const navigation = useNavigation();
-  const [image, setImage] = useState(null);
-
-  useEffect(() => {
-    const fetchImage = async () => {
-      try {
-        const collection = await fetchCollectionByHandle(collectionHandle);
-        setImage(collection.image?.src || null);
-      } catch (error) {
-        console.error("Error fetching collection image:", error);
-      } finally {
-      }
-    };
-
-    fetchImage();
-  }, [collectionHandle]);
 
   const handlePress = async () => {
-    try {
-      const data = await fetchAllProductsCollectionAdmin(collectionHandle);
-      navigation.navigate("Collection", {
-        handle: collectionHandle,
-        title,
-        products: data.products,
-      });
-    } catch (error) {
-      console.error("Error navigating to collection:", error);
-    }
+    const data = await fetchAllProductsCollectionAdmin(collectionHandle);
+    navigation.navigate("Collection", {
+      handle: collectionHandle,
+      title,
+      products: data.products,
+    });
   };
+
+  console.log("Rendering HeroImage with image:", image);
 
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.99}>
-      <ImageBackground
-        source={{ uri: image }}
-        style={styles.heroContainer}
-        imageStyle={{ resizeMode: "cover" }}
-      >
-        <View style={styles.overlay}>
-          <Text style={styles.heroTitle}>{title}</Text>
-          {subtitle && <Text style={styles.heroSubtitle}>{subtitle}</Text>}
-        </View>
-      </ImageBackground>
+      {image && (
+        <ImageBackground
+          source={{ uri: image }}
+          style={styles.heroContainer}
+          imageStyle={{ resizeMode: "cover" }}
+        >
+          <View style={styles.overlay}>
+            <Text style={styles.heroTitle}>{title}</Text>
+            {subtitle && <Text style={styles.heroSubtitle}>{subtitle}</Text>}
+          </View>
+        </ImageBackground>
+      )}
     </TouchableOpacity>
   );
 };

@@ -174,174 +174,173 @@ const ProductScreen = ({ route }) => {
     </TouchableOpacity>
   );
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="medium" color="#000" />
-      </View>
-    );
-  }
-
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.imageContainer}>
-        <FlatList
-          data={photos}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          onScroll={handleScroll}
-          style={styles.carousel}
-        />
-
-        {/* Pagination on Image */}
-        {photos.length > 1 ? (
-          <View style={styles.paginationContainer}>
-            {photos.map((_, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.paginationDot,
-                  index === currentIndex && styles.activeDot,
-                  {
-                    width: `${100 / photos.length}%`, // Dynamic width
-                  },
-                ]}
-              />
-            ))}
-          </View>
-        ) : null}
-      </View>
-
-      {/* Product Details */}
-      <View style={styles.detailsContainer}>
-        <View style={{ padding: 20, paddingBottom: 5 }}>
-          {!product.variants.edges.some((v) => v.node.availableForSale) ? (
-            <Text style={styles.productSoldOutTitle}>SOLD OUT</Text>
-          ) : null}
-
-          <Text style={styles.productTitle}>{product.title}</Text>
-          <View style={styles.priceContainer}>
-            <Text style={styles.currentPrice}>
-              ${product.variants.edges[0]?.node.price || "N/A"}
-            </Text>
-            {product.variants.edges[0].node.compareAtPrice ? (
-              <Text style={styles.originalPrice}>
-                $ {product.variants.edges[0]?.node.compareAtPrice || "N/A"}
-              </Text>
-            ) : null}
-          </View>
+    <>
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" />
         </View>
-        <View
-          style={{
-            height: "1",
-            backgroundColor: "#D9D9D9",
-            marginLeft: 20,
-            marginRight: 20,
-            marginBottom: 20,
-          }}
-        />
-        <View style={{ paddingLeft: 20, paddingRight: 20, marginBottom: 40 }}>
-          <Text style={styles.productDescription}>{product.description}</Text>
-        </View>
+      )}
+      <ScrollView style={styles.container}>
+        <View style={styles.imageContainer}>
+          <FlatList
+            data={photos}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            onScroll={handleScroll}
+            style={styles.carousel}
+          />
 
-        {/* Size Selector */}
-        {sizes[0].label == "Default" ? null : (
-          <View style={styles.sizeContainer}>
-            <View style={styles.topContainer}>
-              <Text style={styles.sizeTitle}>
-                Size{" "}
-                <Text style={styles.sizeIndicator}>
-                  {getSizeIndicator(selectedSize)}
-                </Text>
-              </Text>
-              <TouchableOpacity style={styles.sizeGuideContainer}>
-                <Text style={styles.sizeGuide}>Size Guide </Text>
-                <Ionicons
-                  name="chevron-forward-outline"
-                  size={20}
-                  color="#000"
+          {/* Pagination on Image */}
+          {photos.length > 1 ? (
+            <View style={styles.paginationContainer}>
+              {photos.map((_, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.paginationDot,
+                    index === currentIndex && styles.activeDot,
+                    {
+                      width: `${100 / photos.length}%`, // Dynamic width
+                    },
+                  ]}
                 />
+              ))}
+            </View>
+          ) : null}
+        </View>
+
+        {/* Product Details */}
+        <View style={styles.detailsContainer}>
+          <View style={{ padding: 20, paddingBottom: 5 }}>
+            {!product.variants.edges.some((v) => v.node.availableForSale) ? (
+              <Text style={styles.productSoldOutTitle}>SOLD OUT</Text>
+            ) : null}
+
+            <Text style={styles.productTitle}>{product.title}</Text>
+            <View style={styles.priceContainer}>
+              <Text style={styles.currentPrice}>
+                ${product.variants.edges[0]?.node.price || "N/A"}
+              </Text>
+              {product.variants.edges[0].node.compareAtPrice ? (
+                <Text style={styles.originalPrice}>
+                  $ {product.variants.edges[0]?.node.compareAtPrice || "N/A"}
+                </Text>
+              ) : null}
+            </View>
+          </View>
+          <View
+            style={{
+              height: "1",
+              backgroundColor: "#D9D9D9",
+              marginLeft: 20,
+              marginRight: 20,
+              marginBottom: 20,
+            }}
+          />
+          <View style={{ paddingLeft: 20, paddingRight: 20, marginBottom: 40 }}>
+            <Text style={styles.productDescription}>{product.description}</Text>
+          </View>
+
+          {/* Size Selector */}
+          {sizes[0].label == "Default" ? null : (
+            <View style={styles.sizeContainer}>
+              <View style={styles.topContainer}>
+                <Text style={styles.sizeTitle}>
+                  Size{" "}
+                  <Text style={styles.sizeIndicator}>
+                    {getSizeIndicator(selectedSize)}
+                  </Text>
+                </Text>
+                <TouchableOpacity style={styles.sizeGuideContainer}>
+                  <Text style={styles.sizeGuide}>Size Guide </Text>
+                  <Ionicons
+                    name="chevron-forward-outline"
+                    size={20}
+                    color="#000"
+                  />
+                </TouchableOpacity>
+              </View>
+              <View style={{ paddingLeft: 10 }}>
+                <FlatList
+                  data={sizes}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  renderItem={renderSizeItem}
+                  keyExtractor={(item) => item.id}
+                  contentContainerStyle={styles.sizeOptions}
+                />
+              </View>
+            </View>
+          )}
+
+          <View style={styles.quantityContainer}>
+            <Text style={styles.sizeTitle}>Quantity:</Text>
+            <View style={styles.selectorContainer}>
+              {/* Minus Button */}
+              <TouchableOpacity
+                style={styles.quantityButton}
+                onPress={handleDecrement}
+                disabled={quantity === 1}
+              >
+                <Text style={styles.buttonText}>-</Text>
+              </TouchableOpacity>
+
+              {/* Quantity Value */}
+              <Text style={styles.quantity}>{quantity}</Text>
+
+              {/* Plus Button */}
+              <TouchableOpacity
+                style={styles.quantityButton}
+                onPress={handleIncrement}
+              >
+                <Text style={styles.buttonText}>+</Text>
               </TouchableOpacity>
             </View>
-            <View style={{ paddingLeft: 10 }}>
-              <FlatList
-                data={sizes}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                renderItem={renderSizeItem}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={styles.sizeOptions}
-              />
+          </View>
+
+          {/* Buttons */}
+          <View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.addToBagButton,
+                  {
+                    backgroundColor: product.variants.edges.some(
+                      (v) => v.node.availableForSale
+                    )
+                      ? "black"
+                      : "grey",
+                  },
+                ]}
+                disabled={
+                  !product.variants.edges.some((v) => v.node.availableForSale)
+                }
+                onPress={handleAddToCart}
+              >
+                <Text style={styles.addToBagText}>Add to cart</Text>
+              </TouchableOpacity>
             </View>
           </View>
-        )}
-
-        <View style={styles.quantityContainer}>
-          <Text style={styles.sizeTitle}>Quantity:</Text>
-          <View style={styles.selectorContainer}>
-            {/* Minus Button */}
-            <TouchableOpacity
-              style={styles.quantityButton}
-              onPress={handleDecrement}
-              disabled={quantity === 1}
-            >
-              <Text style={styles.buttonText}>-</Text>
-            </TouchableOpacity>
-
-            {/* Quantity Value */}
-            <Text style={styles.quantity}>{quantity}</Text>
-
-            {/* Plus Button */}
-            <TouchableOpacity
-              style={styles.quantityButton}
-              onPress={handleIncrement}
-            >
-              <Text style={styles.buttonText}>+</Text>
-            </TouchableOpacity>
-          </View>
         </View>
-
-        {/* Buttons */}
         <View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[
-                styles.addToBagButton,
-                {
-                  backgroundColor: product.variants.edges.some(
-                    (v) => v.node.availableForSale
-                  )
-                    ? "black"
-                    : "grey",
-                },
-              ]}
-              disabled={
-                !product.variants.edges.some((v) => v.node.availableForSale)
-              }
-              onPress={handleAddToCart}
-            >
-              <Text style={styles.addToBagText}>Add to cart</Text>
-            </TouchableOpacity>
+          <View
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 30,
+            }}
+          >
+            <Text style={styles.lowerCTAButton}>YOU MAY ALSO LIKE</Text>
           </View>
+          {/* Call in code in kaylas section for showcasing products in a specific collection */}
         </View>
-      </View>
-      <View>
-        <View
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            marginTop: 30,
-          }}
-        >
-          <Text style={styles.lowerCTAButton}>YOU MAY ALSO LIKE</Text>
-        </View>
-        {/* Call in code in kaylas section for showcasing products in a specific collection */}
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 };
 
@@ -581,6 +580,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     color: "#000",
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

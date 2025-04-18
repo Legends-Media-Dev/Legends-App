@@ -7,6 +7,7 @@ import {
   Text,
   Dimensions,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import ProductCard from "../../components/ProductCard";
 import { fetchAllProductsCollectionAdmin } from "../../api/shopifyApi";
@@ -50,25 +51,24 @@ const CollectionScreen = ({ route, navigation }) => {
     );
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={products}
-        keyExtractor={(item) => item.id}
-        renderItem={renderProductItem}
-        numColumns={2}
-        contentContainerStyle={styles.flatListContent}
-        showsVerticalScrollIndicator={false}
-      />
-    </View>
+    <>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" />
+        </View>
+      )}
+      <View style={styles.container}>
+        <FlatList
+          data={products}
+          keyExtractor={(item) => item.id}
+          renderItem={renderProductItem}
+          numColumns={2}
+          contentContainerStyle={styles.flatListContent}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
+    </>
   );
 };
 
@@ -98,6 +98,17 @@ const styles = StyleSheet.create({
     width: width / 2,
     height: height / 3.3,
     padding: 8,
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    backgroundColor: "#F2F2F2", // match your background
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

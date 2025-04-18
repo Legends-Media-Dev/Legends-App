@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { searchProducts } from "../../api/shopifyApi";
 import ProductCard from "../../components/ProductCard";
@@ -45,20 +46,24 @@ const SearchResultsScreen = ({ route, navigation }) => {
     </TouchableOpacity>
   );
 
-  if (loading) {
-    return <Text style={{ margin: 20 }}>Searching...</Text>;
-  }
-
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={results}
-        keyExtractor={(item) => item.id}
-        renderItem={renderItem}
-        numColumns={2}
-        contentContainerStyle={styles.flatListContent}
-      />
-    </View>
+    <>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" />
+        </View>
+      )}
+      <View style={styles.container}>
+        <FlatList
+          data={results}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          numColumns={2}
+          contentContainerStyle={styles.flatListContent}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
+    </>
   );
 };
 
@@ -77,6 +82,17 @@ const styles = StyleSheet.create({
   flatListContent: {
     paddingBottom: 16,
     paddingTop: 0,
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import {
   fetchCollections,
@@ -65,31 +66,30 @@ const ShopScreen = () => {
     );
   };
 
-  if (loading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
   return (
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.searchButton}
-        onPress={() => navigation.navigate("Search")}
-      >
-        <Text style={styles.searchButtonText}>Search Products</Text>
-      </TouchableOpacity>
+    <>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" />
+        </View>
+      )}
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.searchButton}
+          onPress={() => navigation.navigate("Search")}
+        >
+          <Text style={styles.searchButtonText}>Search Products</Text>
+        </TouchableOpacity>
 
-      <FlatList
-        data={collections}
-        keyExtractor={(item) => item.id}
-        renderItem={renderCollectionItem}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.flatListContent}
-      />
-    </View>
+        <FlatList
+          data={collections}
+          keyExtractor={(item) => item.id}
+          renderItem={renderCollectionItem}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.flatListContent}
+        />
+      </View>
+    </>
   );
 };
 
@@ -141,6 +141,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Futura-Bold",
     textTransform: "uppercase",
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    backgroundColor: "#FFFFFF", // Match background
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

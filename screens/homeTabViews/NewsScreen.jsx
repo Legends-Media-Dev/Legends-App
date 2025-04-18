@@ -3,11 +3,19 @@ import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import HeroImage from "../../components/HeroImage";
 import ContentBox from "../../components/ContentBox";
 import YoutubeContentBox from "../../components/YoutubeContentBox";
-import { fetchLatestYouTubeVideo } from "../../api/shopifyApi"; // ✅ Make sure this is the correct path
+import {
+  fetchLatestYouTubeVideo,
+  fetchCollectionByHandle,
+} from "../../api/shopifyApi";
 
 const NewsScreen = () => {
   const [latestVideo, setLatestVideo] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [heroImage, setHeroImage] = useState(null);
+  const [heroImageTs, setHeroImageTs] = useState(null);
+  const [videoLoading, setVideoLoading] = useState(true);
+  const [heroImageLoading, setHeroImageLoading] = useState(true);
+  const [heroImageLoadingTs, setHeroImageLoadingTs] = useState(true);
+  const loading = heroImageLoading || heroImageLoadingTs;
 
   useEffect(() => {
     const loadVideo = async () => {
@@ -17,69 +25,100 @@ const NewsScreen = () => {
       } catch (err) {
         console.error("Failed to load video:", err);
       } finally {
-        setLoading(false);
+        setVideoLoading(false);
       }
     };
 
+    const fetchHero = async () => {
+      try {
+        const collection = await fetchCollectionByHandle("new-release");
+        setHeroImage(collection.image?.src);
+      } catch (err) {
+        console.error("Failed to load hero image:", err);
+      } finally {
+        setHeroImageLoading(false);
+      }
+    };
+
+    const fetchHeroTs = async () => {
+      try {
+        const collection = await fetchCollectionByHandle("tshirts");
+        setHeroImageTs(collection.image?.src);
+      } catch (err) {
+        console.error("Failed to load hero image:", err);
+      } finally {
+        setHeroImageLoadingTs(false);
+      }
+    };
+
+    fetchHero();
+    fetchHeroTs();
     // loadVideo();
   }, []);
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* 🔹 Hero Banner */}
-      <View style={styles.topHero}>
-        <HeroImage
-          title="THE NEW RELEASE IS LIVE!"
-          subtitle="YOUR NEXT FAVORITE PIECES JUST DROPPED. GET IT BEFORE IT'S GONE!"
-          backgroundColor="#D32F2F"
-          collectionHandle="new-release"
-        />
-      </View>
+    <>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" />
+        </View>
+      )}
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* 🔹 Hero Banner */}
+        <View style={styles.topHero}>
+          <HeroImage
+            title="THE NEW RELEASE IS LIVE!"
+            subtitle="YOUR NEXT FAVORITE PIECES JUST DROPPED. GET IT BEFORE IT'S GONE!"
+            backgroundColor="#D32F2F"
+            collectionHandle="new-release"
+            image={heroImage}
+          />
+        </View>
 
-      {/* 🔹 Latest YouTube Video Box */}
-      <View style={styles.contentContainer}>
-        <View style={styles.contentWrapper}>
-          {loading ? (
-            <ActivityIndicator />
-          ) : latestVideo ? (
-            <YoutubeContentBox
-              topTitle={latestVideo.title}
-              thumbnail={latestVideo.thumbnail}
-              videoId={latestVideo.videoId} // 👈 Pass the YouTube video ID here
+        {/* 🔹 Latest YouTube Video Box */}
+        <View style={styles.contentContainer}>
+          <View style={styles.contentWrapper}>
+            {latestVideo && (
+              <YoutubeContentBox
+                topTitle={latestVideo.title}
+                thumbnail={latestVideo.thumbnail}
+                videoId={latestVideo.videoId}
+              />
+            )}
+          </View>
+
+          <View style={styles.contentWrapper}>
+            <ContentBox
+              topTitle="MORE PERKS? SAY LESS. JOIN VIP."
+              image={require("../../assets/vip-background.png")}
+              screenName="JoinVIPScreen"
+              handle="vip"
             />
-          ) : null}
+          </View>
         </View>
 
-        <View style={styles.contentWrapper}>
-          <ContentBox
-            topTitle="MORE PERKS? SAY LESS. JOIN VIP."
-            image={require("../../assets/vip-background.png")}
-            screenName="JoinVIPScreen"
-            handle="vip"
+        <View style={styles.lowerHero}>
+          <HeroImage
+            title="SHOP ALL TEES!"
+            subtitle="FROM EVERYDAY STAPLES TO STANDOUT GRAPHICS, YOUR NEW FAVORITE TEE IS WAITING."
+            backgroundColor="#D32F2F"
+            collectionHandle="tshirts"
+            image={heroImageTs}
           />
         </View>
-      </View>
 
-      <View style={styles.lowerHero}>
-        <HeroImage
-          title="SHOP ALL TEES!"
-          subtitle="FROM EVERYDAY STAPLES TO STANDOUT GRAPHICS, YOUR NEW FAVORITE TEE IS WAITING."
-          backgroundColor="#D32F2F"
-          collectionHandle="tshirts"
-        />
-      </View>
-
-      {/* 🔹 Latest YouTube Video Box */}
-      <View style={{ marginTop: 8, marginBottom: 10 }}>
-        <View style={styles.contentWrapper}>
-          <ContentBox
-            topTitle="CURIOUS ABOUT OUR SWEEPSTAKES?"
-            image={require("../../assets/vip-background.png")}
-            screenName="Sweepstakes"
-          />
+        {/* 🔹 Latest YouTube Video Box */}
+        <View style={{ marginTop: 8, marginBottom: 10 }}>
+          <View style={styles.contentWrapper}>
+            <ContentBox
+              topTitle="CURIOUS ABOUT OUR SWEEPSTAKES?"
+              image={require("../../assets/vip-background.png")}
+              screenName="Sweepstakes"
+            />
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 };
 
@@ -100,6 +139,23 @@ const styles = StyleSheet.create({
   },
   lowerHero: {
     marginTop: 10,
+  },
+  fullscreenLoader: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FAFAFA", // Match your screen's background
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    backgroundColor: "#FAFAFA",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
