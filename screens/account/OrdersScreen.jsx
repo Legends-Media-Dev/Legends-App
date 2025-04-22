@@ -52,8 +52,8 @@ function OrdersScreen({ route }) {
     <View style={styles.container}>
       <Text style={styles.header}>Past Orders</Text>
       {loading ? (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="medium" color="#000" />
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color="#000" />
         </View>
       ) : orders.length > 0 ? (
         <FlatList
@@ -65,15 +65,6 @@ function OrdersScreen({ route }) {
               style={styles.orderItem}
               onPress={() => handleOrderPress(item.statusUrl)}
             >
-              {/* <Text style={styles.orderTitle}>Order: {item.name}</Text>
-              <Text>Order Number: {item.orderNumber}</Text>
-              <Text>
-                Total: {item.totalPrice.amount} {item.totalPrice.currencyCode}
-              </Text>
-              <Text>
-                Processed At: {new Date(item.processedAt).toLocaleDateString()}
-              </Text>
-              <Text style={styles.linkText}>View Order Details →</Text> */}
               <View style={styles.topContainer}>
                 <View style={styles.topLeftContainer}>
                   <Text style={styles.orderText}>Order Number</Text>
@@ -185,6 +176,17 @@ const styles = StyleSheet.create({
   },
   loadingContainer: {
     flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
   },
