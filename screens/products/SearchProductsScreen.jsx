@@ -69,6 +69,7 @@ const SearchScreen = () => {
           image={imageUrl}
           name={item.title || "No Name"}
           price={variant?.price}
+          compareAtPrice={variant?.compareAtPrice}
         />
       </TouchableOpacity>
     );

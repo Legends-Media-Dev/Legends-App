@@ -44,6 +44,9 @@ const SearchResultsScreen = ({ route, navigation }) => {
   const renderItem = ({ item }) => {
     const variant = item.variants.edges[0]?.node;
     const rawAmount = variant?.price?.amount;
+    const compareAt = variant?.compareAtPrice?.amount
+      ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
+      : null;
 
     const price =
       rawAmount && !isNaN(Number(rawAmount)) ? Number(rawAmount) : null; // pass `null` if price is invalid
@@ -59,6 +62,7 @@ const SearchResultsScreen = ({ route, navigation }) => {
           }
           name={item.title}
           price={price}
+          compareAtPrice={compareAt}
         />
       </TouchableOpacity>
     );

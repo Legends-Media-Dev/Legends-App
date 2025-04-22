@@ -3,7 +3,10 @@ import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 
 const { height } = Dimensions.get("window");
 
-const ProductCard = ({ image, name, price }) => {
+const ProductCard = ({ image, name, price, compareAtPrice }) => {
+  const hasDiscount =
+    compareAtPrice && parseFloat(compareAtPrice) > parseFloat(price);
+
   return (
     <View style={styles.card}>
       <View style={styles.imageContainer}>
@@ -14,7 +17,20 @@ const ProductCard = ({ image, name, price }) => {
         <Text numberOfLines={2} style={styles.productName}>
           {name}
         </Text>
-        <Text style={styles.productPrice}>${parseFloat(price).toFixed(2)}</Text>
+
+        <View style={styles.priceContainer}>
+          <Text
+            style={[styles.productPrice, hasDiscount && styles.discountedPrice]}
+          >
+            ${parseFloat(price).toFixed(2)}
+          </Text>
+
+          {hasDiscount && (
+            <Text style={styles.compareAtPrice}>
+              ${parseFloat(compareAtPrice).toFixed(2)}
+            </Text>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -37,7 +53,7 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    resizeMode: "conver",
+    resizeMode: "cover",
     borderRadius: 12,
   },
   textContainer: {
@@ -52,13 +68,28 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     lineHeight: 16,
   },
-  productPrice: {
-    marginTop: 5,
-    textAlign: "left",
-    fontSize: 12,
-    fontFamily: "Futura-Regular",
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     paddingHorizontal: 8,
+    marginTop: 5,
+    gap: 8,
+  },
+  productPrice: {
+    fontSize: 12,
+    fontFamily: "Futura-Medium",
     color: "#000000",
+  },
+  discountedPrice: {
+    color: "#C8102F",
+    fontSize: 12,
+    fontFamily: "Futura-Bold",
+  },
+  compareAtPrice: {
+    fontSize: 12,
+    fontFamily: "Futura-Medium",
+    color: "#A09E9E",
+    textDecorationLine: "line-through",
   },
 });
 
