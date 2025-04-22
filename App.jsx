@@ -4,6 +4,7 @@ import { NavigationContainer, Modal, Text } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import CartIconWithBadge from "./components/CartIconBadge";
 
 import MainScreen from "./screens/core/HomeScreen";
 import ShopScreen from "./screens/core/ShopScreen";
@@ -94,16 +95,7 @@ function MainStack() {
         component={MainScreen}
         options={({ navigation }) => ({
           headerTitle: () => <AnimatedHeader />,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            </TouchableOpacity>
-          ),
+          headerRight: () => <CartIconWithBadge />,
         })}
       />
       <Stack.Screen
@@ -120,32 +112,23 @@ function MainStack() {
         options={({ navigation }) => ({
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            </TouchableOpacity>
-          ),
+          headerRight: () => <CartIconWithBadge />,
         })}
       />
       <Stack.Screen
         name="Product"
         component={ProductScreen}
-        options={{
+        options={({ navigation }) => ({
           headerBackTitle: "",
-          headerBackTitleVisible: false,
           headerTitle: () => <AnimatedHeader />,
-        }}
+          headerRight: () => <CartIconWithBadge />,
+        })}
       />
       <Stack.Screen
         name="Cart"
         component={CartScreen}
         options={{
-          headerTitle: "Your Cart",
+          headerTitle: () => <AnimatedHeader />,
           headerBackTitle: false,
         }}
       />
@@ -170,16 +153,7 @@ function MainStack() {
         component={SweepstakesScreen}
         options={({ navigation }) => ({
           headerTitle: () => <AnimatedHeader />,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            </TouchableOpacity>
-          ),
+          headerRight: () => <CartIconWithBadge />,
         })}
       />
     </Stack.Navigator>
@@ -206,16 +180,7 @@ function ShopStack() {
         component={ShopScreen}
         options={({ navigation }) => ({
           headerTitle: () => <AnimatedHeader />,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            </TouchableOpacity>
-          ),
+          headerRight: () => <CartIconWithBadge />,
         })}
       />
       <Stack.Screen
@@ -223,7 +188,7 @@ function ShopStack() {
         component={CartScreen}
         options={{
           headerBackTitle: false,
-          headerTitle: "Your Cart",
+          headerTitle: () => <AnimatedHeader />,
         }}
       />
       <Stack.Screen
@@ -240,16 +205,7 @@ function ShopStack() {
         options={({ navigation }) => ({
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            </TouchableOpacity>
-          ),
+          headerRight: () => <CartIconWithBadge />,
         })}
       />
       <Stack.Screen
@@ -258,16 +214,7 @@ function ShopStack() {
         options={({ navigation }) => ({
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            </TouchableOpacity>
-          ),
+          headerRight: () => <CartIconWithBadge />,
         })}
       />
       <Stack.Screen
@@ -276,26 +223,17 @@ function ShopStack() {
         options={({ navigation }) => ({
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            </TouchableOpacity>
-          ),
+          headerRight: () => <CartIconWithBadge />,
         })}
       />
       <Stack.Screen
         name="Product"
         component={ProductScreen}
-        options={{
+        options={({ navigation }) => ({
           headerBackTitle: "",
-          headerBackTitleVisible: false,
           headerTitle: () => <AnimatedHeader />,
-        }}
+          headerRight: () => <CartIconWithBadge />,
+        })}
       />
     </Stack.Navigator>
   );
@@ -321,16 +259,7 @@ function SweepstakesStack() {
         component={SweepstakesScreen}
         options={({ navigation }) => ({
           headerTitle: () => <AnimatedHeader />,
-          headerRight: () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
-              <Ionicons
-                name="bag-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 30 }}
-              />
-            </TouchableOpacity>
-          ),
+          headerRight: () => <CartIconWithBadge />,
         })}
       />
       <Stack.Screen
@@ -346,7 +275,7 @@ function SweepstakesStack() {
         component={CartScreen}
         options={{
           headerBackTitle: false,
-          headerTitle: "Your Cart",
+          headerTitle: () => <AnimatedHeader />,
           headerBackTitleVisible: false,
         }}
       />
@@ -397,6 +326,7 @@ function AccountStack() {
           component={AccountScreen}
           options={{
             headerTitle: () => <AnimatedHeader />,
+            headerRight: () => <CartIconWithBadge />,
           }}
         />
       ) : (
@@ -470,6 +400,15 @@ function AccountStack() {
           headerTitle: "",
           headerBackTitle: "",
         }}
+      />
+      <Stack.Screen
+        name="Product"
+        component={ProductScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+        })}
       />
     </Stack.Navigator>
   );

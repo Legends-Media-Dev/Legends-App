@@ -67,7 +67,7 @@ export const addRecentlyViewedProduct = async (productId) => {
       JSON.stringify(recentlyViewed)
     );
 
-    console.log("Recently viewed updated:", recentlyViewed);
+    // console.log("Recently viewed updated:", recentlyViewed);
   } catch (error) {
     console.error("Error storing recently viewed product:", error);
   }
@@ -94,7 +94,6 @@ export const clearRecentlyViewedProducts = async () => {
     console.error("Error clearing recently viewed products:", error);
   }
 };
-
 
 // Optional: Clear everything (for dev testing)
 export const clearAllStorage = async () => {

@@ -89,20 +89,49 @@ const ProductScreen = ({ route }) => {
     return size;
   };
 
+  const getShopifyVariantSize = (size) => {
+    switch (size) {
+      case "Small":
+        return "Adult Small";
+      case "Medium":
+        return "Adult Medium";
+      case "Large":
+        return "Adult Large";
+      case "XLarge":
+        return "Adult XLarge";
+      case "2XLarge":
+        return "Adult 2XLarge";
+      case "3XLarge":
+        return "Adult 3XLarge";
+      default:
+        return size;
+    }
+  };
+
   const handleAddToCart = async () => {
-    if (product?.variants?.edges?.[0]?.node?.id) {
-      const variantId = product.variants.edges[0].node.id;
-      try {
-        console.log("Adding item to cart with variant ID:", variantId);
-        await addItemToCart(variantId, quantity);
-        alert("Added to cart!");
-      } catch (error) {
-        console.error("Error handling add to cart:", error);
-      } finally {
-        console.log("finsihed add");
-      }
-    } else {
-      console.error("No variant ID available for the selected product.");
+    const mappedSize = getShopifyVariantSize(selectedSize);
+    console.log("🧠 Selected size:", selectedSize);
+    console.log("📦 Shopify mapped size:", mappedSize);
+
+    const matchingVariant = product.variants.edges.find((edge) => {
+      const option = edge.node.selectedOptions.find(
+        (opt) => opt.name === "Size" || opt.name === "Title"
+      );
+      return option?.value === mappedSize;
+    });
+
+    if (!matchingVariant) {
+      console.error("❌ No matching variant found for selected size.");
+      return;
+    }
+
+    const variantId = matchingVariant.node.id;
+    try {
+      console.log("✅ Adding item to cart with variant ID:", variantId);
+      await addItemToCart(variantId, quantity);
+      alert("Added to cart!");
+    } catch (error) {
+      console.error("Error handling add to cart:", error);
     }
   };
 

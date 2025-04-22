@@ -153,6 +153,25 @@ const CartScreen = ({ navigation }) => {
     }
   };
 
+  const getDisplaySizeFromShopifyVariant = (shopifySize) => {
+    switch (shopifySize) {
+      case "Adult Small":
+        return "Small";
+      case "Adult Medium":
+        return "Medium";
+      case "Adult Large":
+        return "Large";
+      case "Adult XLarge":
+        return "XLarge";
+      case "Adult 2XLarge":
+        return "2XLarge";
+      case "Adult 3XLarge":
+        return "3XLarge";
+      default:
+        return shopifySize;
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = navigation.addListener("beforeRemove", async () => {
       try {
@@ -252,7 +271,12 @@ const CartScreen = ({ navigation }) => {
               )}
             </View>
           </View>
-          <Text style={styles.productSize}>Large</Text>
+          {/* <Text style={styles.productSize}>
+            {product?.title || "Unknown Size"}
+          </Text> */}
+          <Text style={styles.productSize}>
+            {getDisplaySizeFromShopifyVariant(product?.title)}
+          </Text>
 
           {/* Quantity Selector */}
           <View style={styles.quantityContainer}>
