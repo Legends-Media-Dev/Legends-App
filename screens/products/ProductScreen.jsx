@@ -80,7 +80,8 @@ const ProductScreen = ({ route }) => {
       return "Large";
     if (
       size.toLowerCase().includes("xlarge") &&
-      !size.toLowerCase().includes("2x")
+      !size.toLowerCase().includes("2x") &&
+      !size.toLowerCase().includes("3x")
     )
       return "XLarge";
     if (size.toLowerCase().includes("2xlarge")) return "2XLarge";
@@ -282,7 +283,7 @@ const ProductScreen = ({ route }) => {
           </View>
 
           {/* Size Selector */}
-          {sizes[0].label == "Default" ? null : (
+          {sizes[0].label == "Default Title" ? null : (
             <View style={styles.sizeContainer}>
               <View style={styles.topContainer}>
                 <Text style={styles.sizeTitle}>
@@ -291,14 +292,14 @@ const ProductScreen = ({ route }) => {
                     {getSizeIndicator(selectedSize)}
                   </Text>
                 </Text>
-                <TouchableOpacity style={styles.sizeGuideContainer}>
+                {/* <TouchableOpacity style={styles.sizeGuideContainer}>
                   <Text style={styles.sizeGuide}>Size Guide </Text>
                   <Ionicons
                     name="chevron-forward-outline"
                     size={20}
                     color="#000"
                   />
-                </TouchableOpacity>
+                </TouchableOpacity> */}
               </View>
               <View style={{ paddingLeft: 10 }}>
                 <FlatList
