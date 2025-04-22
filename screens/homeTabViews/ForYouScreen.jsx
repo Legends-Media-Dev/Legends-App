@@ -30,7 +30,7 @@ const ForYouScreen = () => {
             const products = await Promise.all(
               productIds.map(async (id) => {
                 try {
-                  return await fetchProductByIdAdmin(id);
+                  return await fetchProductById(id);
                 } catch (err) {
                   console.error(`Failed to fetch product ${id}:`, err);
                   return null;
@@ -73,9 +73,9 @@ const ForYouScreen = () => {
           contentContainerStyle={styles.productList}
           renderItem={({ item }) => {
             const variant = item.variants.edges[0]?.node;
-            const price = parseFloat(variant?.price || "0").toFixed(2);
-            const compareAt = variant?.compareAtPrice
-              ? parseFloat(variant.compareAtPrice).toFixed(2)
+            const price = parseFloat(variant?.price?.amount || "0").toFixed(2);
+            const compareAt = variant?.compareAtPrice?.amount
+              ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
               : null;
 
             return (

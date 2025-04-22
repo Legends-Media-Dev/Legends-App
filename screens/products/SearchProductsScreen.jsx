@@ -14,7 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ProductCardMini from "../../components/ProductCardMini";
 
 import {
-  fetchAllProductsCollectionAdmin,
+  fetchAllProductsCollection,
   searchProducts,
 } from "../../api/shopifyApi";
 
@@ -27,7 +27,7 @@ const SearchScreen = () => {
     const loadProducts = async () => {
       try {
         if (query.trim().length === 0) {
-          const data = await fetchAllProductsCollectionAdmin("new-release");
+          const data = await fetchAllProductsCollection("new-release");
           setProducts(data.products || []);
         } else {
           const results = await searchProducts(query.trim());

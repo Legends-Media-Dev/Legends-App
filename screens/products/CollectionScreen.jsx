@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import ProductCard from "../../components/ProductCard";
-import { fetchAllProductsCollectionAdmin } from "../../api/shopifyApi";
+import { fetchAllProductsCollection } from "../../api/shopifyApi";
 
 const { width, height } = Dimensions.get("window");
 
@@ -22,8 +22,10 @@ const CollectionScreen = ({ route, navigation }) => {
   useEffect(() => {
     const getProducts = async () => {
       try {
-        const data = await fetchAllProductsCollectionAdmin(handle);
-        setProducts(data.products || []);
+        const data = await fetchAllProductsCollection(handle);
+        const edges = data.products?.edges || [];
+        const productNodes = edges.map((edge) => edge.node); // extract actual products
+        setProducts(productNodes);
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -45,7 +47,18 @@ const CollectionScreen = ({ route, navigation }) => {
             item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
           }
           name={item.title || "No Name"}
-          price={item.variants.edges[0]?.node.price || "N/A"}
+          price={
+            item.variants.edges[0]?.node.price?.amount
+              ? parseFloat(item.variants.edges[0].node.price.amount).toFixed(2)
+              : "N/A"
+          }
+          compareAtPrice={
+            item.variants.edges[0]?.node.compareAtPrice?.amount
+              ? parseFloat(
+                  item.variants.edges[0].node.compareAtPrice.amount
+                ).toFixed(2)
+              : null
+          }
         />
       </TouchableOpacity>
     );

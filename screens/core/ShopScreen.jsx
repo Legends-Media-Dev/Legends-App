@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import {
   fetchCollections,
-  fetchAllProductsCollectionAdmin,
+  fetchAllProductsCollection,
 } from "../../api/shopifyApi";
 import { FlatList } from "react-native-gesture-handler";
 
@@ -37,7 +37,7 @@ const ShopScreen = () => {
 
   const handleCollectionPress = async (handle, title) => {
     try {
-      const data = await fetchAllProductsCollectionAdmin(handle); // Uses Admin API
+      const data = await fetchAllProductsCollection(handle); // Uses Admin API
 
       navigation.navigate("Collection", {
         handle,

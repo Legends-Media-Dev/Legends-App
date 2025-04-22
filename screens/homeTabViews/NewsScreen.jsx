@@ -53,7 +53,7 @@ const NewsScreen = () => {
 
     fetchHero();
     fetchHeroTs();
-    // loadVideo();
+    loadVideo();
   }, []);
 
   return (

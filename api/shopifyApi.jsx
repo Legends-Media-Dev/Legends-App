@@ -106,14 +106,14 @@ export const fetchLatestYouTubeVideo = async () => {
  * Fetch Products in a Collection
  */
 export const fetchAllProductsCollection = async (
-  collectionId,
+  collectionHandle,
   cursor = null
 ) => {
   try {
     // Send a GET request to the Cloud Function
     const response = await axios.get(CLOUD_FUNCTION_URL_FAPC, {
       params: {
-        collectionId,
+        collectionHandle, // 👈 changed from collectionId
         cursor,
       },
     });
@@ -129,30 +129,30 @@ export const fetchAllProductsCollection = async (
 /**
  * Fetch Products in a Collection (Admin API version)
  */
-export const fetchAllProductsCollectionAdmin = async (
-  handle,
-  cursor = null
-) => {
-  try {
-    const response = await axios.get(CLOUD_FUNCTION_URL_FAPCA, {
-      params: {
-        handle,
-        cursor,
-      },
-    });
+// export const fetchAllProductsCollectionAdmin = async (
+//   handle,
+//   cursor = null
+// ) => {
+//   try {
+//     const response = await axios.get(CLOUD_FUNCTION_URL_FAPCA, {
+//       params: {
+//         handle,
+//         cursor,
+//       },
+//     });
 
-    return response.data;
-  } catch (error) {
-    // Enhanced error logging
-    if (error.response) {
-      console.error("❌ Backend responded with error:", error.response.status);
-      console.error("🛑 Error details:", error.response.data);
-    } else {
-      console.error("❌ Network or unknown error:", error.message);
-    }
-    throw error;
-  }
-};
+//     return response.data;
+//   } catch (error) {
+//     // Enhanced error logging
+//     if (error.response) {
+//       console.error("❌ Backend responded with error:", error.response.status);
+//       console.error("🛑 Error details:", error.response.data);
+//     } else {
+//       console.error("❌ Network or unknown error:", error.message);
+//     }
+//     throw error;
+//   }
+// };
 
 /**
  * Create a New Cart

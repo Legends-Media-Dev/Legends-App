@@ -7,7 +7,9 @@ import {
   ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { fetchAllProductsCollectionAdmin } from "../api/shopifyApi";
+import {
+  fetchAllProductsCollection,
+} from "../api/shopifyApi";
 
 const ContentBox = ({
   topTitle,
@@ -21,7 +23,7 @@ const ContentBox = ({
   const handlePress = async () => {
     try {
       if (handle) {
-        const data = await fetchAllProductsCollectionAdmin(handle);
+        const data = await fetchAllProductsCollection(handle);
         navigation.navigate("Collection", {
           handle,
           title: topTitle,

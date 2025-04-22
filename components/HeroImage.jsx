@@ -78,7 +78,7 @@ import {
   ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { fetchAllProductsCollectionAdmin } from "../api/shopifyApi";
+import { fetchAllProductsCollection } from "../api/shopifyApi";
 
 const { width, height } = Dimensions.get("window");
 const HeroImage = ({
@@ -91,7 +91,7 @@ const HeroImage = ({
   const navigation = useNavigation();
 
   const handlePress = async () => {
-    const data = await fetchAllProductsCollectionAdmin(collectionHandle);
+    const data = await fetchAllProductsCollection(collectionHandle);
     navigation.navigate("Collection", {
       handle: collectionHandle,
       title,

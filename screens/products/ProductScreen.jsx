@@ -223,13 +223,20 @@ const ProductScreen = ({ route }) => {
             <Text style={styles.productTitle}>{product.title}</Text>
             <View style={styles.priceContainer}>
               <Text style={styles.currentPrice}>
-                ${product.variants.edges[0]?.node.price || "N/A"}
+                $
+                {parseFloat(
+                  product.variants.edges[0]?.node.price?.amount || 0
+                ).toFixed(2)}
               </Text>
-              {product.variants.edges[0].node.compareAtPrice ? (
+
+              {product.variants.edges[0]?.node.compareAtPrice?.amount && (
                 <Text style={styles.originalPrice}>
-                  $ {product.variants.edges[0]?.node.compareAtPrice || "N/A"}
+                  $
+                  {parseFloat(
+                    product.variants.edges[0].node.compareAtPrice.amount
+                  ).toFixed(2)}
                 </Text>
-              ) : null}
+              )}
             </View>
           </View>
           <View
