@@ -9,7 +9,7 @@ const ProductCard = ({ image, name, price }) => {
       <View style={styles.imageContainer}>
         <Image source={{ uri: image }} style={styles.image} />
       </View>
-      
+
       <View style={styles.textContainer}>
         <Text numberOfLines={2} style={styles.productName}>
           {name}

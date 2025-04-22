@@ -16,6 +16,7 @@ import ProductCardMini from "../../components/ProductCardMini";
 import {
   fetchAllProductsCollection,
   searchProducts,
+  searchProductsSF,
 } from "../../api/shopifyApi";
 
 const SearchScreen = () => {
@@ -28,9 +29,11 @@ const SearchScreen = () => {
       try {
         if (query.trim().length === 0) {
           const data = await fetchAllProductsCollection("new-release");
-          setProducts(data.products || []);
+          const products =
+            data?.products?.edges?.map((edge) => edge.node) || [];
+          setProducts(products);
         } else {
-          const results = await searchProducts(query.trim());
+          const results = await searchProductsSF(query.trim());
           setProducts(results || []);
         }
       } catch (err) {
@@ -38,7 +41,7 @@ const SearchScreen = () => {
       }
     };
 
-    const debounce = setTimeout(loadProducts, 300); // wait for typing to stop
+    const debounce = setTimeout(loadProducts, 300);
     return () => clearTimeout(debounce);
   }, [query]);
 
@@ -50,17 +53,22 @@ const SearchScreen = () => {
   };
 
   const renderProductItem = ({ item }) => {
+    const variant = item.variants.edges[0]?.node;
+
+    // Flexible image extraction
+    const imageNode = item.images?.edges?.[0]?.node;
+    const imageUrl =
+      imageNode?.url || imageNode?.src || "https://via.placeholder.com/100";
+
     return (
       <TouchableOpacity
         style={styles.productWrapper}
         onPress={() => navigation.navigate("Product", { product: item })}
       >
         <ProductCardMini
-          image={
-            item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
-          }
+          image={imageUrl}
           name={item.title || "No Name"}
-          price={item.variants.edges[0]?.node.price || "N/A"}
+          price={variant?.price}
         />
       </TouchableOpacity>
     );

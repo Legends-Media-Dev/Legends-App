@@ -10,6 +10,9 @@ const CLOUD_FUNCTION_URL_FCBH =
 const CLOUD_FUNCTION_URL_SP =
   "https://us-central1-premier-ikon.cloudfunctions.net/searchProductsHandler";
 
+const CLOUD_FUNCTION_URL_SP_SF =
+  "https://us-central1-premier-ikon.cloudfunctions.net/searchProductsHandlerSF";
+
 const CLOUD_FUNCTION_URL_FAPC =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllProductsCollectionHandler";
 
@@ -438,29 +441,29 @@ export const fetchProductById = async (productId) => {
 /**
  * Fetch Product by ID using Admin API Cloud Function
  */
-export const fetchProductByIdAdmin = async (productId) => {
-  try {
-    if (!productId) throw new Error("Missing productId parameter");
+// export const fetchProductByIdAdmin = async (productId) => {
+//   try {
+//     if (!productId) throw new Error("Missing productId parameter");
 
-    const response = await axios.get(CLOUD_FUNCTION_URL_FPBIA, {
-      params: { productId },
-    });
+//     const response = await axios.get(CLOUD_FUNCTION_URL_FPBIA, {
+//       params: { productId },
+//     });
 
-    if (!response.data || !response.data.id) {
-      console.warn("Product not found or malformed response:", response.data);
-      return null;
-    }
+//     if (!response.data || !response.data.id) {
+//       console.warn("Product not found or malformed response:", response.data);
+//       return null;
+//     }
 
-    // console.log("fetchProductById response:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error(
-      "Error fetching product by ID via Admin API Cloud Function:",
-      error.response?.data || error.message
-    );
-    return null;
-  }
-};
+//     // console.log("fetchProductById response:", response.data);
+//     return response.data;
+//   } catch (error) {
+//     console.error(
+//       "Error fetching product by ID via Admin API Cloud Function:",
+//       error.response?.data || error.message
+//     );
+//     return null;
+//   }
+// };
 
 /**
  * Fetch All Orders for a Specific Customer
@@ -492,11 +495,31 @@ export const fetchAllCustomerOrders = async (accessToken) => {
 /**
  * Search Products by Keyword
  */
-export const searchProducts = async (searchTerm) => {
+// export const searchProducts = async (searchTerm) => {
+//   try {
+//     if (!searchTerm) throw new Error("Missing searchTerm parameter");
+
+//     const response = await axios.post(CLOUD_FUNCTION_URL_SP, {
+//       searchTerm: searchTerm,
+//     });
+
+//     // console.log("searchProducts response:", response.data);
+
+//     return response.data.products || [];
+//   } catch (error) {
+//     console.error(
+//       "Error searching products via Cloud Function:",
+//       error.response?.data || error.message
+//     );
+//     throw error;
+//   }
+// };
+
+export const searchProductsSF = async (searchTerm) => {
   try {
     if (!searchTerm) throw new Error("Missing searchTerm parameter");
 
-    const response = await axios.post(CLOUD_FUNCTION_URL_SP, {
+    const response = await axios.post(CLOUD_FUNCTION_URL_SP_SF, {
       searchTerm: searchTerm,
     });
 

@@ -8,7 +8,7 @@ import {
   Dimensions,
   ActivityIndicator,
 } from "react-native";
-import { searchProducts } from "../../api/shopifyApi";
+import { searchProducts, searchProductsSF } from "../../api/shopifyApi";
 import ProductCard from "../../components/ProductCard";
 
 const { width, height } = Dimensions.get("window");
@@ -21,7 +21,14 @@ const SearchResultsScreen = ({ route, navigation }) => {
   useEffect(() => {
     const getResults = async () => {
       try {
-        const products = await searchProducts(query);
+        if (!query.trim()) {
+          setResults([]); // optionally clear results
+          setLoading(false);
+          return;
+        }
+
+        setLoading(true);
+        const products = await searchProductsSF(query.trim());
         setResults(products || []);
       } catch (error) {
         console.error("Search failed:", error);
@@ -30,21 +37,32 @@ const SearchResultsScreen = ({ route, navigation }) => {
       }
     };
 
-    getResults();
+    const debounce = setTimeout(getResults, 300);
+    return () => clearTimeout(debounce);
   }, [query]);
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.productWrapper}
-      onPress={() => navigation.navigate("Product", { product: item })}
-    >
-      <ProductCard
-        image={item.images.edges[0]?.node.src}
-        name={item.title}
-        price={item.variants.edges[0]?.node.price}
-      />
-    </TouchableOpacity>
-  );
+  const renderItem = ({ item }) => {
+    const variant = item.variants.edges[0]?.node;
+    const rawAmount = variant?.price?.amount;
+
+    const price =
+      rawAmount && !isNaN(Number(rawAmount)) ? Number(rawAmount) : null; // pass `null` if price is invalid
+
+    return (
+      <TouchableOpacity
+        style={styles.productWrapper}
+        onPress={() => navigation.navigate("Product", { product: item })}
+      >
+        <ProductCard
+          image={
+            item.images.edges[0]?.node.url || "https://via.placeholder.com/100"
+          }
+          name={item.title}
+          price={price}
+        />
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <>

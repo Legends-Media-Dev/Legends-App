@@ -10,7 +10,9 @@ const ProductCardMini = ({ image, name, price }) => {
         <Text numberOfLines={2} style={styles.productName}>
           {name}
         </Text>
-        <Text style={styles.productPrice}>${parseFloat(price).toFixed(2)}</Text>
+        <Text style={styles.productPrice}>
+          ${parseFloat(price?.amount || 0).toFixed(2)}
+        </Text>
       </View>
     </View>
   );
