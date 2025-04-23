@@ -64,6 +64,9 @@ const CLOUD_FUNCTION_URL_FACO =
 const CLOUD_FUNCTION_URL_FMRY =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchLatestYouTubeVideoHandler";
 
+const CLOUD_FUNCTION_URL_FBBH =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchBlogByHandle";
+
 /**
  * Fetch Collections
  */
@@ -531,6 +534,19 @@ export const searchProductsSF = async (searchTerm) => {
       "Error searching products via Cloud Function:",
       error.response?.data || error.message
     );
+    throw error;
+  }
+};
+
+export const fetchBlogArticles = async (blogHandle) => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_FBBH, {
+      params: { blogHandle }, // Pass handle as query param
+    });
+
+    return response.data; // This is the blog object
+  } catch (error) {
+    console.error("Error fetching blog articles:", error);
     throw error;
   }
 };
