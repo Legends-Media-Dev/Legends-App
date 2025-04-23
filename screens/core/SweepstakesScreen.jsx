@@ -3,11 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
+  ScrollView,
   ActivityIndicator,
   Image,
 } from "react-native";
 import { fetchBlogArticles } from "../../api/shopifyApi";
+import SwiperContentBox from "../../components/SwiperContentBox";
+import OutlineText from "../../components/SvgOutlineText";
 
 const extractSweepstakesData = (article) => {
   const html = article.contentHtml || "";
@@ -76,54 +78,51 @@ const SweepstakesScreen = () => {
   }, []);
 
   const renderItem = ({ item }) => (
-    <View style={styles.articleContainer}>
-      <Text style={styles.articleTitle}>{item.title}</Text>
-      {item.description1 ? (
-        <Text style={styles.articleText}>{item.description1}</Text>
-      ) : null}
-      {item.description2 ? (
-        <Text style={styles.articleText}>{item.description2}</Text>
-      ) : null}
-      {item.image1 && (
-        <Image source={{ uri: item.image1 }} style={styles.image} />
-      )}
-      {item.image2 && (
-        <Image source={{ uri: item.image2 }} style={styles.image} />
-      )}
-    </View>
+    <SwiperContentBox 
+      title={item.title}
+      description1={item.description1}
+      description2={item.description2}
+      image1={item.image1}
+      image2={item.image2}
+    />
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Sweepstakes</Text>
-
+    <ScrollView style={styles.container}>
       {loading ? (
         <ActivityIndicator size="large" color="#000" />
       ) : (
         <>
           {currentArticles.length > 0 && (
             <>
-              <Text style={styles.subHeader}>Current</Text>
-              <FlatList
-                data={currentArticles}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-              />
-            </>
+              <OutlineText style={styles.outlineTitle}>
+                CURRENT SWEEPSTAKES
+              </OutlineText>
+              {currentArticles.map((item) => (
+                <View key={item.id}>{renderItem({ item })}</View>
+              ))}
+            </>  
           )}
+  
           {previousArticles.length > 0 && (
             <>
-              <Text style={styles.subHeader}>Previous</Text>
-              <FlatList
-                data={previousArticles}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-              />
+              <OutlineText
+                size={25}
+                stroke="#000"
+                fill="#000" // now filled
+                style={{ marginBottom: 10 }}
+              >
+                PREVIOUS SWEEPSTAKES
+              </OutlineText>
+
+              {previousArticles.map((item) => (
+                <View key={item.id}>{renderItem({ item })}</View>
+              ))}
             </>
           )}
         </>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -172,6 +171,28 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginTop: 10,
   },
+  outlineTitle: {
+    fontSize: 20,
+    color: "#000",
+    fontWeight: "900",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    fontFamily: "Futura-Bold",
+    textAlign: "left",
+    marginBottom: 10,
+  },
+  
+  filledTitle: {
+    fontSize: 25,
+    fontWeight: "900",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    fontFamily: "Futura-Bold",
+    color: "#000",
+    marginTop: 24,
+    marginBottom: 10,
+  },
+  
 });
 
 export default SweepstakesScreen;
