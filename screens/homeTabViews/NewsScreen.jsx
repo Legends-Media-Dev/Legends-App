@@ -6,6 +6,7 @@ import YoutubeContentBox from "../../components/YoutubeContentBox";
 import {
   fetchLatestYouTubeVideo,
   fetchCollectionByHandle,
+  fetchBlogArticles,
 } from "../../api/shopifyApi";
 
 const NewsScreen = () => {
@@ -15,7 +16,14 @@ const NewsScreen = () => {
   const [videoLoading, setVideoLoading] = useState(true);
   const [heroImageLoading, setHeroImageLoading] = useState(true);
   const [heroImageLoadingTs, setHeroImageLoadingTs] = useState(true);
+  const [sweepstakesImage, setSweepstakesImage] = useState(null);
+
   const loading = heroImageLoading || heroImageLoadingTs;
+
+  const extractFirstImageFromHtml = (html) => {
+    const match = html?.match(/<img[^>]+src="([^">]+)"/);
+    return match ? match[1] : null;
+  };
 
   useEffect(() => {
     const loadVideo = async () => {
@@ -51,9 +59,30 @@ const NewsScreen = () => {
       }
     };
 
+    const fetchSweepstakesImage = async () => {
+      try {
+        const blog = await fetchBlogArticles("sweepstakes");
+        const articles = blog.articles?.edges || [];
+
+        const currentSweepstakes = articles
+          .map((edge) => edge.node)
+          .find((article) => article.tags.includes("current"));
+
+        if (currentSweepstakes) {
+          const firstImage = extractFirstImageFromHtml(
+            currentSweepstakes.contentHtml
+          );
+          setSweepstakesImage(firstImage);
+        }
+      } catch (error) {
+        console.error("Failed to fetch sweepstakes image:", error);
+      }
+    };
+
     fetchHero();
     fetchHeroTs();
     loadVideo();
+    fetchSweepstakesImage();
   }, []);
 
   return (
@@ -112,7 +141,11 @@ const NewsScreen = () => {
           <View style={styles.contentWrapper}>
             <ContentBox
               topTitle="CURIOUS ABOUT OUR SWEEPSTAKES?"
-              image={require("../../assets/vip-background.png")}
+              image={
+                sweepstakesImage
+                  ? { uri: sweepstakesImage }
+                  : require("../../assets/vip-background.png")
+              }
               screenName="Sweepstakes"
             />
           </View>
