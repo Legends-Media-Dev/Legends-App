@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
 import HeroImage from "../../components/HeroImage";
 import ContentBox from "../../components/ContentBox";
@@ -18,6 +18,7 @@ const NewsScreen = () => {
   const [heroImageLoadingTs, setHeroImageLoadingTs] = useState(true);
   const [sweepstakesImage, setSweepstakesImage] = useState(null);
 
+  const hasFetchedVideo = useRef(false);
   const loading = heroImageLoading || heroImageLoadingTs;
 
   const extractFirstImageFromHtml = (html) => {
@@ -27,6 +28,9 @@ const NewsScreen = () => {
 
   useEffect(() => {
     const loadVideo = async () => {
+      if (hasFetchedVideo.current) return; // prevent rerun
+      hasFetchedVideo.current = true;
+
       try {
         const data = await fetchLatestYouTubeVideo();
         setLatestVideo(data);

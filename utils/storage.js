@@ -78,7 +78,7 @@ export const getRecentlyViewedProducts = async () => {
   try {
     const value = await AsyncStorage.getItem("recentlyViewedProducts");
     const result = value ? JSON.parse(value) : [];
-    console.log("Fetched recently viewed:", result);
+    // console.log("Fetched recently viewed:", result);
     return result;
   } catch (error) {
     console.error("Error retrieving recently viewed products:", error);
