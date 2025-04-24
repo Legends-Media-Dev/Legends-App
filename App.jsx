@@ -25,7 +25,6 @@ import ForgotPasswordScreen from "./screens/authentication/ForgotPasswordScreen"
 
 import VIPPortalScreen from "./screens/vip/VIPPortalScreen";
 import JoinVIPScreen from "./screens/vip/JoinVIPScreen";
-import RaceGame from "./screens/vip/RaceGame";
 
 import PrivacyPolicyScreen from "./screens/account/PrivacyPolicyScreen";
 import OrdersScreen from "./screens/account/OrdersScreen";
@@ -365,14 +364,6 @@ function AccountStack() {
       <Stack.Screen
         name="VIPPortalScreen"
         component={VIPPortalScreen}
-        options={() => ({
-          headerShown: true,
-          headerBackTitleVisible: true,
-        })}
-      />
-      <Stack.Screen
-        name="VIPRaceScreen"
-        component={RaceGame}
         options={() => ({
           headerShown: true,
           headerBackTitleVisible: true,
