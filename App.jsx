@@ -364,10 +364,37 @@ function AccountStack() {
       <Stack.Screen
         name="VIPPortalScreen"
         component={VIPPortalScreen}
-        options={() => ({
-          headerShown: true,
-          headerBackTitleVisible: true,
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
         })}
+      />
+      <Stack.Screen
+        name="Collection"
+        component={CollectionScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="WebViewScreen"
+        component={WebViewScreen}
+        options={{
+          headerBackTitle: false,
+          headerTitle: "",
+        }}
+      />
+      <Stack.Screen
+        name="Cart"
+        component={CartScreen}
+        options={{
+          headerBackTitle: false,
+          headerTitle: () => <AnimatedHeader />,
+          headerBackTitleVisible: false,
+        }}
       />
       <Stack.Screen
         name="SweepstakesScreen"
