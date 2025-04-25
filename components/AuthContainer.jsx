@@ -1,31 +1,28 @@
-import React, { useState, useRef } from "react";
-import {
-  Animated,
-  TextInput,
-  View,
-  Text,
-  StyleSheet,
-  Platform,
-} from "react-native";
+import React, { useState, useRef, forwardRef } from "react";
+import { Animated, TextInput, View, StyleSheet, Platform } from "react-native";
 
-const AuthInput = ({
-  width = "100%",
-  height = 50,
-  borderColor = "#ccc",
-  borderWidth = 1,
-  borderRadius = 8,
-  label = "Email",
-  textColor = "#000",
-  labelColor = "#000",
-  placeholder = "",
-  value,
-  onChangeText,
-  secureTextEntry = false,
-}) => {
+const AuthInput = (
+  {
+    width = "100%",
+    height = 50,
+    borderColor = "#ccc",
+    borderWidth = 1,
+    borderRadius = 8,
+    label = "Email",
+    textColor = "#000",
+    labelColor = "#000",
+    placeholder = "",
+    value,
+    onChangeText,
+    secureTextEntry = false,
+    returnKeyType = "done",
+    onSubmitEditing = () => {},
+  },
+  ref
+) => {
   const [isFocused, setIsFocused] = useState(false);
   const animatedLabelPosition = useRef(new Animated.Value(0)).current;
 
-  // Animate the label when focused or blurred
   const handleFocus = () => {
     setIsFocused(true);
     Animated.timing(animatedLabelPosition, {
@@ -52,11 +49,11 @@ const AuthInput = ({
     left: 22,
     top: animatedLabelPosition.interpolate({
       inputRange: [-0.3, 1],
-      outputRange: [height / 2 - 8, 5], // Adjust label position
+      outputRange: [height / 2 - 8, 5],
     }),
     fontSize: animatedLabelPosition.interpolate({
       inputRange: [0, 1],
-      outputRange: [16, 12], // Adjust label size
+      outputRange: [16, 12],
     }),
     color: labelColor,
   };
@@ -76,6 +73,7 @@ const AuthInput = ({
     >
       <Animated.Text style={labelStyle}>{label}</Animated.Text>
       <TextInput
+        ref={ref}
         style={[styles.textInput, { color: textColor }]}
         onFocus={handleFocus}
         onBlur={handleBlur}
@@ -84,6 +82,8 @@ const AuthInput = ({
         value={value}
         onChangeText={onChangeText}
         secureTextEntry={secureTextEntry}
+        returnKeyType={returnKeyType}
+        onSubmitEditing={onSubmitEditing}
       />
     </View>
   );
@@ -103,4 +103,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AuthInput;
+// ✅ Correct way to export a forwardRef component
+export default forwardRef(AuthInput);
