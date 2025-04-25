@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
@@ -10,6 +10,7 @@ const LoginScreen = ({ route, navigation }) => {
   // State for managing input values
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const passwordInputRef = useRef(null);
 
   const handleSignIn = async () => {
     try {
@@ -69,9 +70,12 @@ const LoginScreen = ({ route, navigation }) => {
             borderColor="#ccc"
             labelColor="#000"
             textColor="#000"
+            onSubmitEditing={() => passwordInputRef.current?.focus()}
+            returnKeyType="next"
           />
           <View style={{ marginTop: 10 }} />
           <AuthInput
+            ref={passwordInputRef}
             label="Password"
             placeholder="Enter your password"
             value={password}
@@ -80,6 +84,7 @@ const LoginScreen = ({ route, navigation }) => {
             labelColor="#000"
             textColor="#000"
             secureTextEntry={true}
+            returnKeyType="done"
           />
           <View style={styles.forgotPasswordContainer}>
             <TouchableOpacity

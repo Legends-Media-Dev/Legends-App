@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
@@ -11,6 +11,9 @@ const SignUpScreen = ({ route, navigation }) => {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const lastNameRef = useRef(null);
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
 
   const handleSignUp = async () => {
     try {
@@ -84,8 +87,11 @@ const SignUpScreen = ({ route, navigation }) => {
               labelColor="#000"
               textColor="#000"
               width={"49%"}
+              returnKeyType="next"
+              onSubmitEditing={() => lastNameRef.current?.focus()}
             />
             <AuthInput
+              ref={lastNameRef}
               label="Last Name"
               placeholder="Last name"
               value={lastName}
@@ -94,11 +100,14 @@ const SignUpScreen = ({ route, navigation }) => {
               labelColor="#000"
               textColor="#000"
               width={"49%"}
+              returnKeyType="next"
+              onSubmitEditing={() => emailRef.current?.focus()}
             />
           </View>
           <View style={{ marginTop: 10 }} />
 
           <AuthInput
+            ref={emailRef}
             label="Email"
             placeholder="Enter your email"
             value={email}
@@ -106,9 +115,12 @@ const SignUpScreen = ({ route, navigation }) => {
             borderColor="#ccc"
             labelColor="#000"
             textColor="#000"
+            returnKeyType="next"
+            onSubmitEditing={() => passwordRef.current?.focus()}
           />
           <View style={{ marginTop: 10 }} />
           <AuthInput
+            ref={passwordRef}
             label="Password"
             placeholder="Enter your password"
             value={password}
@@ -117,6 +129,7 @@ const SignUpScreen = ({ route, navigation }) => {
             labelColor="#000"
             textColor="#000"
             secureTextEntry={true}
+            returnKeyType="done"
           />
         </View>
         <View style={styles.buttonContainer}>

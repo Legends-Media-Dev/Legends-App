@@ -7,9 +7,7 @@ import {
   ImageBackground,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import {
-  fetchAllProductsCollection,
-} from "../api/shopifyApi";
+import { fetchAllProductsCollection } from "../api/shopifyApi";
 
 const ContentBox = ({
   topTitle,
@@ -91,6 +89,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Futura-Bold",
     color: "#fff",
+    textTransform: "uppercase",
   },
 });
 
