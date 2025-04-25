@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
   FlatList,
 } from "react-native";
 import ProductCard from "../../components/ProductCard";
@@ -126,6 +127,11 @@ const AccountScreen = () => {
 
   return (
     <View style={styles.container}>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" />
+        </View>
+      )}
       {/* Logout Confirmation Modal */}
       <Modal
         isVisible={modalVisible}
@@ -431,6 +437,17 @@ const styles = StyleSheet.create({
   loadingText: {
     textAlign: "center",
     color: "#666",
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 999,
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
