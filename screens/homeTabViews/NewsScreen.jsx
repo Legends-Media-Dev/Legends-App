@@ -1,5 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
-import { View, StyleSheet, ScrollView, ActivityIndicator } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  ActivityIndicator,
+  RefreshControl,
+} from "react-native";
 import HeroImage from "../../components/HeroImage";
 import ContentBox from "../../components/ContentBox";
 import YoutubeContentBox from "../../components/YoutubeContentBox";
@@ -17,6 +23,7 @@ const NewsScreen = () => {
   const [heroImageLoading, setHeroImageLoading] = useState(true);
   const [heroImageLoadingTs, setHeroImageLoadingTs] = useState(true);
   const [sweepstakesImage, setSweepstakesImage] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const hasFetchedVideo = useRef(false);
   const loading = heroImageLoading || heroImageLoadingTs;
@@ -26,63 +33,79 @@ const NewsScreen = () => {
     return match ? match[1] : null;
   };
 
+  const loadVideo = async () => {
+    if (hasFetchedVideo.current) return; // prevent rerun
+    hasFetchedVideo.current = true;
+
+    try {
+      const data = await fetchLatestYouTubeVideo();
+      setLatestVideo(data);
+    } catch (err) {
+      console.error("Failed to load video:", err);
+    } finally {
+      setVideoLoading(false);
+    }
+  };
+
+  const fetchHero = async () => {
+    try {
+      const collection = await fetchCollectionByHandle("new-release");
+      setHeroImage(collection.image?.src);
+    } catch (err) {
+      console.error("Failed to load hero image:", err);
+    } finally {
+      setHeroImageLoading(false);
+    }
+  };
+
+  const fetchHeroTs = async () => {
+    try {
+      const collection = await fetchCollectionByHandle("tshirts");
+      setHeroImageTs(collection.image?.src);
+    } catch (err) {
+      console.error("Failed to load hero image:", err);
+    } finally {
+      setHeroImageLoadingTs(false);
+    }
+  };
+
+  const fetchSweepstakesImage = async () => {
+    try {
+      const blog = await fetchBlogArticles("sweepstakes");
+      const articles = blog.articles?.edges || [];
+
+      const currentSweepstakes = articles
+        .map((edge) => edge.node)
+        .find((article) => article.tags.includes("current"));
+
+      if (currentSweepstakes) {
+        const firstImage = extractFirstImageFromHtml(
+          currentSweepstakes.contentHtml
+        );
+        setSweepstakesImage(firstImage);
+      }
+    } catch (error) {
+      console.error("Failed to fetch sweepstakes image:", error);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        fetchHero(),
+        fetchHeroTs(),
+        loadVideo(),
+        fetchSweepstakesImage(),
+      ]);
+    } catch (error) {
+      console.error("Refresh error:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   useEffect(() => {
-    const loadVideo = async () => {
-      if (hasFetchedVideo.current) return; // prevent rerun
-      hasFetchedVideo.current = true;
-
-      try {
-        const data = await fetchLatestYouTubeVideo();
-        setLatestVideo(data);
-      } catch (err) {
-        console.error("Failed to load video:", err);
-      } finally {
-        setVideoLoading(false);
-      }
-    };
-
-    const fetchHero = async () => {
-      try {
-        const collection = await fetchCollectionByHandle("new-release");
-        setHeroImage(collection.image?.src);
-      } catch (err) {
-        console.error("Failed to load hero image:", err);
-      } finally {
-        setHeroImageLoading(false);
-      }
-    };
-
-    const fetchHeroTs = async () => {
-      try {
-        const collection = await fetchCollectionByHandle("tshirts");
-        setHeroImageTs(collection.image?.src);
-      } catch (err) {
-        console.error("Failed to load hero image:", err);
-      } finally {
-        setHeroImageLoadingTs(false);
-      }
-    };
-
-    const fetchSweepstakesImage = async () => {
-      try {
-        const blog = await fetchBlogArticles("sweepstakes");
-        const articles = blog.articles?.edges || [];
-
-        const currentSweepstakes = articles
-          .map((edge) => edge.node)
-          .find((article) => article.tags.includes("current"));
-
-        if (currentSweepstakes) {
-          const firstImage = extractFirstImageFromHtml(
-            currentSweepstakes.contentHtml
-          );
-          setSweepstakesImage(firstImage);
-        }
-      } catch (error) {
-        console.error("Failed to fetch sweepstakes image:", error);
-      }
-    };
-
     fetchHero();
     fetchHeroTs();
     loadVideo();
@@ -96,7 +119,13 @@ const NewsScreen = () => {
           <ActivityIndicator size="large" />
         </View>
       )}
-      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.container}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         {/* 🔹 Hero Banner */}
         <View style={styles.topHero}>
           <HeroImage
