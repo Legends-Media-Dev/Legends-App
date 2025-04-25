@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
+  Modal,
 } from "react-native";
 import {
   fetchCollections,
@@ -15,6 +16,7 @@ import {
   fetchBlogArticles,
 } from "../../api/shopifyApi";
 import ContentBox from "../../components/ContentBox";
+import { WebView } from "react-native-webview";
 
 const { width, height } = Dimensions.get("window");
 
@@ -22,6 +24,7 @@ const VipPortalScreen = () => {
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [screenData, setScreenData] = useState([]);
+  const [showWheel, setShowWheel] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -75,7 +78,7 @@ const VipPortalScreen = () => {
       return (
         <TouchableOpacity
           style={styles.benefitsButton}
-          onPress={() => console.log("PRESS")}
+          onPress={() => setShowWheel(true)}
         >
           <Text style={styles.benefitsButtonText}>EARN MONTHLY BENEFITS</Text>
         </TouchableOpacity>
@@ -121,13 +124,40 @@ const VipPortalScreen = () => {
       <ActivityIndicator size="large" />
     </View>
   ) : (
-    <FlatList
-      data={screenData}
-      renderItem={renderItem}
-      keyExtractor={(item, index) => `${item.type}-${index}`}
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    />
+    <>
+      <FlatList
+        data={screenData}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => `${item.type}-${index}`}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      />
+
+      <Modal
+        visible={showWheel}
+        animationType="slide"
+        onRequestClose={() => setShowWheel(false)}
+      >
+        <View style={{ flex: 1 }}>
+          <TouchableOpacity
+            onPress={() => setShowWheel(false)}
+            style={{
+              padding: 12,
+              backgroundColor: "#C8102F",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: "white", fontFamily: "Futura-Bold" }}>
+              Close
+            </Text>
+          </TouchableOpacity>
+          <WebView
+            source={{ uri: "https://yourpage.com/spinwheel" }}
+            style={{ flex: 1 }}
+          />
+        </View>
+      </Modal>
+    </>
   );
 };
 
