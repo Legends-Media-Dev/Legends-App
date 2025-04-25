@@ -176,150 +176,158 @@ const AccountScreen = () => {
 
       {/* Display Customer Data */}
       <ScrollView style={styles.screenContainer}>
-        {loading ? (
-          <Text style={[styles.loadingText, { opacity: 0 }]}>Placeholder</Text>
-        ) : customerData ? (
-          <View style={styles.profileContainer}>
-            <Text style={styles.customerName}>
-              Hi, {customerData.firstName}.
+        <View style={{ paddingHorizontal: 20 }}>
+          {loading ? (
+            <Text style={[styles.loadingText, { opacity: 0 }]}>
+              Placeholder
             </Text>
-          </View>
-        ) : (
-          <Text>No customer data available.</Text>
-        )}
-
-        {/* button Containers */}
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            onPress={async () => {
-              const accessToken = await AsyncStorage.getItem(
-                "shopifyAccessToken"
-              );
-              console.log(
-                "Access token being passed to OrdersScreen:",
-                accessToken
-              );
-              if (accessToken) {
-                navigation.navigate("OrdersScreen", { accessToken });
-              } else {
-                console.log("Access token not found.");
-              }
-            }}
-            style={styles.topButtonContainer}
-          >
-            <View style={styles.leftSide}>
-              <Ionicons
-                name="pricetags-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 0 }}
-              />
-              <Text style={styles.buttonText}>ORDERS</Text>
-            </View>
-            <View>
-              <Ionicons
-                name="chevron-forward-outline"
-                size={24}
-                color="#000"
-                style={{ marginRight: 0 }}
-              />
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.innerButtonContainer}
-            onPress={() => {
-              if (
-                customerData?.tags?.includes("Active Subscriber") &&
-                customerData?.tags?.includes("VIP Gold")
-              ) {
-                navigation.navigate("VIPPortalScreen"); // Navigate to VIP Portal screen
-              } else {
-                navigation.navigate("JoinVIPScreen"); // Navigate to Join VIP screen
-              }
-            }}
-          >
-            <View style={styles.leftSide}>
-              <Ionicons name="diamond-outline" size={24} color="#000" />
-              <Text style={styles.buttonText}>
-                {customerData?.tags?.includes("Active Subscriber") &&
-                customerData?.tags?.includes("VIP Gold")
-                  ? "VIP PORTAL"
-                  : "JOIN VIP"}
+          ) : customerData ? (
+            <View style={styles.profileContainer}>
+              <Text style={styles.customerName}>
+                Hi, {customerData.firstName}.
               </Text>
             </View>
-            <Ionicons name="chevron-forward-outline" size={24} color="#000" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.innerButtonContainer}
-            onPress={() => {
-              navigation.navigate("SweepstakesScreen"); // Navigate to Join VIP screen
-            }}
-          >
-            <View style={styles.leftSide}>
-              <Ionicons name="gift-outline" size={24} color="#000" />
-              <Text style={styles.buttonText}>SWEEPSTAKES</Text>
-            </View>
-            <Ionicons name="chevron-forward-outline" size={24} color="#000" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.lowerButtonContainer}
-            onPress={() => {
-              navigation.navigate("PrivacyPolicyScreen"); // Navigate to Join VIP screen
-            }}
-          >
-            <View style={styles.leftSide}>
-              <Ionicons name="car-outline" size={24} color="#000" />
-              <Text style={styles.buttonText}>CAR SHOWS</Text>
-            </View>
-            <Ionicons name="chevron-forward-outline" size={24} color="#000" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.lowerContainer}>
-          <Text style={styles.lowerText}>Recently Viewed</Text>
-
-          {loadingRecentlyViewed ? (
-            <Text style={styles.noProductsText}>Loading...</Text>
-          ) : recentlyViewed.length === 0 ? (
-            <Text style={styles.noProductsText}>
-              No recently viewed products.
-            </Text>
           ) : (
-            <FlatList
-              data={recentlyViewed}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.recentlyViewedScroll}
-              renderItem={({ item }) => {
-                const variant = item.variants.edges[0]?.node;
-                const price = parseFloat(variant?.price?.amount || "0").toFixed(
-                  2
-                );
-                const compareAt = variant?.compareAtPrice?.amount
-                  ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
-                  : null;
-
-                return (
-                  <TouchableOpacity
-                    style={{ width: 150, marginRight: 10 }}
-                    onPress={() =>
-                      navigation.navigate("Product", { product: item })
-                    }
-                  >
-                    <ProductCard
-                      image={
-                        item.images.edges[0]?.node.src ||
-                        "https://via.placeholder.com/100"
-                      }
-                      name={item.title || "No Name"}
-                      price={price}
-                      compareAtPrice={compareAt}
-                    />
-                  </TouchableOpacity>
-                );
-              }}
-            />
+            <Text>No customer data available.</Text>
           )}
+
+          {/* button Containers */}
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              onPress={async () => {
+                const accessToken = await AsyncStorage.getItem(
+                  "shopifyAccessToken"
+                );
+                console.log(
+                  "Access token being passed to OrdersScreen:",
+                  accessToken
+                );
+                if (accessToken) {
+                  navigation.navigate("OrdersScreen", { accessToken });
+                } else {
+                  console.log("Access token not found.");
+                }
+              }}
+              style={styles.topButtonContainer}
+            >
+              <View style={styles.leftSide}>
+                <Ionicons
+                  name="pricetags-outline"
+                  size={24}
+                  color="#000"
+                  style={{ marginRight: 0 }}
+                />
+                <Text style={styles.buttonText}>ORDERS</Text>
+              </View>
+              <View>
+                <Ionicons
+                  name="chevron-forward-outline"
+                  size={24}
+                  color="#000"
+                  style={{ marginRight: 0 }}
+                />
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.innerButtonContainer}
+              onPress={() => {
+                if (
+                  customerData?.tags?.includes("Active Subscriber") &&
+                  customerData?.tags?.includes("VIP Gold")
+                ) {
+                  navigation.navigate("VIPPortalScreen"); // Navigate to VIP Portal screen
+                } else {
+                  navigation.navigate("JoinVIPScreen"); // Navigate to Join VIP screen
+                }
+              }}
+            >
+              <View style={styles.leftSide}>
+                <Ionicons name="diamond-outline" size={24} color="#000" />
+                <Text style={styles.buttonText}>
+                  {customerData?.tags?.includes("Active Subscriber") &&
+                  customerData?.tags?.includes("VIP Gold")
+                    ? "VIP PORTAL"
+                    : "JOIN VIP"}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward-outline" size={24} color="#000" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.innerButtonContainer}
+              onPress={() => {
+                navigation.navigate("SweepstakesScreen"); // Navigate to Join VIP screen
+              }}
+            >
+              <View style={styles.leftSide}>
+                <Ionicons name="gift-outline" size={24} color="#000" />
+                <Text style={styles.buttonText}>SWEEPSTAKES</Text>
+              </View>
+              <Ionicons name="chevron-forward-outline" size={24} color="#000" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.lowerButtonContainer}
+              onPress={() => {
+                navigation.navigate("PrivacyPolicyScreen"); // Navigate to Join VIP screen
+              }}
+            >
+              <View style={styles.leftSide}>
+                <Ionicons name="car-outline" size={24} color="#000" />
+                <Text style={styles.buttonText}>CAR SHOWS</Text>
+              </View>
+              <Ionicons name="chevron-forward-outline" size={24} color="#000" />
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View>
+          <View style={styles.lowerContainer}>
+            <View style={{ paddingLeft: 20 }}>
+              <Text style={styles.lowerText}>Recently Viewed</Text>
+            </View>
+
+            {loadingRecentlyViewed ? (
+              <Text style={styles.noProductsText}>Loading...</Text>
+            ) : recentlyViewed.length === 0 ? (
+              <Text style={styles.noProductsText}>
+                No recently viewed products.
+              </Text>
+            ) : (
+              <FlatList
+                data={recentlyViewed}
+                keyExtractor={(item) => item.id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.recentlyViewedScroll}
+                renderItem={({ item }) => {
+                  const variant = item.variants.edges[0]?.node;
+                  const price = parseFloat(
+                    variant?.price?.amount || "0"
+                  ).toFixed(2);
+                  const compareAt = variant?.compareAtPrice?.amount
+                    ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
+                    : null;
+
+                  return (
+                    <TouchableOpacity
+                      style={{ width: 150, marginRight: 10 }}
+                      onPress={() =>
+                        navigation.navigate("Product", { product: item })
+                      }
+                    >
+                      <ProductCard
+                        image={
+                          item.images.edges[0]?.node.src ||
+                          "https://via.placeholder.com/100"
+                        }
+                        name={item.title || "No Name"}
+                        price={price}
+                        compareAtPrice={compareAt}
+                      />
+                    </TouchableOpacity>
+                  );
+                }}
+              />
+            )}
+          </View>
         </View>
       </ScrollView>
     </View>
@@ -333,7 +341,7 @@ const styles = StyleSheet.create({
   },
   screenContainer: {
     flex: 1,
-    paddingHorizontal: 20, // Add some padding to the sides for better spacing
+    // paddingHorizontal: 20, // Add some padding to the sides for better spacing
   },
   profileContainer: {
     alignItems: "flex-start", // Left-align text instead of center
@@ -428,6 +436,7 @@ const styles = StyleSheet.create({
   recentlyViewedScroll: {
     marginTop: 10,
     paddingHorizontal: 10,
+    paddingRight: 0,
   },
   noProductsText: {
     textAlign: "center",

@@ -56,7 +56,9 @@ const ForYouScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.subheading}>Recently Viewed</Text>
+      <View style={{ paddingLeft: 20 }}>
+        <Text style={styles.subheading}>Recently Viewed</Text>
+      </View>
 
       {loading ? (
         <Text style={styles.loadingText}>Loading...</Text>
@@ -105,6 +107,8 @@ const ForYouScreen = () => {
           padding: 10,
           marginVertical: 10,
           borderRadius: 5,
+          marginLeft: 20,
+          marginRight: 20,
         }}
         onPress={async () => {
           await clearRecentlyViewedProducts();
@@ -125,7 +129,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
   },
   title: {
     fontSize: 24,
