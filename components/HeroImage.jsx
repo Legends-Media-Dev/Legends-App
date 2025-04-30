@@ -99,8 +99,6 @@ const HeroImage = ({
     });
   };
 
-  console.log("Rendering HeroImage with image:", image);
-
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.99}>
       {image && (

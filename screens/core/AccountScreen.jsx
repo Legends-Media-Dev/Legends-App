@@ -77,9 +77,26 @@ const AccountScreen = () => {
           setLoadingRecentlyViewed(true);
 
           const productIds = await getRecentlyViewedProducts();
-          console.log("Retrieved product IDs from storage:", productIds);
+          const cachedIdsString = await AsyncStorage.getItem(
+            "cachedProductIds"
+          );
+          const cachedIds = cachedIdsString ? JSON.parse(cachedIdsString) : [];
 
-          if (productIds && productIds.length > 0) {
+          const idsAreSame =
+            Array.isArray(productIds) &&
+            Array.isArray(cachedIds) &&
+            productIds.length === cachedIds.length &&
+            productIds.every((id, i) => id === cachedIds[i]);
+
+          if (idsAreSame) {
+            const cachedProductsString = await AsyncStorage.getItem(
+              "cachedProducts"
+            );
+            const cachedProducts = cachedProductsString
+              ? JSON.parse(cachedProductsString)
+              : [];
+            setRecentlyViewed(cachedProducts);
+          } else {
             const products = await Promise.all(
               productIds.map(async (id) => {
                 try {
@@ -93,8 +110,14 @@ const AccountScreen = () => {
 
             const filtered = products.filter(Boolean);
             setRecentlyViewed(filtered);
-          } else {
-            setRecentlyViewed([]);
+            await AsyncStorage.setItem(
+              "cachedProductIds",
+              JSON.stringify(productIds)
+            );
+            await AsyncStorage.setItem(
+              "cachedProducts",
+              JSON.stringify(filtered)
+            );
           }
         } catch (error) {
           console.error("Error fetching recently viewed products:", error);
