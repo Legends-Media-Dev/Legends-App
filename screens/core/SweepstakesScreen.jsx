@@ -39,6 +39,24 @@ const extractSweepstakesData = (article) => {
   };
 };
 
+const parseDetails = (description) => {
+  const details = {};
+  
+  const sweepstakesPeriodMatch = description.match(/SWEEPSTAKES PERIOD: ([^,]+)/i);
+  const arvMatch = description.match(/ARV: ([^,]+)/i);
+  const winnerMatch = description.match(/WINNER: ([^,]+)/i);
+  const locationMatch = description.match(/LOCATION: ([^,]+)/i);
+  const itemsBoughtMatch = description.match(/ITEMS BOUGHT: (.+)/i);
+  
+  if (sweepstakesPeriodMatch) details.period = sweepstakesPeriodMatch[1].trim();
+  if (arvMatch) details.arv = arvMatch[1].trim();
+  if (winnerMatch) details.winner = winnerMatch[1].trim();
+  if (locationMatch) details.location = locationMatch[1].trim();
+  if (itemsBoughtMatch) details.itemsBought = itemsBoughtMatch[1].trim();
+  
+  return details;
+};
+
 const SweepstakesScreen = () => {
   const [currentArticles, setCurrentArticles] = useState([]);
   const [previousArticles, setPreviousArticles] = useState([]);
@@ -77,15 +95,47 @@ const SweepstakesScreen = () => {
     loadArticles();
   }, []);
 
-  const renderItem = ({ item }) => (
-    <SwiperContentBox 
-      title={item.title}
-      description1={item.description1}
-      description2={item.description2}
-      image1={item.image1}
-      image2={item.image2}
-    />
-  );
+  const renderItem = ({ item }) => {
+    const details = parseDetails(item.description2);
+  
+    return (
+      <View>
+        <Text style={styles.articleTitle}>{item.title}</Text>
+        {item.description1 ? (
+          <Text style={styles.articleText}>
+            {item.description1}
+          </Text>
+        ) : null}
+  
+        {/* Structured second description */}
+        {details.arv && (
+          <Text style={styles.articleText}>
+            ARV: {details.arv}
+          </Text>
+        )}
+        {details.winner && (
+          <Text style={styles.articleText}>
+            WINNER: {details.winner}
+          </Text>
+        )}
+        {details.location && (
+          <Text style={styles.articleText}>
+            LOCATION: {details.location}
+          </Text>
+        )}
+        {details.itemsBought && (
+          <Text style={styles.articleText}>
+            ITEMS BOUGHT: {details.itemsBought}
+          </Text>
+        )}
+
+        <SwiperContentBox
+          image1={item.image1}
+          image2={item.image2}
+        />
+      </View>
+    );
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -95,9 +145,9 @@ const SweepstakesScreen = () => {
         <>
           {currentArticles.length > 0 && (
             <>
-              <OutlineText style={styles.outlineTitle}>
+              <Text style={styles.outlineTitle}>
                 CURRENT SWEEPSTAKES
-              </OutlineText>
+              </Text>
               {currentArticles.map((item) => (
                 <View key={item.id}>{renderItem({ item })}</View>
               ))}
@@ -106,14 +156,9 @@ const SweepstakesScreen = () => {
   
           {previousArticles.length > 0 && (
             <>
-              <OutlineText
-                size={25}
-                stroke="#000"
-                fill="#000" // now filled
-                style={{ marginBottom: 10 }}
-              >
+              <Text style={styles.outlineTitle}>
                 PREVIOUS SWEEPSTAKES
-              </OutlineText>
+              </Text>
 
               {previousArticles.map((item) => (
                 <View key={item.id}>{renderItem({ item })}</View>
@@ -133,25 +178,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 16,
   },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#000",
-  },
-  subHeader: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginTop: 20,
-    marginBottom: 5,
-    color: "#333",
-  },
-  articleContainer: {
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    paddingBottom: 10,
-  },
   articleTitle: {
     fontSize: 16,
     fontFamily: "Futura-Bold",
@@ -161,8 +187,7 @@ const styles = StyleSheet.create({
   articleText: {
     fontSize: 14,
     fontFamily: "Futura-Regular",
-    color: "#444",
-    marginBottom: 4,
+    color: "#000",
   },
   image: {
     width: "100%",
@@ -172,27 +197,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   outlineTitle: {
-    fontSize: 20,
+    fontSize: 24,
     color: "#000",
     fontWeight: "900",
     textTransform: "uppercase",
     letterSpacing: 1,
     fontFamily: "Futura-Bold",
-    textAlign: "left",
     marginBottom: 10,
   },
-  
-  filledTitle: {
-    fontSize: 25,
-    fontWeight: "900",
-    textTransform: "uppercase",
-    letterSpacing: 1,
-    fontFamily: "Futura-Bold",
-    color: "#000",
-    marginTop: 24,
-    marginBottom: 10,
-  },
-  
 });
 
 export default SweepstakesScreen;

@@ -76,8 +76,7 @@ const styles = StyleSheet.create({
     description: {
       fontSize: 14,
       fontFamily: "Futura-Regular",
-      color: "#444",
-      marginBottom: 2,
+      color: "#000000",
     },
     imageContainer: {
       width: "100%",
@@ -85,7 +84,6 @@ const styles = StyleSheet.create({
       borderRadius: 10,
       overflow: "hidden",
       position: "relative",
-      marginTop: 12,
     },
     image: {
       width: "100%",
