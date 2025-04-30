@@ -74,16 +74,16 @@ const VipPortalScreen = () => {
   };
 
   const renderItem = ({ item }) => {
-    if (item.type === "header") {
-      return (
-        <TouchableOpacity
-          style={styles.benefitsButton}
-          onPress={() => setShowWheel(true)}
-        >
-          <Text style={styles.benefitsButtonText}>EARN MONTHLY BENEFITS</Text>
-        </TouchableOpacity>
-      );
-    }
+    // if (item.type === "header") {
+    //   return (
+    //     <TouchableOpacity
+    //       style={styles.benefitsButton}
+    //       onPress={() => setShowWheel(true)}
+    //     >
+    //       <Text style={styles.benefitsButtonText}>EARN MONTHLY BENEFITS</Text>
+    //     </TouchableOpacity>
+    //   );
+    // }
 
     if (item.type === "section") {
       return <Text style={styles.sectionTitle}>{item.title}</Text>;
@@ -133,7 +133,7 @@ const VipPortalScreen = () => {
         showsVerticalScrollIndicator={false}
       />
 
-      <Modal
+      {/* <Modal
         visible={showWheel}
         animationType="slide"
         onRequestClose={() => setShowWheel(false)}
@@ -156,7 +156,7 @@ const VipPortalScreen = () => {
             style={{ flex: 1 }}
           />
         </View>
-      </Modal>
+      </Modal> */}
     </>
   );
 };
