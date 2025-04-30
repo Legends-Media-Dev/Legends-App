@@ -3,11 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  FlatList,
+  ScrollView,
   ActivityIndicator,
   Image,
 } from "react-native";
 import { fetchBlogArticles } from "../../api/shopifyApi";
+import SwiperContentBox from "../../components/SwiperContentBox";
+import OutlineText from "../../components/SvgOutlineText";
 
 const extractSweepstakesData = (article) => {
   const html = article.contentHtml || "";
@@ -35,6 +37,24 @@ const extractSweepstakesData = (article) => {
     image1: imgMatches[0] || null,
     image2: imgMatches[1] || null,
   };
+};
+
+const parseDetails = (description) => {
+  const details = {};
+  
+  const sweepstakesPeriodMatch = description.match(/SWEEPSTAKES PERIOD: ([^,]+)/i);
+  const arvMatch = description.match(/ARV: ([^,]+)/i);
+  const winnerMatch = description.match(/WINNER: ([^,]+)/i);
+  const locationMatch = description.match(/LOCATION: ([^,]+)/i);
+  const itemsBoughtMatch = description.match(/ITEMS BOUGHT: (.+)/i);
+  
+  if (sweepstakesPeriodMatch) details.period = sweepstakesPeriodMatch[1].trim();
+  if (arvMatch) details.arv = arvMatch[1].trim();
+  if (winnerMatch) details.winner = winnerMatch[1].trim();
+  if (locationMatch) details.location = locationMatch[1].trim();
+  if (itemsBoughtMatch) details.itemsBought = itemsBoughtMatch[1].trim();
+  
+  return details;
 };
 
 const SweepstakesScreen = () => {
@@ -75,55 +95,79 @@ const SweepstakesScreen = () => {
     loadArticles();
   }, []);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.articleContainer}>
-      <Text style={styles.articleTitle}>{item.title}</Text>
-      {item.description1 ? (
-        <Text style={styles.articleText}>{item.description1}</Text>
-      ) : null}
-      {item.description2 ? (
-        <Text style={styles.articleText}>{item.description2}</Text>
-      ) : null}
-      {item.image1 && (
-        <Image source={{ uri: item.image1 }} style={styles.image} />
-      )}
-      {item.image2 && (
-        <Image source={{ uri: item.image2 }} style={styles.image} />
-      )}
-    </View>
-  );
+  const renderItem = ({ item }) => {
+    const details = parseDetails(item.description2);
+  
+    return (
+      <View>
+        <Text style={styles.articleTitle}>{item.title}</Text>
+        {item.description1 ? (
+          <Text style={styles.articleText}>
+            {item.description1}
+          </Text>
+        ) : null}
+  
+        {/* Structured second description */}
+        {details.arv && (
+          <Text style={styles.articleText}>
+            ARV: {details.arv}
+          </Text>
+        )}
+        {details.winner && (
+          <Text style={styles.articleText}>
+            WINNER: {details.winner}
+          </Text>
+        )}
+        {details.location && (
+          <Text style={styles.articleText}>
+            LOCATION: {details.location}
+          </Text>
+        )}
+        {details.itemsBought && (
+          <Text style={styles.articleText}>
+            ITEMS BOUGHT: {details.itemsBought}
+          </Text>
+        )}
+
+        <SwiperContentBox
+          image1={item.image1}
+          image2={item.image2}
+        />
+      </View>
+    );
+  };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Sweepstakes</Text>
-
+    <ScrollView style={styles.container}>
       {loading ? (
         <ActivityIndicator size="large" color="#000" />
       ) : (
         <>
           {currentArticles.length > 0 && (
             <>
-              <Text style={styles.subHeader}>Current</Text>
-              <FlatList
-                data={currentArticles}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-              />
-            </>
+              <Text style={styles.outlineTitle}>
+                CURRENT SWEEPSTAKES
+              </Text>
+              {currentArticles.map((item) => (
+                <View key={item.id}>{renderItem({ item })}</View>
+              ))}
+            </>  
           )}
+  
           {previousArticles.length > 0 && (
             <>
-              <Text style={styles.subHeader}>Previous</Text>
-              <FlatList
-                data={previousArticles}
-                keyExtractor={(item) => item.id}
-                renderItem={renderItem}
-              />
+              <Text style={styles.outlineTitle}>
+                PREVIOUS SWEEPSTAKES
+              </Text>
+
+              {previousArticles.map((item) => (
+                <View key={item.id}>{renderItem({ item })}</View>
+              ))}
             </>
           )}
         </>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -134,25 +178,6 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 16,
   },
-  header: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#000",
-  },
-  subHeader: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginTop: 20,
-    marginBottom: 5,
-    color: "#333",
-  },
-  articleContainer: {
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eee",
-    paddingBottom: 10,
-  },
   articleTitle: {
     fontSize: 16,
     fontFamily: "Futura-Bold",
@@ -162,8 +187,7 @@ const styles = StyleSheet.create({
   articleText: {
     fontSize: 14,
     fontFamily: "Futura-Regular",
-    color: "#444",
-    marginBottom: 4,
+    color: "#000",
   },
   image: {
     width: "100%",
@@ -171,6 +195,15 @@ const styles = StyleSheet.create({
     resizeMode: "cover",
     borderRadius: 10,
     marginTop: 10,
+  },
+  outlineTitle: {
+    fontSize: 24,
+    color: "#000",
+    fontWeight: "900",
+    textTransform: "uppercase",
+    letterSpacing: 1,
+    fontFamily: "Futura-Bold",
+    marginBottom: 10,
   },
 });
 
