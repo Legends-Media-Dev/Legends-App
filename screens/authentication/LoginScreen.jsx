@@ -1,5 +1,12 @@
 import React, { useState, useRef } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
 import { setItem } from "../../utils/storage";
@@ -11,16 +18,20 @@ const LoginScreen = ({ route, navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const passwordInputRef = useRef(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSignIn = async () => {
-    try {
-      if (!email || !password) {
-        console.error("Email and password are required");
-        return;
-      }
+    if (!email || !password) {
+      setError("Email and password are required.");
+      return;
+    }
 
+    setLoading(true);
+    setError("");
+
+    try {
       const response = await customerSignIn(email, password);
-      console.log(response);
       const accessToken = response?.accessToken;
       const expiresAt = response?.expiresAt;
 
@@ -28,21 +39,29 @@ const LoginScreen = ({ route, navigation }) => {
         await AsyncStorage.setItem("shopifyAccessToken", accessToken);
         await AsyncStorage.setItem("accessTokenExpiry", expiresAt);
 
-        console.log("Signed in successfully. Access Token:", accessToken);
         navigation.reset({
           index: 0,
           routes: [{ name: "ACCOUNT" }],
         });
       } else {
-        console.error("Invalid credentials or failed to retrieve access token");
+        setError("Incorrect email or password.");
       }
     } catch (error) {
-      console.error("Sign-in failed:", error.message);
+      setError("Login failed. Please try again.");
+      console.error("Sign-in error:", error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <View style={styles.outerContainer}>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="small" />
+        </View>
+      )}
+
       <View>
         {/* Logo Section */}
         <View style={styles.imageContainer}>
@@ -96,6 +115,12 @@ const LoginScreen = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
+        {error !== "" && (
+          <Text style={{ color: "red", textAlign: "center", marginTop: 10 }}>
+            {error}
+          </Text>
+        )}
+
         <View style={styles.buttonContainer}>
           <RoundedBox
             isFilled={true}
@@ -205,6 +230,17 @@ const styles = StyleSheet.create({
   signUpButton: {
     color: "#C8102F", // Highlight color for the button
     fontWeight: "bold", // Bold to differentiate it as a button
+  },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.8)", // or "#FFF" for solid
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
   },
 });
 
