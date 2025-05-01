@@ -19,14 +19,16 @@ const NewsScreen = () => {
   const [latestVideo, setLatestVideo] = useState(null);
   const [heroImage, setHeroImage] = useState(null);
   const [heroImageTs, setHeroImageTs] = useState(null);
+  const [heroImageAs, setHeroImageAs] = useState(null);
   const [videoLoading, setVideoLoading] = useState(true);
   const [heroImageLoading, setHeroImageLoading] = useState(true);
   const [heroImageLoadingTs, setHeroImageLoadingTs] = useState(true);
+  const [heroImageLoadingAs, setHeroImageLoadingAs] = useState(true);
   const [sweepstakesImage, setSweepstakesImage] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
   const hasFetchedVideo = useRef(false);
-  const loading = heroImageLoading || heroImageLoadingTs;
+  const loading = heroImageLoading || heroImageLoadingTs || heroImageLoadingAs;
 
   const extractFirstImageFromHtml = (html) => {
     const match = html?.match(/<img[^>]+src="([^">]+)"/);
@@ -69,6 +71,17 @@ const NewsScreen = () => {
     }
   };
 
+  const fetchHeroAs = async () => {
+    try {
+      const collection = await fetchCollectionByHandle("hats");
+      setHeroImageAs(collection.image?.src);
+    } catch (err) {
+      console.error("Failed to load hero image:", err);
+    } finally {
+      setHeroImageLoadingAs(false);
+    }
+  };
+
   const fetchSweepstakesImage = async () => {
     try {
       const blog = await fetchBlogArticles("sweepstakes");
@@ -95,6 +108,7 @@ const NewsScreen = () => {
       await Promise.all([
         fetchHero(),
         fetchHeroTs(),
+        fetchHeroAs(),
         loadVideo(),
         fetchSweepstakesImage(),
       ]);
@@ -108,6 +122,7 @@ const NewsScreen = () => {
   useEffect(() => {
     fetchHero();
     fetchHeroTs();
+    fetchHeroAs();
     loadVideo();
     fetchSweepstakesImage();
   }, []);
@@ -170,7 +185,7 @@ const NewsScreen = () => {
         </View>
 
         {/* 🔹 Latest YouTube Video Box */}
-        <View style={{ marginTop: 8, marginBottom: 10 }}>
+        <View style={{ marginTop: 8 }}>
           <View style={styles.contentWrapper}>
             <ContentBox
               topTitle="CURIOUS ABOUT OUR SWEEPSTAKES?"
@@ -183,6 +198,39 @@ const NewsScreen = () => {
             />
           </View>
         </View>
+
+        <View style={[styles.lowerHero, { marginBottom: 8 }]}>
+          <HeroImage
+            title="SHOP ALL ACCESSORIES!"
+            subtitle="FROM ESSENTIALS TO STATEMENT PIECES, THE PERFECT ACCESSORY AWAITS."
+            backgroundColor="#D32F2F"
+            collectionHandle="hats"
+            image={heroImageAs}
+          />
+        </View>
+
+        {/* <View style={styles.contentContainer}>
+          <View style={styles.contentWrapper}>
+            <ContentBox
+              topTitle="CURIOUS ABOUT OUR SWEEPSTAKES?"
+              image={
+                sweepstakesImage
+                  ? { uri: sweepstakesImage }
+                  : require("../../assets/vip-background.png")
+              }
+              screenName="Sweepstakes"
+            />
+          </View>
+
+          <View style={styles.contentWrapper}>
+            <ContentBox
+              topTitle="MORE PERKS? SAY LESS. JOIN VIP."
+              image={require("../../assets/vip-background.png")}
+              screenName="JoinVIPScreen"
+              handle="vip"
+            />
+          </View>
+        </View> */}
       </ScrollView>
     </>
   );
