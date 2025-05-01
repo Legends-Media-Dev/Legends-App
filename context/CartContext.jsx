@@ -6,6 +6,7 @@ import {
   fetchCart,
   updateCart,
   deleteItem,
+  resetCart,
 } from "../api/shopifyApi";
 
 // Create the context with a default value of `null`
@@ -42,21 +43,25 @@ export const CartProvider = ({ children }) => {
       try {
         const existingCartId = await AsyncStorage.getItem("shopifyCartId");
 
-        if (!existingCartId) {
-          console.log("No existing cart ID found. Creating a new cart...");
-          await resetCart(); // Create a new cart if no existing cart ID
-        } else {
-          console.log("Existing Cart ID:", existingCartId);
-          setCartId(existingCartId);
+        if (
+          !existingCartId ||
+          existingCartId.includes("shopify://") || // bad format
+          existingCartId.length < 20 // invalid ID length check
+        ) {
+          console.log("Bad cart ID. Resetting cart...");
+          await resetCart();
+          return;
+        }
 
-          // Fetch cart details to verify the cart is valid
-          const fetchedCart = await fetchCart(existingCartId);
-          if (fetchedCart) {
-            setCart(fetchedCart); // Update cart state with fetched details
-          } else {
-            console.log("Invalid or expired cart. Creating a new one...");
-            await resetCart(); // Reset the cart if the existing one is invalid
-          }
+        console.log("Existing Cart ID:", existingCartId);
+        setCartId(existingCartId);
+
+        const fetchedCart = await fetchCart(existingCartId);
+        if (fetchedCart) {
+          setCart(fetchedCart);
+        } else {
+          console.log("Cart fetch failed. Resetting...");
+          await resetCart();
         }
       } catch (error) {
         console.error("Error initializing cart:", error);

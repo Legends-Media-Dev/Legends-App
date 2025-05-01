@@ -9,6 +9,8 @@ import {
 import HeroImage from "../../components/HeroImage";
 import ContentBox from "../../components/ContentBox";
 import YoutubeContentBox from "../../components/YoutubeContentBox";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 import {
   fetchLatestYouTubeVideo,
   fetchCollectionByHandle,
@@ -120,6 +122,10 @@ const NewsScreen = () => {
   };
 
   useEffect(() => {
+    // TEMP: remove cart ID manually for debug/testing
+    // AsyncStorage.removeItem("shopifyCartId")
+    //   .then(() => console.log("🗑️ Manually cleared cart ID from AsyncStorage"))
+    //   .catch((err) => console.error("Failed to clear cart ID:", err));
     fetchHero();
     fetchHeroTs();
     fetchHeroAs();
