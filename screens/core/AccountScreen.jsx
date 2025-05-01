@@ -276,7 +276,7 @@ const AccountScreen = () => {
               <Ionicons name="chevron-forward-outline" size={24} color="#000" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.innerButtonContainer}
+              style={styles.lowerButtonContainer}
               onPress={() => {
                 navigation.navigate("SweepstakesScreen"); // Navigate to Join VIP screen
               }}
@@ -287,7 +287,7 @@ const AccountScreen = () => {
               </View>
               <Ionicons name="chevron-forward-outline" size={24} color="#000" />
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.lowerButtonContainer}
               onPress={() => {
                 navigation.navigate("PrivacyPolicyScreen"); // Navigate to Join VIP screen
@@ -298,7 +298,7 @@ const AccountScreen = () => {
                 <Text style={styles.buttonText}>CAR SHOWS</Text>
               </View>
               <Ionicons name="chevron-forward-outline" size={24} color="#000" />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
         <View>

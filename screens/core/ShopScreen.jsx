@@ -22,18 +22,26 @@ const ShopScreen = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getCollections = async () => {
-      try {
-        const data = await fetchCollections();
-        setCollections(data || []);
-      } catch (error) {
-        console.error("Error fetching collections:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    getCollections();
-  }, []);
+  const getCollections = async () => {
+    try {
+      const data = await fetchCollections();
+
+      // Exclude VIP collections
+      const nonVipCollections = (data || []).filter(
+        (c) => !c.title.toUpperCase().includes("VIP")
+      );
+
+      setCollections(nonVipCollections);
+    } catch (error) {
+      console.error("Error fetching collections:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  getCollections();
+}, []);
+
 
   const handleCollectionPress = async (handle, title) => {
     try {
@@ -97,7 +105,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    paddingHorizontal: 16,
+    // paddingHorizontal: 16,
     paddingTop: 16,
   },
   loadingContainer: {
@@ -106,21 +114,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   flatListContent: {
-    paddingBottom: 16,
+    paddingBottom: 32,
+    paddingTop: 8,
+    paddingHorizontal: 16, // NEW
   },
   collectionItem: {
     backgroundColor: "#F8F8F8",
     borderRadius: 8,
     paddingVertical: 16,
     paddingHorizontal: 24,
-    marginVertical: 8,
+    marginVertical: 8, // was 8
+    marginHorizontal: 4, // NEW
     alignItems: "center",
     justifyContent: "center",
-    elevation: 3, // Shadow on android
-    shadowColor: "#000", // Shadow on IOS
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.15, // increased a bit
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
   },
   collectionText: {
     fontSize: 18,
@@ -134,8 +145,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 10,
+    marginHorizontal: 16,
   },
-
   searchButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
