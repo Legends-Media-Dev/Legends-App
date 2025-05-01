@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   View,
   Text,
@@ -16,16 +16,28 @@ import { clearRecentlyViewedProducts } from "../../utils/storage";
 const ForYouScreen = () => {
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [loading, setLoading] = useState(true);
+  const lastViewedIdsRef = useRef([]);
   const navigation = useNavigation();
 
   useFocusEffect(
     useCallback(() => {
       const fetchRecentlyViewed = async () => {
+        setLoading(true);
+
+        const productIds = await getRecentlyViewedProducts();
+
+        const hasChanged =
+          productIds.length !== lastViewedIdsRef.current.length ||
+          productIds.some((id, i) => id !== lastViewedIdsRef.current[i]);
+
+        if (!hasChanged) {
+          setLoading(false);
+          return;
+        }
+
+        lastViewedIdsRef.current = productIds;
+
         try {
-          setLoading(true);
-
-          const productIds = await getRecentlyViewedProducts();
-
           if (productIds && productIds.length > 0) {
             const products = await Promise.all(
               productIds.map(async (id) => {
@@ -38,8 +50,7 @@ const ForYouScreen = () => {
               })
             );
 
-            const filtered = products.filter(Boolean);
-            setRecentlyViewed(filtered);
+            setRecentlyViewed(products.filter(Boolean));
           } else {
             setRecentlyViewed([]);
           }
@@ -153,6 +164,7 @@ const styles = StyleSheet.create({
   },
   productList: {
     paddingBottom: 20,
+    paddingLeft: 16,
   },
 });
 

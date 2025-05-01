@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -9,12 +9,15 @@ import {
   FlatList,
   ActivityIndicator,
 } from "react-native";
+import ProductCard from "../../components/ProductCard";
 
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
 import { useCart } from "../../context/CartContext"; // Import CartContext
 const { width } = Dimensions.get("window");
 
+import { getRecentlyViewedProducts } from "../../utils/storage";
+import { fetchProductById } from "../../api/shopifyApi";
 import { addRecentlyViewedProduct } from "../../utils/storage";
 
 const ProductScreen = ({ route }) => {
@@ -23,6 +26,8 @@ const ProductScreen = ({ route }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  const [suggestedProducts, setSuggestedProducts] = useState([]);
+  const suggestedCacheRef = useRef([]);
 
   const extractPhotos = (imagesEdges) => {
     return imagesEdges.map((edge, index) => ({
@@ -59,6 +64,34 @@ const ProductScreen = ({ route }) => {
     if (product?.id) {
       addRecentlyViewedProduct(product.id);
     }
+
+    const fetchSuggestedProducts = async () => {
+      const ids = await getRecentlyViewedProducts();
+      const filteredIds = ids.filter((id) => id !== product.id); // exclude current
+
+      const hasChanged =
+        filteredIds.length !== suggestedCacheRef.current.length ||
+        filteredIds.some((id, i) => id !== suggestedCacheRef.current[i]);
+
+      if (!hasChanged) return;
+
+      suggestedCacheRef.current = filteredIds;
+
+      const products = await Promise.all(
+        filteredIds.map(async (id) => {
+          try {
+            return await fetchProductById(id);
+          } catch (err) {
+            console.error(`Failed to fetch product ${id}`, err);
+            return null;
+          }
+        })
+      );
+
+      setSuggestedProducts(products.filter(Boolean));
+    };
+
+    fetchSuggestedProducts();
 
     return () => clearTimeout(timer);
   }, [photos, product]);
@@ -374,7 +407,43 @@ const ProductScreen = ({ route }) => {
           >
             <Text style={styles.lowerCTAButton}>YOU MAY ALSO LIKE</Text>
           </View>
-          {/* Call in code in kaylas section for showcasing products in a specific collection */}
+          {suggestedProducts.length > 0 && (
+            <FlatList
+              data={suggestedProducts}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingLeft: 20, paddingBottom: 20 }}
+              renderItem={({ item }) => {
+                const variant = item.variants.edges[0]?.node;
+                const price = parseFloat(variant?.price?.amount || "0").toFixed(
+                  2
+                );
+                const compareAt = variant?.compareAtPrice?.amount
+                  ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
+                  : null;
+
+                return (
+                  <TouchableOpacity
+                    style={{ width: 160, marginRight: 12 }}
+                    onPress={() =>
+                      navigation.navigate("Product", { product: item })
+                    }
+                  >
+                    <ProductCard
+                      image={
+                        item.images.edges[0]?.node.src ||
+                        "https://via.placeholder.com/100"
+                      }
+                      name={item.title || "No Name"}
+                      price={price}
+                      compareAtPrice={compareAt}
+                    />
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          )}
         </View>
       </ScrollView>
     </>
