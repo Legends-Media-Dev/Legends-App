@@ -7,25 +7,29 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
+  ImageBackground,
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ProductCard from "../../components/ProductCard";
-import { getRecentlyViewedProducts, clearRecentlyViewedProducts } from "../../utils/storage";
-import { fetchProductById, fetchCustomerDetails } from "../../api/shopifyApi";
+import { getRecentlyViewedProducts } from "../../utils/storage";
+import { fetchProductById, fetchCustomerDetails, fetchAllProductsCollection } from "../../api/shopifyApi";
+import vipBackground from "../../assets/vip-dark-background.png";
 
 const ForYouScreen = () => {
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [loading, setLoading] = useState(true);
   const [customerData, setCustomerData] = useState(null);
   const navigation = useNavigation();
+  const [tshirtData, setTshirtData] = useState([]);
+  const [vipProducts, setVipProducts] = useState([]);
+  const [loadingVIPProducts, setLoadingVIPProducts] = useState([]);
 
   useEffect(() => {
     const getCustomerData = async () => {
       try {
         const accessToken = await AsyncStorage.getItem("shopifyAccessToken");
         if (!accessToken) return;
-
         const customerDetails = await fetchCustomerDetails(accessToken);
         setCustomerData(customerDetails);
       } catch (error) {
@@ -33,6 +37,33 @@ const ForYouScreen = () => {
       }
     };
 
+    const fetchHeroTs = async () => {
+      try {
+        const collection = await fetchAllProductsCollection("tshirts");
+        setTshirtData(collection.products.edges.map((edge) => edge.node));
+      } catch (err) {
+        console.error("Failed to load hero image:", err);
+      } finally {
+        setHeroImageLoadingTs(false);
+      }
+    };
+
+    const fetchVIPProducts = async () => {
+      try {
+        const collection = await fetchAllProductsCollection("free-vip-digital-downloads");
+        const products = collection?.products?.edges.map((edge) => edge.node) || [];
+        if (products.length > 0) {
+          setVipProducts(products);
+        }
+      } catch (err) {
+        console.error("Error fetching VIP product:", err);
+      } finally {
+        setLoadingVIPProducts(false);
+      }
+    };
+    
+    fetchVIPProducts();
+    fetchHeroTs();
     getCustomerData();
   }, []);
 
@@ -78,7 +109,52 @@ const ForYouScreen = () => {
         )}
       </View>
 
-      <View style={{ paddingLeft: 20 }}>
+      {customerData?.tags?.includes("VIP Gold") ||
+      customerData?.tags?.includes("Active Subscriber") ? (
+        loadingVIPProducts ? (
+          <ActivityIndicator style={{ marginTop: 20 }} size="large" />
+        ) : vipProducts ? (
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("Collection", {
+                handle: "free-vip-digital-downloads",
+                title: "VIP Exclusive Downloads",
+              })
+            }
+            activeOpacity={0.9}
+          >
+            <ImageBackground
+              source={vipBackground}
+              style={styles.vipCard}
+              imageStyle={styles.vipCardImage}
+            >
+              <View style={styles.vipCardContent}>
+                <Text style={styles.vipExclusiveButtonText}>VIP Exclusive Product</Text>
+              </View>
+            </ImageBackground>
+          </TouchableOpacity>
+        ) : null
+      ) : (
+        <TouchableOpacity
+          onPress={() => navigation.navigate("JoinVIPScreen")}
+          activeOpacity={0.9}
+        >
+          <ImageBackground
+            source={vipBackground}
+            style={styles.vipCard}
+            imageStyle={styles.vipCardImage}
+          >
+            <View style={styles.vipCardContent}>
+              <Text style={styles.vipTitle}>JOIN VIP</Text>
+              <Text style={styles.vipText}>
+                Get early access to drops, giveaways, and limited releases.
+              </Text>
+            </View>
+          </ImageBackground>
+        </TouchableOpacity>
+      )}
+
+      <View style={styles.sectionHeader}>
         <Text style={styles.subheading}>Recently Viewed</Text>
       </View>
 
@@ -124,15 +200,51 @@ const ForYouScreen = () => {
         />
       )}
 
-      <TouchableOpacity
-        style={styles.clearButton}
-        onPress={async () => {
-          await clearRecentlyViewedProducts();
-          setRecentlyViewed([]);
-        }}
-      >
-        <Text style={styles.clearText}>Clear Recently Viewed</Text>
-      </TouchableOpacity>
+      <View style={styles.sectionHeader}>
+        <Text style={styles.subheading}>TSHIRTS</Text>
+      </View>
+
+      {loading ? (
+        <ActivityIndicator style={{ marginTop: 20 }} size="large" />
+      ) : tshirtData.length === 0 ? (
+        <Text style={styles.noProductsText}>
+          Error fetching Tshirts
+        </Text>
+      ) : (
+        <FlatList
+          data={tshirtData}
+          keyExtractor={(item) => item.id}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.productList}
+          renderItem={({ item }) => {
+            const variant = item.variants.edges[0]?.node;
+            const price = parseFloat(variant?.price?.amount || "0").toFixed(2);
+            const compareAt = variant?.compareAtPrice?.amount
+              ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
+              : null;
+
+            return (
+              <TouchableOpacity
+                style={{ width: 160, marginRight: 12 }}
+                onPress={() =>
+                  navigation.navigate("Product", { product: item })
+                }
+              >
+                <ProductCard
+                  image={
+                    item.images.edges[0]?.node.src ||
+                    "https://via.placeholder.com/100"
+                  }
+                  name={item.title || "No Name"}
+                  price={price}
+                  compareAtPrice={compareAt}
+                />
+              </TouchableOpacity>
+            );
+          }}
+        />
+      )}
     </ScrollView>
   );
 };
@@ -148,8 +260,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   subheading: {
-    fontSize: 18,
-    fontFamily: "Futura-Medium",
+    fontSize: 15,
+    fontFamily: "Futura-Bold",
     marginTop: 10,
   },
   noProductsText: {
@@ -159,23 +271,75 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   productList: {
-    paddingBottom: 20,
-    paddingTop: 10,
     paddingHorizontal: 20,
   },
-  clearButton: {
+  vipCard: {
+    marginHorizontal: 20,
+    marginTop: 15,
+    borderRadius: 12,
+    overflow: "hidden",
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  vipCardImage: {
+    resizeMode: "cover",
+    borderRadius: 12,
+  },
+  vipCardContent: {
+    padding: 20,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  vipTitle: {
+    fontSize: 40,
+    fontFamily: "Futura-Bold",
+    marginBottom: 6,
+    color: "#FFFFFF",
+  },
+  vipText: {
+    fontSize: 10,
+    fontFamily: "Futura-Medium",
+    color: "#FAF3E0",
+    marginBottom: 12,
+  },
+  vipButton: {
     backgroundColor: "#C8102F",
-    padding: 10,
-    marginVertical: 10,
-    borderRadius: 5,
-    marginLeft: 20,
-    marginRight: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 6,
+    alignSelf: "center",
   },
-  clearText: {
+  vipButtonText: {
     color: "#fff",
-    textAlign: "center",
-    fontWeight: "bold",
+    fontFamily: "Futura-Medium",
+    fontSize: 14,
   },
+  sectionHeader: {
+    paddingHorizontal: 20,
+    marginTop: 15,
+  },
+  vipBannerWrapper: {
+    paddingHorizontal: 20,
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  
+  vipExclusiveButton: {
+    backgroundColor: "#C8102F",
+    paddingVertical: 14,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  
+  vipExclusiveButtonText: {
+    color: "#fff",
+    fontFamily: "Futura-Bold",
+    fontSize: 16,
+  },  
 });
 
 export default ForYouScreen;
