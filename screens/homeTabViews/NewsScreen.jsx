@@ -167,9 +167,8 @@ const NewsScreen = () => {
           <View style={styles.contentWrapper}>
             <ContentBox
               topTitle="MORE PERKS? SAY LESS. JOIN VIP."
-              image={require("../../assets/vip-background.png")}
+              image={require("../../assets/vip-dark-background.png")}
               screenName="JoinVIPScreen"
-              handle="vip"
             />
           </View>
         </View>

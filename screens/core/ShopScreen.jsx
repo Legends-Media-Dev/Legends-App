@@ -46,7 +46,6 @@ const ShopScreen = () => {
   const handleCollectionPress = async (handle, title) => {
     try {
       const data = await fetchAllProductsCollection(handle); // Uses Admin API
-
       navigation.navigate("Collection", {
         handle,
         title,
