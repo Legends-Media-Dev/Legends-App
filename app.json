@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "legends-media",
+    "name": "Legends",
     "slug": "legends-media",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/Legends.png",
+    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
