@@ -1,12 +1,127 @@
 import React from "react";
-import { View, Text } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  ImageBackground,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
+
+const { width } = Dimensions.get("window");
+
+const perks = [
+  "Access to VIP Facebook Community",
+  "Access to VIP only merchandise products",
+  "Exclusive sponsorship discounts",
+  "Exclusive VIP only giveaways",
+  "Monthly merch drop early access",
+  "Exclusive VIP portal",
+  "Free shipping on orders over $100",
+  "25 bonus entries for car giveaways",
+  "5x entries for car giveaways",
+  "Monthly VIP T-shirt",
+];
 
 function JoinVIPScreen() {
   return (
-    <View>
-      <Text>JOIN VIP SCREEN</Text>
-    </View>
+    <ImageBackground
+      source={require("../../assets/vip-dark-background.png")}
+      style={styles.background}
+    >
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.card}>
+          <Text style={styles.tierLabel}>GOLD</Text>
+          <Text style={styles.priceText}>
+            $25<Text style={styles.moText}>/mo</Text>
+          </Text>
+
+          <View style={styles.perkSection}>
+            {perks.map((perk, index) => (
+              <View key={index} style={styles.perkRow}>
+                <Text style={styles.dot}>●</Text>
+                <Text style={styles.perkText}>{perk}</Text>
+              </View>
+            ))}
+          </View>
+
+          <TouchableOpacity style={styles.joinButton} activeOpacity={1}>
+            <Text style={styles.joinButtonText}>JOIN ONLINE TODAY</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </ImageBackground>
   );
 }
+
+const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
+  container: {
+    padding: 20,
+    alignItems: "center",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    padding: 20,
+    width: width - 40,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+  },
+  tierLabel: {
+    fontSize: 18,
+    fontFamily: "Futura-Bold",
+    color: "#C8A101",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+  priceText: {
+    fontSize: 32,
+    fontFamily: "Futura-Bold",
+    textAlign: "center",
+  },
+  moText: {
+    fontSize: 18,
+    fontFamily: "Futura-Medium",
+  },
+  perkSection: {
+    marginTop: 20,
+  },
+  perkRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginBottom: 8,
+  },
+  dot: {
+    color: "#000",
+    fontSize: 12,
+    marginRight: 6,
+    marginTop: 3,
+  },
+  perkText: {
+    fontSize: 14,
+    fontFamily: "Futura-Medium",
+    color: "#333",
+    flex: 1,
+  },
+  joinButton: {
+    backgroundColor: "#000",
+    paddingVertical: 12,
+    borderRadius: 8,
+    marginTop: 30,
+    alignItems: "center",
+  },
+  joinButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontFamily: "Futura-Bold",
+  },
+});
 
 export default JoinVIPScreen;

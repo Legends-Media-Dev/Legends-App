@@ -18,7 +18,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   fetchCustomerDetails,
   fetchProductById,
-  fetchProductByIdAdmin,
 } from "../../api/shopifyApi"; // Import API function
 import { getRecentlyViewedProducts } from "../../utils/storage";
 
@@ -63,7 +62,7 @@ const AccountScreen = () => {
             name="log-out-outline"
             size={26}
             color="#000"
-            style={{ marginRight: 30 }}
+            style={{ marginRight: 25 }}
           />
         </TouchableOpacity>
       ),

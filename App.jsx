@@ -94,6 +94,7 @@ function MainStack() {
         name="MainScreen"
         component={MainScreen}
         options={({ navigation }) => ({
+          title: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
         })}
@@ -136,8 +137,9 @@ function MainStack() {
         name="JoinVIPScreen"
         component={JoinVIPScreen}
         options={() => ({
-          headerShown: true,
           headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
         })}
       />
       <Stack.Screen
@@ -325,6 +327,7 @@ function AccountStack() {
           name="Account"
           component={AccountScreen}
           options={{
+            title: "",
             headerTitle: () => <AnimatedHeader />,
             headerRight: () => <CartIconWithBadge />,
           }}
@@ -357,8 +360,9 @@ function AccountStack() {
         name="JoinVIPScreen"
         component={JoinVIPScreen}
         options={() => ({
-          headerShown: true,
           headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
         })}
       />
       <Stack.Screen
@@ -399,9 +403,9 @@ function AccountStack() {
       <Stack.Screen
         name="SweepstakesScreen"
         component={SweepstakesScreen}
-        options={() => ({
-          headerShown: true,
-          headerBackTitleVisible: true,
+        options={({ navigation }) => ({
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
         })}
       />
       <Stack.Screen
@@ -409,7 +413,7 @@ function AccountStack() {
         component={OrdersScreen}
         options={({ navigation }) => ({
           headerBackTitle: "",
-          title: "Order History",
+          headerTitle: () => <AnimatedHeader />,
         })}
       />
       <Stack.Screen
