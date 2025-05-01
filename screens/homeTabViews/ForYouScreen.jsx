@@ -6,26 +6,42 @@ import {
   FlatList,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import ProductCard from "../../components/ProductCard";
-import { getRecentlyViewedProducts } from "../../utils/storage";
-import { fetchProductById, fetchProductByIdAdmin } from "../../api/shopifyApi";
-import { clearRecentlyViewedProducts } from "../../utils/storage";
+import { getRecentlyViewedProducts, clearRecentlyViewedProducts } from "../../utils/storage";
+import { fetchProductById, fetchCustomerDetails } from "../../api/shopifyApi";
 
 const ForYouScreen = () => {
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [customerData, setCustomerData] = useState(null);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const getCustomerData = async () => {
+      try {
+        const accessToken = await AsyncStorage.getItem("shopifyAccessToken");
+        if (!accessToken) return;
+
+        const customerDetails = await fetchCustomerDetails(accessToken);
+        setCustomerData(customerDetails);
+      } catch (error) {
+        console.error("Error fetching customer details:", error);
+      }
+    };
+
+    getCustomerData();
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
       const fetchRecentlyViewed = async () => {
         try {
           setLoading(true);
-
           const productIds = await getRecentlyViewedProducts();
-
           if (productIds && productIds.length > 0) {
             const products = await Promise.all(
               productIds.map(async (id) => {
@@ -37,9 +53,7 @@ const ForYouScreen = () => {
                 }
               })
             );
-
-            const filtered = products.filter(Boolean);
-            setRecentlyViewed(filtered);
+            setRecentlyViewed(products.filter(Boolean));
           } else {
             setRecentlyViewed([]);
           }
@@ -56,12 +70,20 @@ const ForYouScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
+      <View style={{ paddingLeft: 20, paddingTop: 20 }}>
+        {customerData && customerData.firstName ? (
+          <Text style={styles.title}>Hi, {customerData.firstName}</Text>
+        ) : (
+          <Text style={styles.title}>Welcome Back!</Text>
+        )}
+      </View>
+
       <View style={{ paddingLeft: 20 }}>
         <Text style={styles.subheading}>Recently Viewed</Text>
       </View>
 
       {loading ? (
-        <Text style={styles.loadingText}>Loading...</Text>
+        <ActivityIndicator style={{ marginTop: 20 }} size="large" />
       ) : recentlyViewed.length === 0 ? (
         <Text style={styles.noProductsText}>
           No recently viewed products yet.
@@ -101,25 +123,15 @@ const ForYouScreen = () => {
           }}
         />
       )}
+
       <TouchableOpacity
-        style={{
-          backgroundColor: "#C8102F",
-          padding: 10,
-          marginVertical: 10,
-          borderRadius: 5,
-          marginLeft: 20,
-          marginRight: 20,
-        }}
+        style={styles.clearButton}
         onPress={async () => {
           await clearRecentlyViewedProducts();
           setRecentlyViewed([]);
         }}
       >
-        <Text
-          style={{ color: "#fff", textAlign: "center", fontWeight: "bold" }}
-        >
-          Clear Recently Viewed
-        </Text>
+        <Text style={styles.clearText}>Clear Recently Viewed</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -129,12 +141,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    // paddingHorizontal: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 18,
     fontFamily: "Futura-Bold",
-    marginTop: 20,
     marginBottom: 10,
   },
   subheading: {
@@ -142,17 +152,29 @@ const styles = StyleSheet.create({
     fontFamily: "Futura-Medium",
     marginTop: 10,
   },
-  loadingText: {
-    fontSize: 14,
-    color: "#888",
-  },
   noProductsText: {
     fontSize: 14,
     color: "#888",
-    marginTop: 10,
+    marginTop: 20,
+    textAlign: "center",
   },
   productList: {
     paddingBottom: 20,
+    paddingTop: 10,
+    paddingHorizontal: 20,
+  },
+  clearButton: {
+    backgroundColor: "#C8102F",
+    padding: 10,
+    marginVertical: 10,
+    borderRadius: 5,
+    marginLeft: 20,
+    marginRight: 20,
+  },
+  clearText: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "bold",
   },
 });
 
