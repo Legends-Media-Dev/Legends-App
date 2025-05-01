@@ -53,7 +53,7 @@ function OrdersScreen({ route }) {
       <Text style={styles.header}>Past Orders</Text>
       {loading ? (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#000" />
+          <ActivityIndicator size="small" />
         </View>
       ) : orders.length > 0 ? (
         <FlatList

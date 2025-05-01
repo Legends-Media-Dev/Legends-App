@@ -208,7 +208,7 @@ const ProductScreen = ({ route }) => {
     <>
       {isLoading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="small" />
         </View>
       )}
       <ScrollView style={styles.container}>

@@ -152,7 +152,7 @@ const AccountScreen = () => {
     <View style={styles.container}>
       {loading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="small" />
         </View>
       )}
       {/* Logout Confirmation Modal */}

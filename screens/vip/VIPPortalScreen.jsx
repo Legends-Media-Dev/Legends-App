@@ -121,7 +121,7 @@ const VipPortalScreen = () => {
 
   return loading ? (
     <View style={styles.loadingOverlay}>
-      <ActivityIndicator size="large" />
+      <ActivityIndicator size="small" />
     </View>
   ) : (
     <>

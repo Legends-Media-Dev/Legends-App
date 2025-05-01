@@ -16,9 +16,7 @@ const OrderConfirmationScreen = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      {isLoading && (
-        <ActivityIndicator size="large" color="#000" style={styles.loader} />
-      )}
+      {isLoading && <ActivityIndicator size="small" style={styles.loader} />}
 
       <WebView
         source={{ uri: orderUrl }}
@@ -27,8 +25,10 @@ const OrderConfirmationScreen = ({ route }) => {
         javaScriptEnabled={true}
         domStorageEnabled={true}
         startInLoadingState={true}
-        onLoadEnd={() => setIsLoading(false)} // Hide loader when page loads
-        style={styles.webview} // Control the height of the visible section
+        renderLoading={() => (
+          <ActivityIndicator size="small" style={styles.loader} />
+        )}
+        style={styles.webview}
       />
     </View>
   );
@@ -43,7 +43,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: "50%",
     left: "50%",
-    transform: [{ translateX: -25 }, { translateY: -25 }],
   },
   webview: {
     flex: 1,

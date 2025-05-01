@@ -116,7 +116,7 @@ const NewsScreen = () => {
     <>
       {loading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="small" />
         </View>
       )}
       <ScrollView
