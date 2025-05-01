@@ -129,7 +129,7 @@ const ForYouScreen = () => {
               imageStyle={styles.vipCardImage}
             >
               <View style={styles.vipCardContent}>
-                <Text style={styles.vipExclusiveButtonText}>VIP Exclusive Product</Text>
+                <Text style={styles.vipExclusiveButtonText}>VIP EXCLUSIVE PRODUCT</Text>
               </View>
             </ImageBackground>
           </TouchableOpacity>
