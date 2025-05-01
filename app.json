@@ -4,7 +4,7 @@
     "slug": "legends-media",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/Legends.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -14,7 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bordmedia.legends-media"
+      "bundleIdentifier": "com.bordmedia.legends-media",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
