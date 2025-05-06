@@ -145,6 +145,7 @@ const SignUpScreen = ({ route, navigation }) => {
             textSize={18}
             onClick={handleSignUp}
             isDisabled={!email || !password || !firstName || !lastName}
+            style={{ width: "100%" }}
           />
         </View>
       </View>
@@ -222,8 +223,8 @@ const styles = StyleSheet.create({
     fontFamily: "Futura-Medium",
   },
   buttonContainer: {
-    display: "flex",
-    alignItems: "center",
+    width: "90%",
+    alignSelf: "center",
     marginTop: 30,
   },
   lowerContainer: {

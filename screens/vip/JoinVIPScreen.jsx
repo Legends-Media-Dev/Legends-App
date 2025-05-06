@@ -7,6 +7,7 @@ import {
   ImageBackground,
   Dimensions,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 
 const { width } = Dimensions.get("window");
@@ -25,6 +26,23 @@ const perks = [
 ];
 
 function JoinVIPScreen() {
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingScreen}>
+        <ActivityIndicator size="small" color="#333" />
+      </View>
+    );
+  }
+
   return (
     <ImageBackground
       source={require("../../assets/vip-dark-background.png")}
@@ -122,6 +140,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Futura-Bold",
   },
+  loadingScreen: {
+    flex: 1,
+    backgroundColor: "#FFFFFF", // or match your splash bg
+    justifyContent: "center",
+    alignItems: "center",
+  },  
 });
 
 export default JoinVIPScreen;

@@ -15,6 +15,7 @@ const RoundedBox = ({
   onClick,
   fontVariant = "bold",
   isDisabled = false,
+  style,
 }) => {
   const fontFamily = fontVariant === "bold" ? "Futura-Bold" : "Futura-Medium";
 
@@ -32,6 +33,7 @@ const RoundedBox = ({
           borderRadius,
         },
         isDisabled && { opacity: 0.5 }, // Reduce opacity for a disabled state
+        style,
       ]}
     >
       <Text

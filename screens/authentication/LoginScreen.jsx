@@ -134,6 +134,7 @@ const LoginScreen = ({ route, navigation }) => {
             textSize={18}
             onClick={handleSignIn}
             isDisabled={!email || !password}
+            style={{ width: "100%" }}
           />
         </View>
       </View>
@@ -211,8 +212,8 @@ const styles = StyleSheet.create({
     fontFamily: "Futura-Medium",
   },
   buttonContainer: {
-    display: "flex",
-    alignItems: "center",
+    width: "90%",
+    alignSelf: "center", // Ensures it's centered like your input fields
     marginTop: 30,
   },
   lowerContainer: {

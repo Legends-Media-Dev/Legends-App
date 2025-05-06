@@ -9,7 +9,6 @@ import {
 } from "react-native";
 import { fetchBlogArticles } from "../../api/shopifyApi";
 import SwiperContentBox from "../../components/SwiperContentBox";
-import OutlineText from "../../components/SvgOutlineText";
 
 const extractSweepstakesData = (article) => {
   const html = article.contentHtml || "";
@@ -128,34 +127,35 @@ const SweepstakesScreen = () => {
     );
   };
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="small" color="#333" />
+      </View>
+    );
+  }
+  
   return (
     <ScrollView style={styles.container}>
-      {loading ? (
-        <ActivityIndicator size="small" />
-      ) : (
+      {currentArticles.length > 0 && (
         <>
-          {currentArticles.length > 0 && (
-            <>
-              <Text style={styles.outlineTitle}>CURRENT SWEEPSTAKES</Text>
-              {currentArticles.map((item) => (
-                <View key={item.id}>{renderItem({ item })}</View>
-              ))}
-            </>
-          )}
-
-          {previousArticles.length > 0 && (
-            <>
-              <Text style={styles.outlineTitle}>PREVIOUS SWEEPSTAKES</Text>
-
-              {previousArticles.map((item) => (
-                <View key={item.id}>{renderItem({ item })}</View>
-              ))}
-            </>
-          )}
+          <Text style={styles.outlineTitle}>CURRENT SWEEPSTAKES</Text>
+          {currentArticles.map((item) => (
+            <View key={item.id}>{renderItem({ item })}</View>
+          ))}
+        </>
+      )}
+  
+      {previousArticles.length > 0 && (
+        <>
+          <Text style={styles.outlineTitle}>PREVIOUS SWEEPSTAKES</Text>
+          {previousArticles.map((item) => (
+            <View key={item.id}>{renderItem({ item })}</View>
+          ))}
         </>
       )}
     </ScrollView>
-  );
+  );  
 };
 
 const styles = StyleSheet.create({
@@ -192,6 +192,12 @@ const styles = StyleSheet.create({
     fontFamily: "Futura-Bold",
     marginBottom: 10,
   },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: "#FFFFFF", 
+    justifyContent: "center",
+    alignItems: "center",
+  },  
 });
 
 export default SweepstakesScreen;
