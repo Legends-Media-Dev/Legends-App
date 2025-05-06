@@ -43,11 +43,12 @@ export const CartProvider = ({ children }) => {
       try {
         const existingCartId = await AsyncStorage.getItem("shopifyCartId");
 
-        if (
+        const isInvalidId =
           !existingCartId ||
           existingCartId.includes("shopify://") || // bad format
-          existingCartId.length < 20 // invalid ID length check
-        ) {
+          existingCartId.length < 20;
+
+        if (isInvalidId) {
           console.log("Bad cart ID. Resetting cart...");
           await resetCart();
           return;
@@ -57,14 +58,21 @@ export const CartProvider = ({ children }) => {
         setCartId(existingCartId);
 
         const fetchedCart = await fetchCart(existingCartId);
-        if (fetchedCart) {
+
+        const isValidCart =
+          fetchedCart &&
+          fetchedCart.id &&
+          Array.isArray(fetchedCart?.lines?.edges);
+
+        if (isValidCart) {
           setCart(fetchedCart);
         } else {
-          console.log("Cart fetch failed. Resetting...");
+          console.warn("Fetched cart is invalid or empty. Resetting...");
           await resetCart();
         }
       } catch (error) {
         console.error("Error initializing cart:", error);
+        await resetCart(); // Ensure fallback on any error
       }
     };
 
