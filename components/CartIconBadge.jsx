@@ -3,13 +3,19 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useCart } from "../context/CartContext";
+import * as Haptics from "expo-haptics";
 
 const CartIconWithBadge = () => {
   const navigation = useNavigation();
-  const { cartItemCount, cart } = useCart();
+  const { cartItemCount } = useCart();
+
+  const handlePress = async () => {
+    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    navigation.navigate("Cart");
+  };
 
   return (
-    <TouchableOpacity onPress={() => navigation.navigate("Cart")}>
+    <TouchableOpacity onPress={handlePress}>
       <View style={styles.container}>
         <Ionicons name="bag-outline" size={24} color="#000" />
         {cartItemCount > 0 && (

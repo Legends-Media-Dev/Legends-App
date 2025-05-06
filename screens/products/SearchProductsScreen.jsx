@@ -11,13 +11,14 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import ProductCardMini from "../../components/ProductCardMini";
 
 import {
   fetchAllProductsCollection,
   searchProducts,
   searchProductsSF,
-} from "../../api/shopifyApi";
+} from "../../api/shopifyApi"; 
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");
@@ -63,7 +64,11 @@ const SearchScreen = () => {
     return (
       <TouchableOpacity
         style={styles.productWrapper}
-        onPress={() => navigation.navigate("Product", { product: item })}
+        activeOpacity={1}
+        onPress={async () => {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          navigation.navigate("Product", { product: item });
+        }}
       >
         <ProductCardMini
           image={imageUrl}

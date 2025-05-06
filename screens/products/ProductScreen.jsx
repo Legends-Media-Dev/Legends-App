@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import ProductCard from "../../components/ProductCard";
+import * as Haptics from "expo-haptics";
 
 import { Ionicons } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
@@ -20,7 +21,7 @@ import { getRecentlyViewedProducts } from "../../utils/storage";
 import { fetchProductById } from "../../api/shopifyApi";
 import { addRecentlyViewedProduct } from "../../utils/storage";
 
-const ProductScreen = ({ route }) => {
+const ProductScreen = ({ route, navigation }) => {
   const { addItemToCart } = useCart();
   const { product } = route.params;
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -222,7 +223,12 @@ const ProductScreen = ({ route }) => {
         selectedSize === item.label && styles.selectedSize,
         !item.available && styles.unavailableSize,
       ]}
-      onPress={() => item.available && setSelectedSize(item.label)}
+      onPress={async () => {
+        if (item.available) {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          setSelectedSize(item.label);
+        }
+      }}      
       disabled={!item.available}
     >
       <Text
@@ -353,7 +359,11 @@ const ProductScreen = ({ route }) => {
               {/* Minus Button */}
               <TouchableOpacity
                 style={styles.quantityButton}
-                onPress={handleDecrement}
+                activeOpacity={1}
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  handleDecrement();
+                }}
                 disabled={quantity === 1}
               >
                 <Text style={styles.buttonText}>-</Text>
@@ -364,8 +374,12 @@ const ProductScreen = ({ route }) => {
 
               {/* Plus Button */}
               <TouchableOpacity
-                style={styles.quantityButton}
-                onPress={handleIncrement}
+                style={styles.quantityButton} 
+                activeOpacity={1}
+                onPress={ async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  handleIncrement();
+                }}
               >
                 <Text style={styles.buttonText}>+</Text>
               </TouchableOpacity>
@@ -389,7 +403,11 @@ const ProductScreen = ({ route }) => {
                 disabled={
                   !product.variants.edges.some((v) => v.node.availableForSale)
                 }
-                onPress={handleAddToCart}
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  handleAddToCart
+                }}
+                
               >
                 <Text style={styles.addToBagText}>Add to cart</Text>
               </TouchableOpacity>

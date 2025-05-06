@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useFocusEffect } from "@react-navigation/native";
+import * as Haptics from "expo-haptics";
 import {
   View,
   Text,
@@ -57,7 +58,11 @@ const AccountScreen = () => {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={() => setModalVisible(true)}>
+        <TouchableOpacity onPress={async () => {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+          setModalVisible(true)
+          }}
+        >
           <Ionicons
             name="log-out-outline"
             size={26}
@@ -217,6 +222,7 @@ const AccountScreen = () => {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 const accessToken = await AsyncStorage.getItem(
                   "shopifyAccessToken"
                 );
@@ -230,7 +236,7 @@ const AccountScreen = () => {
                   console.log("Access token not found.");
                 }
               }}
-              style={styles.topButtonContainer}
+              style={styles.topButtonContainer} activeOpacity={1}
             >
               <View style={styles.leftSide}>
                 <Ionicons
@@ -251,8 +257,9 @@ const AccountScreen = () => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.innerButtonContainer}
-              onPress={() => {
+              style={styles.innerButtonContainer} activeOpacity={1}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 if (
                   customerData?.tags?.includes("Active Subscriber") &&
                   customerData?.tags?.includes("VIP Gold")
@@ -275,8 +282,9 @@ const AccountScreen = () => {
               <Ionicons name="chevron-forward-outline" size={24} color="#000" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.lowerButtonContainer}
-              onPress={() => {
+              style={styles.lowerButtonContainer} activeOpacity={1}
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 navigation.navigate("SweepstakesScreen"); // Navigate to Join VIP screen
               }}
             >
@@ -331,9 +339,11 @@ const AccountScreen = () => {
                   return (
                     <TouchableOpacity
                       style={{ width: 150, marginRight: 10 }}
-                      onPress={() =>
+                      activeOpacity={1}
+                      onPress={async () => {
+                        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                         navigation.navigate("Product", { product: item })
-                      }
+                      }}
                     >
                       <ProductCard
                         image={

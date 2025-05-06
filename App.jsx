@@ -37,8 +37,6 @@ import { Animated, View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { isTokenValid } from "./utils/storage";
-import TestLoadingScreen from "./screens/TestLoadingScreen";
-import { usePushNotifications } from "./usePushNotifications";
 
 // Create navigators
 const Stack = createStackNavigator();

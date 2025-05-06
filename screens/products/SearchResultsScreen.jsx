@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { searchProducts, searchProductsSF } from "../../api/shopifyApi";
 import ProductCard from "../../components/ProductCard";
+import * as Haptics from "expo-haptics";
 
 const { width, height } = Dimensions.get("window");
 
@@ -54,7 +55,11 @@ const SearchResultsScreen = ({ route, navigation }) => {
     return (
       <TouchableOpacity
         style={styles.productWrapper}
-        onPress={() => navigation.navigate("Product", { product: item })}
+        activeOpacity={1}
+        onPress={async () => {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          navigation.navigate("Product", { product: item })
+        }}
       >
         <ProductCard
           image={

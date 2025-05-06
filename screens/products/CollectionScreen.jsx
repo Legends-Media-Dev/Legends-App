@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import ProductCard from "../../components/ProductCard";
 import { fetchAllProductsCollection } from "../../api/shopifyApi";
+import * as Haptics from "expo-haptics";
 
 const { width, height } = Dimensions.get("window");
 
@@ -40,7 +41,11 @@ const CollectionScreen = ({ route, navigation }) => {
     return (
       <TouchableOpacity
         style={styles.productWrapper}
-        onPress={() => navigation.navigate("Product", { product: item })}
+        activeOpacity={1}
+        onPress={async () => {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          navigation.navigate("Product", { product: item });
+        }}
       >
         <ProductCard
           image={

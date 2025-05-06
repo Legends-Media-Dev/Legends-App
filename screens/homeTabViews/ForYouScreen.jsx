@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import * as Haptics from "expo-haptics";
 import {
   View,
   Text,
@@ -139,13 +140,14 @@ const ForYouScreen = () => {
           <ActivityIndicator style={{ marginTop: 20 }} size="small" />
         ) : vipProducts ? (
           <TouchableOpacity
-            onPress={() =>
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
               navigation.navigate("Collection", {
                 handle: "free-vip-digital-downloads",
                 title: "VIP Exclusive Downloads",
-              })
-            }
-            activeOpacity={0.9}
+              });
+            }}
+            activeOpacity={1}
           >
             <ImageBackground
               source={vipBackground}
@@ -162,8 +164,11 @@ const ForYouScreen = () => {
         ) : null
       ) : (
         <TouchableOpacity
-          onPress={() => navigation.navigate("JoinVIPScreen")}
-          activeOpacity={0.9}
+          onPress={async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            navigation.navigate("JoinVIPScreen");
+          }}
+          activeOpacity={1}
         >
           <ImageBackground
             source={vipBackground}
@@ -207,9 +212,11 @@ const ForYouScreen = () => {
             return (
               <TouchableOpacity
                 style={{ width: 160, marginRight: 12 }}
-                onPress={() =>
-                  navigation.navigate("Product", { product: item })
-                }
+                activeOpacity={1}
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  navigation.navigate("Product", { product: item });
+                }}
               >
                 <ProductCard
                   image={
@@ -251,9 +258,11 @@ const ForYouScreen = () => {
             return (
               <TouchableOpacity
                 style={{ width: 160, marginRight: 12 }}
-                onPress={() =>
+                activeOpacity={1}
+                onPress={async () =>{
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   navigation.navigate("Product", { product: item })
-                }
+                }}
               >
                 <ProductCard
                   image={

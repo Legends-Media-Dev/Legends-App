@@ -1,4 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
+import * as Haptics from "expo-haptics";
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -59,9 +60,10 @@ const ShopScreen = () => {
   const renderCollectionItem = ({ item }) => {
     return (
       <TouchableOpacity
-        style={styles.collectionItem}
-        onPress={() => {
+        style={styles.collectionItem} activeOpacity={1}
+        onPress={async () => {
           if (item.handle && item.title) {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); // Trigger haptic
             handleCollectionPress(item.handle, item.title);
           } else {
             console.warn("Missing handle or title:", item);
@@ -71,7 +73,7 @@ const ShopScreen = () => {
         <Text style={styles.collectionText}>{item.title || "No Title"}</Text>
       </TouchableOpacity>
     );
-  };
+  };  
 
   return (
     <>
@@ -81,12 +83,15 @@ const ShopScreen = () => {
         </View>
       )}
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.searchButton}
-          onPress={() => navigation.navigate("Search")}
-        >
-          <Text style={styles.searchButtonText}>Search Products</Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.searchButton} activeOpacity={1}
+        onPress={async () => {
+          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          navigation.navigate("Search");
+        }}
+      >
+        <Text style={styles.searchButtonText}>Search Products</Text>
+      </TouchableOpacity>
 
         <FlatList
           data={collections}
