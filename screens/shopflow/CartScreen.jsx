@@ -155,6 +155,8 @@ const CartScreen = ({ navigation }) => {
 
   const getDisplaySizeFromShopifyVariant = (shopifySize) => {
     switch (shopifySize) {
+      case "Default Title":
+        return null;
       case "Adult Small":
         return "Small";
       case "Adult Medium":

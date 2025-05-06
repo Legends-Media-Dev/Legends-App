@@ -420,10 +420,11 @@ const ProductScreen = ({ route, navigation }) => {
                 disabled={
                   !product.variants.edges.some((v) => v.node.availableForSale)
                 }
-                onPress={async () => {
-                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  handleAddToCart;
-                }}
+                // onPress={async () => {
+                //   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                //   handleAddToCart;
+                // }}
+                onPress={handleAddToCart}
               >
                 <Text style={styles.addToBagText}>Add to cart</Text>
               </TouchableOpacity>

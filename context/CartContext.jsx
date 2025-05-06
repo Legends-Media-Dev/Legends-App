@@ -173,6 +173,7 @@ export const CartProvider = ({ children }) => {
         updateCartDetails,
         deleteItemFromCart,
         cartItemCount,
+        resetCart,
       }}
     >
       {children}
