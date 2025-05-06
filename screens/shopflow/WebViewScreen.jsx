@@ -59,10 +59,8 @@ const WebViewScreen = ({ route }) => {
 
   const handleNavigationChange = (navState) => {
     const { url } = navState;
-    console.log("🧭 WebView navigated to:", url); // ✅ Log URL
 
     if (url.includes("/thank-you")) {
-      console.log("✅ Checkout complete. Detected thank_you URL.");
       setCheckoutComplete(true);
       resetCart();
     }
