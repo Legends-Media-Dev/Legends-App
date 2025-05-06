@@ -31,10 +31,12 @@ const ProductScreen = ({ route, navigation }) => {
   const suggestedCacheRef = useRef([]);
 
   const extractPhotos = (imagesEdges) => {
-    return imagesEdges.map((edge, index) => ({
-      id: index.toString(), // Unique id for each photo
-      uri: edge.node.src, // Image URL
-    }));
+    return imagesEdges
+      .map((edge, index) => {
+        const uri = edge?.node?.url || edge?.node?.src;
+        return uri ? { id: index.toString(), uri } : null;
+      })
+      .filter(Boolean); // Remove any null entries
   };
 
   const photos = extractPhotos(product.images.edges);
@@ -228,7 +230,7 @@ const ProductScreen = ({ route, navigation }) => {
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           setSelectedSize(item.label);
         }
-      }}      
+      }}
       disabled={!item.available}
     >
       <Text
@@ -374,9 +376,9 @@ const ProductScreen = ({ route, navigation }) => {
 
               {/* Plus Button */}
               <TouchableOpacity
-                style={styles.quantityButton} 
+                style={styles.quantityButton}
                 activeOpacity={1}
-                onPress={ async () => {
+                onPress={async () => {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   handleIncrement();
                 }}
@@ -405,9 +407,8 @@ const ProductScreen = ({ route, navigation }) => {
                 }
                 onPress={async () => {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  handleAddToCart
+                  handleAddToCart;
                 }}
-                
               >
                 <Text style={styles.addToBagText}>Add to cart</Text>
               </TouchableOpacity>

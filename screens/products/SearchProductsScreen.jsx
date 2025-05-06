@@ -18,7 +18,7 @@ import {
   fetchAllProductsCollection,
   searchProducts,
   searchProductsSF,
-} from "../../api/shopifyApi"; 
+} from "../../api/shopifyApi";
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");
