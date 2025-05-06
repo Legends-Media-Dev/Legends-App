@@ -18,7 +18,10 @@ import { useCart } from "../../context/CartContext"; // Import CartContext
 const { width } = Dimensions.get("window");
 
 import { getRecentlyViewedProducts } from "../../utils/storage";
-import { fetchProductById } from "../../api/shopifyApi";
+import {
+  fetchProductById,
+  fetchAllProductsCollection,
+} from "../../api/shopifyApi";
 import { addRecentlyViewedProduct } from "../../utils/storage";
 
 const ProductScreen = ({ route, navigation }) => {
@@ -28,6 +31,7 @@ const ProductScreen = ({ route, navigation }) => {
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [suggestedProducts, setSuggestedProducts] = useState([]);
+  const [recentProducts, setRecentProducts] = useState([]);
   const suggestedCacheRef = useRef([]);
 
   const extractPhotos = (imagesEdges) => {
@@ -68,7 +72,7 @@ const ProductScreen = ({ route, navigation }) => {
       addRecentlyViewedProduct(product.id);
     }
 
-    const fetchSuggestedProducts = async () => {
+    const fetchRecentProducts = async () => {
       const ids = await getRecentlyViewedProducts();
       const filteredIds = ids.filter((id) => id !== product.id); // exclude current
 
@@ -91,10 +95,21 @@ const ProductScreen = ({ route, navigation }) => {
         })
       );
 
-      setSuggestedProducts(products.filter(Boolean));
+      setRecentProducts(products.filter(Boolean));
+    };
+
+    const fetchSuggestedProducts = async () => {
+      try {
+        const data = await fetchAllProductsCollection("new-release");
+        const products = data?.products?.edges?.map((edge) => edge.node) || [];
+        setSuggestedProducts(products);
+      } catch (error) {
+        console.error("Failed to fetch suggested products:", error);
+      }
     };
 
     fetchSuggestedProducts();
+    fetchRecentProducts();
 
     return () => clearTimeout(timer);
   }, [photos, product]);
@@ -446,7 +461,7 @@ const ProductScreen = ({ route, navigation }) => {
                   <TouchableOpacity
                     style={{ width: 160, marginRight: 12 }}
                     onPress={() =>
-                      navigation.navigate("Product", { product: item })
+                      navigation.push("Product", { product: item })
                     }
                   >
                     <ProductCard
@@ -464,6 +479,55 @@ const ProductScreen = ({ route, navigation }) => {
             />
           )}
         </View>
+        {/* <View>
+          <View
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 30,
+            }}
+          >
+            <Text style={styles.lowerCTAButton}>RECENTLY VIEWED</Text>
+          </View>
+          {suggestedProducts.length > 0 && (
+            <FlatList
+              data={suggestedProducts}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingLeft: 20, paddingBottom: 20 }}
+              renderItem={({ item }) => {
+                const variant = item.variants.edges[0]?.node;
+                const price = parseFloat(variant?.price?.amount || "0").toFixed(
+                  2
+                );
+                const compareAt = variant?.compareAtPrice?.amount
+                  ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
+                  : null;
+
+                return (
+                  <TouchableOpacity
+                    style={{ width: 160, marginRight: 12 }}
+                    onPress={() =>
+                      navigation.navigate("Product", { product: item })
+                    }
+                  >
+                    <ProductCard
+                      image={
+                        item.images.edges[0]?.node.src ||
+                        "https://via.placeholder.com/100"
+                      }
+                      name={item.title || "No Name"}
+                      price={price}
+                      compareAtPrice={compareAt}
+                    />
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          )}
+        </View> */}
       </ScrollView>
     </>
   );
