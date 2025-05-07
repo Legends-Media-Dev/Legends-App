@@ -179,7 +179,7 @@ export const createCart = async () => {
 /**
  * Add to Cart
  */
-export const addToCart = async (cartId, variantId, quantity = 1) => {
+export const addToCart = async (cartId, variantId, quantity) => {
   try {
     // Call the Cloud Function
     const response = await axios.post(CLOUD_FUNCTION_URL_ATC, {

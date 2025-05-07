@@ -162,8 +162,6 @@ const ProductScreen = ({ route, navigation }) => {
 
   const handleAddToCart = async () => {
     const mappedSize = getShopifyVariantSize(selectedSize);
-    console.log("🧠 Selected size:", selectedSize);
-    console.log("📦 Shopify mapped size:", mappedSize);
 
     const matchingVariant = product.variants.edges.find((edge) => {
       const option = edge.node.selectedOptions.find(
@@ -420,11 +418,10 @@ const ProductScreen = ({ route, navigation }) => {
                 disabled={
                   !product.variants.edges.some((v) => v.node.availableForSale)
                 }
-                // onPress={async () => {
-                //   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                //   handleAddToCart;
-                // }}
-                onPress={handleAddToCart}
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  await handleAddToCart();
+                }}
               >
                 <Text style={styles.addToBagText}>Add to cart</Text>
               </TouchableOpacity>
