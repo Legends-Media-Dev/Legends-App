@@ -82,7 +82,10 @@ const CollectionScreen = ({ route, navigation }) => {
           keyExtractor={(item) => item.id}
           renderItem={renderProductItem}
           numColumns={2}
-          contentContainerStyle={styles.flatListContent}
+          contentContainerStyle={[
+            styles.flatListContent,
+            products.length === 1 && { alignItems: "flex-start" },
+          ]}
           showsVerticalScrollIndicator={false}
         />
       </View>
@@ -116,6 +119,7 @@ const styles = StyleSheet.create({
     width: width / 2,
     height: height / 3.3,
     padding: 8,
+    alignItems: "flex-start",
   },
   loadingOverlay: {
     position: "absolute",
