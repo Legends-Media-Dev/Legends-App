@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useCart } from "../../context/CartContext";
 import { createCheckout, createCheckoutUpdated } from "../../api/shopifyApi";
@@ -17,6 +18,7 @@ const CartScreen = ({ navigation }) => {
   const [quantities, setQuantities] = useState({}); // State to track quantities by item ID
   const [totalPrice, setTotalPrice] = useState(0); // State to track total price
   const isInitialized = useRef(false); // To track initialization
+  const [removingItemId, setRemovingItemId] = useState(null);
 
   useEffect(() => {
     // Fetch cart details only once
@@ -264,23 +266,41 @@ const CartScreen = ({ navigation }) => {
     return Object.values(quantities).reduce((total, qty) => total + qty, 0);
   };
 
+  // const handleRemoveItem = async (itemId) => {
+  //   try {
+  //     // Call the deleteItemFromCart function to remove the item from the cart
+  //     await deleteItemFromCart(itemId);
+
+  //     // Update quantities state by removing the deleted item
+  //     const updatedQuantities = { ...quantities };
+  //     delete updatedQuantities[itemId];
+  //     setQuantities(updatedQuantities);
+
+  //     // Refresh cart details
+  //     await getCartDetails();
+
+  //     // Recalculate total price
+  //     calculateTotalPrice(updatedQuantities);
+  //   } catch (error) {
+  //     console.error("Failed to remove item from cart:", error);
+  //   }
+  // };
   const handleRemoveItem = async (itemId) => {
     try {
-      // Call the deleteItemFromCart function to remove the item from the cart
+      setRemovingItemId(itemId); // show loader
+
       await deleteItemFromCart(itemId);
 
-      // Update quantities state by removing the deleted item
       const updatedQuantities = { ...quantities };
       delete updatedQuantities[itemId];
       setQuantities(updatedQuantities);
 
-      // Refresh cart details
       await getCartDetails();
-
-      // Recalculate total price
       calculateTotalPrice(updatedQuantities);
     } catch (error) {
       console.error("Failed to remove item from cart:", error);
+    } finally {
+      setRemovingItemId(null); // hide loader
     }
   };
 
@@ -369,8 +389,13 @@ const CartScreen = ({ navigation }) => {
             <TouchableOpacity
               style={styles.removeButton}
               onPress={() => handleRemoveItem(itemId)}
+              disabled={removingItemId === itemId}
             >
-              <Text style={styles.removeButton}>Remove</Text>
+              {removingItemId === itemId ? (
+                <ActivityIndicator size="small" color="#000" />
+              ) : (
+                <Text style={styles.removeButton}>Remove</Text>
+              )}
             </TouchableOpacity>
           </View>
         </View>

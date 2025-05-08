@@ -33,6 +33,7 @@ const ProductScreen = ({ route, navigation }) => {
   const [suggestedProducts, setSuggestedProducts] = useState([]);
   const [recentProducts, setRecentProducts] = useState([]);
   const suggestedCacheRef = useRef([]);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const extractPhotos = (imagesEdges) => {
     return imagesEdges
@@ -160,9 +161,33 @@ const ProductScreen = ({ route, navigation }) => {
     }
   };
 
+  // const handleAddToCart = async () => {
+  //   const mappedSize = getShopifyVariantSize(selectedSize);
+
+  //   const matchingVariant = product.variants.edges.find((edge) => {
+  //     const option = edge.node.selectedOptions.find(
+  //       (opt) => opt.name === "Size" || opt.name === "Title"
+  //     );
+  //     return option?.value === mappedSize;
+  //   });
+
+  //   if (!matchingVariant) {
+  //     console.error("❌ No matching variant found for selected size.");
+  //     return;
+  //   }
+
+  //   const variantId = matchingVariant.node.id;
+  //   try {
+  //     console.log("✅ Adding item to cart with variant ID:", variantId);
+  //     await addItemToCart(variantId, quantity);
+  //     alert("Added to cart!");
+  //   } catch (error) {
+  //     console.error("Error handling add to cart:", error);
+  //   }
+  // };
+
   const handleAddToCart = async () => {
     const mappedSize = getShopifyVariantSize(selectedSize);
-
     const matchingVariant = product.variants.edges.find((edge) => {
       const option = edge.node.selectedOptions.find(
         (opt) => opt.name === "Size" || opt.name === "Title"
@@ -176,12 +201,16 @@ const ProductScreen = ({ route, navigation }) => {
     }
 
     const variantId = matchingVariant.node.id;
+
     try {
-      console.log("✅ Adding item to cart with variant ID:", variantId);
+      setIsAddingToCart(true); // start loading
       await addItemToCart(variantId, quantity);
       alert("Added to cart!");
     } catch (error) {
       console.error("Error handling add to cart:", error);
+      alert("Something went wrong while adding to cart.");
+    } finally {
+      setIsAddingToCart(false); // end loading
     }
   };
 
@@ -416,14 +445,20 @@ const ProductScreen = ({ route, navigation }) => {
                   },
                 ]}
                 disabled={
-                  !product.variants.edges.some((v) => v.node.availableForSale)
+                  !product.variants.edges.some(
+                    (v) => v.node.availableForSale
+                  ) || isAddingToCart // disable during loading
                 }
                 onPress={async () => {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   await handleAddToCart();
                 }}
               >
-                <Text style={styles.addToBagText}>Add to cart</Text>
+                {isAddingToCart ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.addToBagText}>Add to cart</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
