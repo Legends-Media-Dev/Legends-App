@@ -119,28 +119,21 @@ export const CartProvider = ({ children }) => {
   // Function to update cart details (e.g., quantities)
   const updateCartDetails = async (updatedLines) => {
     if (!cartId) {
-      console.error("Cart ID is not initialized");
-      return;
+      throw new Error("Cart ID is not initialized");
     }
 
     try {
-      const payload = {
-        cartId, // Ensure cartId is a string
-        lines: updatedLines, // Pass updatedLines directly as "lines"
-      };
+      const updatedCart = await updateCart(cartId, updatedLines); // this calls your cloud function
 
-      console.log("Payload being sent:", payload);
-
-      const updatedCart = await updateCart(cartId, updatedLines); // UpdateCart API call
       if (!updatedCart) {
-        console.error("Failed to update cart. API returned null.");
-        return;
+        throw new Error("No cart returned from server");
       }
 
-      console.log("Updated cart after syncing:", updatedCart);
-      setCart(updatedCart);
+      setCart(updatedCart); // ✅ store it
     } catch (error) {
-      console.error("Error updating cart details:", error);
+      // ✅ IMPORTANT: properly rethrow Shopify userError
+      const rawError = error?.response?.data?.error || error?.message;
+      throw new Error(rawError);
     }
   };
 

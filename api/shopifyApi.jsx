@@ -286,10 +286,10 @@ export const updateCart = async (cartId, lines) => {
     return response.data;
   } catch (error) {
     // Log the error for debugging
-    console.error(
-      "Error updating cart via Cloud Function:",
-      error.response?.data || error.message
-    );
+    // console.error(
+    //   "Error updating cart via Cloud Function:",
+    //   error.response?.data || error.message
+    // );
     throw error;
   }
 };

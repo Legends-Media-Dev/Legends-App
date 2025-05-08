@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Alert,
 } from "react-native";
 import { useCart } from "../../context/CartContext";
 import { createCheckout, createCheckoutUpdated } from "../../api/shopifyApi";
@@ -54,12 +55,37 @@ const CartScreen = ({ navigation }) => {
     setTotalPrice(newTotalPrice);
   };
 
-  const syncCartWithServer = async () => {
+  // const syncCartWithServer = async () => {
+  //   try {
+  //     // Include items with quantity 0 to inform the server to remove them
+  //     const updatedLines = Object.entries(quantities).map(
+  //       ([lineId, quantity]) => ({
+  //         id: lineId,
+  //         quantity,
+  //       })
+  //     );
+
+  //     if (!cart?.id || updatedLines.length === 0) {
+  //       throw new Error("Missing cartId or updatedLines");
+  //     }
+
+  //     // Sync with the server
+  //     await updateCartDetails(updatedLines);
+
+  //     // Re-fetch cart details after syncing to ensure UI reflects updates
+  //     await getCartDetails();
+  //   } catch (error) {
+  //     console.error("Failed to update cart on the server:", error);
+  //   }
+  // };
+
+  const syncCartWithServer = async (customQuantities = null) => {
     try {
-      // Include items with quantity 0 to inform the server to remove them
-      const updatedLines = Object.entries(quantities).map(
+      const quantitiesToUse = customQuantities || quantities;
+
+      const updatedLines = Object.entries(quantitiesToUse).map(
         ([lineId, quantity]) => ({
-          id: lineId,
+          id: lineId.split("?")[0], // clean up the ID
           quantity,
         })
       );
@@ -68,15 +94,36 @@ const CartScreen = ({ navigation }) => {
         throw new Error("Missing cartId or updatedLines");
       }
 
-      // Sync with the server
       await updateCartDetails(updatedLines);
-
-      // Re-fetch cart details after syncing to ensure UI reflects updates
       await getCartDetails();
     } catch (error) {
-      console.error("Failed to update cart on the server:", error);
+      // console.error("Failed to update cart on the server:", error);
+      throw error; // ✅ THIS LINE IS ESSENTIAL
     }
   };
+
+  // const handleIncrement = async (itemId) => {
+  //   try {
+  //     setQuantities((prevQuantities) => {
+  //       const updatedQuantities = {
+  //         ...prevQuantities,
+  //         [itemId]: prevQuantities[itemId] + 1,
+  //       };
+
+  //       calculateTotalPrice(updatedQuantities); // Recalculate total price
+  //       syncCartWithServer(updatedQuantities); // Sync with server
+  //       return updatedQuantities;
+  //     });
+
+  //     // Directly update the cart with the new quantity
+  //     await updateCartDetails([
+  //       { id: itemId, quantity: quantities[itemId] + 1 },
+  //     ]);
+  //     await getCartDetails(); // Refresh cart details
+  //   } catch (error) {
+  //     console.error("Failed to increment item quantity:", error);
+  //   }
+  // };
 
   const handleIncrement = async (itemId) => {
     try {
@@ -97,7 +144,23 @@ const CartScreen = ({ navigation }) => {
       ]);
       await getCartDetails(); // Refresh cart details
     } catch (error) {
-      console.error("Failed to increment item quantity:", error);
+      Alert.alert("Out of Stock", "There is no more stock for this item.");
+      setQuantities((prevQuantities) => {
+        const updatedQuantities = {
+          ...prevQuantities,
+          [itemId]: prevQuantities[itemId] - 1,
+        };
+
+        calculateTotalPrice(updatedQuantities); // Recalculate total price
+        syncCartWithServer(updatedQuantities); // Sync with server
+        return updatedQuantities;
+      });
+
+      // Directly update the cart with the new quantity
+      await updateCartDetails([
+        { id: itemId, quantity: quantities[itemId] - 1 },
+      ]);
+      await getCartDetails();
     }
   };
 
@@ -123,7 +186,7 @@ const CartScreen = ({ navigation }) => {
       ]);
       await getCartDetails(); // Refresh cart details
     } catch (error) {
-      console.error("Failed to decrement item quantity:", error);
+      // console.error("Failed to decrement item quantity:", error);
     }
   };
 
@@ -155,8 +218,6 @@ const CartScreen = ({ navigation }) => {
 
   const getDisplaySizeFromShopifyVariant = (shopifySize) => {
     switch (shopifySize) {
-      case "Default Title":
-        return null;
       case "Adult Small":
         return "Small";
       case "Adult Medium":
