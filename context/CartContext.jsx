@@ -16,6 +16,7 @@ const CartContext = createContext(null);
 export const CartProvider = ({ children }) => {
   const [cartId, setCartId] = useState(null);
   const [cart, setCart] = useState(null);
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   // Function to reset and create a new cart
   const resetCart = async () => {
@@ -63,11 +64,12 @@ export const CartProvider = ({ children }) => {
           console.log("Cart fetch failed. Resetting...");
           await resetCart();
         }
+        setHasHydrated(true);
       } catch (error) {
         console.error("Error initializing cart:", error);
+        setHasHydrated(true);
       }
     };
-
     initializeCart();
   }, []);
 
@@ -160,6 +162,7 @@ export const CartProvider = ({ children }) => {
     <CartContext.Provider
       value={{
         cart,
+        hasHydrated,
         addItemToCart,
         getCartDetails,
         updateCartDetails,

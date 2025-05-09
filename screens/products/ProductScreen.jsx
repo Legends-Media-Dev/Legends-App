@@ -405,7 +405,7 @@ const ProductScreen = ({ route, navigation }) => {
                 }
                 onPress={async () => {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  handleAddToCart
+                  await handleAddToCart();
                 }}
                 
               >

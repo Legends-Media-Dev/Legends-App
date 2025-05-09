@@ -1,6 +1,6 @@
 // Import React and all dependencies
 import React, { useEffect, useState, useRef } from "react";
-import { NavigationContainer, Modal, Text } from "@react-navigation/native";
+import { NavigationContainer, Modal, Text, useNavigationContainerRef } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -37,6 +37,11 @@ import { Animated, View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { isTokenValid } from "./utils/storage";
+
+// Imports for cart pop up
+import { AppState } from "react-native";
+import { useCart } from "./context/CartContext";
+import CartReminderModal from "./components/CartReminderModal";
 
 // Create navigators
 const Stack = createStackNavigator();
@@ -457,16 +462,12 @@ export default function App() {
 
   const checkAuthentication = async () => {
     try {
-      console.log("Checking for token...");
       const token = await AsyncStorage.getItem("shopifyAccessToken");
       if (!token) {
-        console.log("No token found.");
         setIsAuthenticated(false);
         return;
       }
-
       const isValid = await isTokenValid();
-      console.log("Token is valid:", isValid);
       setIsAuthenticated(isValid);
     } catch (error) {
       console.error("Error during authentication check:", error);
@@ -486,36 +487,77 @@ export default function App() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <CartProvider>
-        <NavigationContainer>
-          <Tab.Navigator
-            screenOptions={({ route }) => ({
-              tabBarIcon: ({ focused, color, size }) => {
-                let iconName;
-
-                if (route.name === "HOME") {
-                  iconName = focused ? "home" : "home-outline";
-                } else if (route.name === "SHOP") {
-                  iconName = focused ? "bag" : "bag-outline";
-                } else if (route.name === "SWEEPSTAKES") {
-                  iconName = focused ? "pricetag" : "pricetag-outline";
-                } else if (route.name === "ACCOUNT") {
-                  iconName = focused ? "person" : "person-outline";
-                }
-
-                return <Ionicons name={iconName} size={size} color={color} />;
-              },
-              tabBarActiveTintColor: "#000",
-              tabBarInactiveTintColor: "gray",
-              headerShown: false,
-            })}
-          >
-            <Tab.Screen name="HOME" component={MainStack} />
-            <Tab.Screen name="SHOP" component={ShopStack} />
-            <Tab.Screen name="SWEEPSTAKES" component={SweepstakesStack} />
-            <Tab.Screen name="ACCOUNT" component={AccountStack} />
-          </Tab.Navigator>
-        </NavigationContainer>
+        <AppWithCartReminder />
       </CartProvider>
     </GestureHandlerRootView>
+  );
+}
+
+function AppWithCartReminder() {
+  const [showReminder, setShowReminder] = useState(false);
+  const appState = useRef(AppState.currentState);
+  const hasShownReminder = useRef(false);
+  const navRef = useNavigationContainerRef();
+  const coldStart = useRef(true);
+  const { cart, hasHydrated } = useCart();
+
+  // ✅ Cold start cart check
+  useEffect(() => {
+    if (
+      coldStart.current &&
+      hasHydrated &&
+      !hasShownReminder.current &&
+      cart &&
+      Array.isArray(cart.lines?.edges) &&
+      cart.lines.edges.length > 0
+    ) {
+      setShowReminder(true);
+      hasShownReminder.current = true;
+    }
+  
+    if (hasHydrated) {
+      coldStart.current = false;
+    }
+  }, [hasHydrated, cart]);   
+
+  return (
+    <NavigationContainer ref={navRef}>
+      <Tab.Navigator
+        screenOptions={({ route }) => ({
+          tabBarIcon: ({ focused, color, size }) => {
+            let iconName;
+            if (route.name === "HOME") {
+              iconName = focused ? "home" : "home-outline";
+            } else if (route.name === "SHOP") {
+              iconName = focused ? "bag" : "bag-outline";
+            } else if (route.name === "SWEEPSTAKES") {
+              iconName = focused ? "pricetag" : "pricetag-outline";
+            } else if (route.name === "ACCOUNT") {
+              iconName = focused ? "person" : "person-outline";
+            }
+            return <Ionicons name={iconName} size={size} color={color} />;
+          },
+          tabBarActiveTintColor: "#000",
+          tabBarInactiveTintColor: "gray",
+          headerShown: false,
+        })}
+      >
+        <Tab.Screen name="HOME" component={MainStack} />
+        <Tab.Screen name="SHOP" component={ShopStack} />
+        <Tab.Screen name="SWEEPSTAKES" component={SweepstakesStack} />
+        <Tab.Screen name="ACCOUNT" component={AccountStack} />
+      </Tab.Navigator>
+
+      {/* 🧠 Modal */}
+      <CartReminderModal
+        visible={showReminder}
+        onClose={() => setShowReminder(false)}
+        onGoToCart={() => {
+          setShowReminder(false);
+          navRef?.navigate("SHOP");
+          setTimeout(() => navRef?.navigate("Cart"), 200);
+        }}
+      />
+    </NavigationContainer>
   );
 }
