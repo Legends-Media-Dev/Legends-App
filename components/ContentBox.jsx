@@ -15,10 +15,16 @@ const ContentBox = ({
   screenName,
   handle = null,
   image = null,
+  onPress = null, // Add optional custom handler
 }) => {
   const navigation = useNavigation();
 
   const handlePress = async () => {
+    if (onPress) {
+      onPress(); // Call the custom handler
+      return;
+    }
+
     try {
       if (handle) {
         const data = await fetchAllProductsCollection(handle);
@@ -27,7 +33,7 @@ const ContentBox = ({
           title: topTitle,
           products: data.products,
         });
-      } else {
+      } else if (screenName) {
         navigation.navigate(screenName);
       }
     } catch (error) {

@@ -37,6 +37,7 @@ const CollectionScreen = ({ route, navigation }) => {
     getProducts();
   }, [handle]);
 
+  // console.log(products[1].variants.edges[0].node.availableForSale);
   const renderProductItem = ({ item }) => {
     return (
       <TouchableOpacity
@@ -64,6 +65,7 @@ const CollectionScreen = ({ route, navigation }) => {
                 ).toFixed(2)
               : null
           }
+          availableForSale={item.variants.edges[0]?.node.availableForSale}
         />
       </TouchableOpacity>
     );

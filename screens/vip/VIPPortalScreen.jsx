@@ -3,13 +3,18 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
+  Linking,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
   Modal,
+  ScrollView,
+  Image,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+
 import {
   fetchCollections,
   fetchAllProductsCollection,
@@ -25,6 +30,7 @@ const VipPortalScreen = () => {
   const [loading, setLoading] = useState(true);
   const [screenData, setScreenData] = useState([]);
   const [showWheel, setShowWheel] = useState(false);
+  const [selectedArticle, setSelectedArticle] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -39,7 +45,10 @@ const VipPortalScreen = () => {
           .map((edge) => {
             const image = edge.node.image?.src;
             const title = edge.node.title;
-            return image && title ? { image, title, type: "vipArticle" } : null;
+            const description = edge.node.contentHtml;
+            return image && description && title
+              ? { image, description, title, type: "vipArticle" }
+              : null;
           })
           .filter(Boolean);
 
@@ -59,6 +68,57 @@ const VipPortalScreen = () => {
 
     loadData();
   }, []);
+
+  const renderParsedText = (html) => {
+    if (!html) return null;
+
+    // Handle anchor tags separately first
+    const anchorTagRegex = /<a[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gi;
+
+    let parsed = [];
+    let lastIndex = 0;
+    let match;
+
+    // Temporarily replace links with a placeholder to preserve them
+    const placeholders = [];
+    html = html.replace(anchorTagRegex, (full, url, text) => {
+      const id = placeholders.length;
+      placeholders.push({ url, text });
+      return `[[LINK_${id}]]`;
+    });
+
+    // Strip all remaining tags and replace block tags with line breaks
+    const clean = html
+      .replace(/<[^>]+>/g, "") // Remove all HTML tags
+      .replace(/&nbsp;/g, " ")
+      .replace(/&amp;/g, "&")
+      .replace(/\n{3,}/g, "\n\n") // Prevent too many newlines
+      .trim();
+
+    // Split on placeholder markers
+    const parts = clean.split(/\[\[LINK_(\d+)\]\]/g);
+
+    parts.forEach((part, index) => {
+      if (index % 2 === 0) {
+        // Plain text
+        if (part) parsed.push(part);
+      } else {
+        // Link part
+        const link = placeholders[Number(part)];
+        parsed.push(
+          <Text
+            key={`link-${part}`}
+            style={{ color: "#1DB954", textDecorationLine: "underline" }}
+            onPress={() => Linking.openURL(link.url)}
+          >
+            {link.text}
+          </Text>
+        );
+      }
+    });
+
+    return parsed;
+  };
 
   const handleCollectionPress = async (handle, title) => {
     try {
@@ -102,7 +162,7 @@ const VipPortalScreen = () => {
 
     if (item.type === "vipArticle") {
       return (
-        <View style={{ marginBottom: 8 }}>
+        <TouchableOpacity style={{ marginBottom: 8 }}>
           <ContentBox
             topTitle={item.title}
             image={
@@ -110,9 +170,9 @@ const VipPortalScreen = () => {
                 ? { uri: item.image }
                 : require("../../assets/vip-background.png")
             }
-            screenName="Sweepstakes"
+            onPress={() => setSelectedArticle(item)} // ✅ Override ContentBox press behavior
           />
-        </View>
+        </TouchableOpacity>
       );
     }
 
@@ -157,6 +217,42 @@ const VipPortalScreen = () => {
           />
         </View>
       </Modal> */}
+      <Modal
+        visible={!!selectedArticle}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setSelectedArticle(null)}
+      >
+        {/* Semi-transparent dark background */}
+        <View style={styles.modalOverlay}>
+          {/* Modal content */}
+          <View style={styles.modalContent}>
+            <TouchableOpacity
+              onPress={() => setSelectedArticle(null)}
+              style={styles.closeButton}
+            >
+              <Ionicons name="close" size={20} color="#000" />
+            </TouchableOpacity>
+
+            {selectedArticle && (
+              <>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  <Text style={styles.articleTitle}>
+                    {selectedArticle.title}
+                  </Text>
+                  <Image
+                    source={{ uri: selectedArticle.image }}
+                    style={styles.articleImage}
+                  />
+                  <Text style={styles.articleDescription}>
+                    {renderParsedText(selectedArticle.description)}
+                  </Text>
+                </ScrollView>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
     </>
   );
 };
@@ -220,6 +316,56 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     justifyContent: "center",
     alignItems: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.4)", // translucent gray overlay
+    justifyContent: "flex-start",
+    paddingTop: height * 0.08,
+  },
+
+  modalContent: {
+    flex: 1,
+    backgroundColor: "white",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    padding: 20,
+  },
+
+  closeText: {
+    fontFamily: "Futura-Bold",
+    fontSize: 16,
+    marginBottom: 20,
+    color: "#C8102F",
+  },
+
+  articleTitle: {
+    fontSize: 24,
+    fontFamily: "Futura-Bold",
+    marginBottom: 16,
+  },
+
+  articleImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+
+  articleDescription: {
+    fontFamily: "Futura-Regular",
+    fontSize: 16,
+    color: "#333",
+  },
+  closeButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: "#E0E0E0",
+    alignItems: "center",
+    justifyContent: "center",
+    alignSelf: "flex-end",
+    marginBottom: 20,
   },
 });
 
