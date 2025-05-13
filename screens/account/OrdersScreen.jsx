@@ -118,6 +118,7 @@ const styles = StyleSheet.create({
   orderItem: {
     marginLeft: 16,
     marginRight: 16,
+    marginBottom: 10,
     padding: 12,
     backgroundColor: "#ffffff",
     borderRadius: 8,

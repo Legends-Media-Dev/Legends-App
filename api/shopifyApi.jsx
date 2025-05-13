@@ -179,7 +179,7 @@ export const createCart = async () => {
 /**
  * Add to Cart
  */
-export const addToCart = async (cartId, variantId, quantity = 1) => {
+export const addToCart = async (cartId, variantId, quantity) => {
   try {
     // Call the Cloud Function
     const response = await axios.post(CLOUD_FUNCTION_URL_ATC, {
@@ -286,10 +286,10 @@ export const updateCart = async (cartId, lines) => {
     return response.data;
   } catch (error) {
     // Log the error for debugging
-    console.error(
-      "Error updating cart via Cloud Function:",
-      error.response?.data || error.message
-    );
+    // console.error(
+    //   "Error updating cart via Cloud Function:",
+    //   error.response?.data || error.message
+    // );
     throw error;
   }
 };

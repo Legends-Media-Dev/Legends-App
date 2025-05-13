@@ -18,7 +18,10 @@ import { useCart } from "../../context/CartContext"; // Import CartContext
 const { width } = Dimensions.get("window");
 
 import { getRecentlyViewedProducts } from "../../utils/storage";
-import { fetchProductById } from "../../api/shopifyApi";
+import {
+  fetchProductById,
+  fetchAllProductsCollection,
+} from "../../api/shopifyApi";
 import { addRecentlyViewedProduct } from "../../utils/storage";
 
 const ProductScreen = ({ route, navigation }) => {
@@ -28,13 +31,17 @@ const ProductScreen = ({ route, navigation }) => {
   const [quantity, setQuantity] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [suggestedProducts, setSuggestedProducts] = useState([]);
+  const [recentProducts, setRecentProducts] = useState([]);
   const suggestedCacheRef = useRef([]);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const extractPhotos = (imagesEdges) => {
-    return imagesEdges.map((edge, index) => ({
-      id: index.toString(), // Unique id for each photo
-      uri: edge.node.src, // Image URL
-    }));
+    return imagesEdges
+      .map((edge, index) => {
+        const uri = edge?.node?.url || edge?.node?.src;
+        return uri ? { id: index.toString(), uri } : null;
+      })
+      .filter(Boolean); // Remove any null entries
   };
 
   const photos = extractPhotos(product.images.edges);
@@ -66,7 +73,7 @@ const ProductScreen = ({ route, navigation }) => {
       addRecentlyViewedProduct(product.id);
     }
 
-    const fetchSuggestedProducts = async () => {
+    const fetchRecentProducts = async () => {
       const ids = await getRecentlyViewedProducts();
       const filteredIds = ids.filter((id) => id !== product.id); // exclude current
 
@@ -89,10 +96,21 @@ const ProductScreen = ({ route, navigation }) => {
         })
       );
 
-      setSuggestedProducts(products.filter(Boolean));
+      setRecentProducts(products.filter(Boolean));
+    };
+
+    const fetchSuggestedProducts = async () => {
+      try {
+        const data = await fetchAllProductsCollection("new-release");
+        const products = data?.products?.edges?.map((edge) => edge.node) || [];
+        setSuggestedProducts(products);
+      } catch (error) {
+        console.error("Failed to fetch suggested products:", error);
+      }
     };
 
     fetchSuggestedProducts();
+    fetchRecentProducts();
 
     return () => clearTimeout(timer);
   }, [photos, product]);
@@ -143,11 +161,33 @@ const ProductScreen = ({ route, navigation }) => {
     }
   };
 
+  // const handleAddToCart = async () => {
+  //   const mappedSize = getShopifyVariantSize(selectedSize);
+
+  //   const matchingVariant = product.variants.edges.find((edge) => {
+  //     const option = edge.node.selectedOptions.find(
+  //       (opt) => opt.name === "Size" || opt.name === "Title"
+  //     );
+  //     return option?.value === mappedSize;
+  //   });
+
+  //   if (!matchingVariant) {
+  //     console.error("❌ No matching variant found for selected size.");
+  //     return;
+  //   }
+
+  //   const variantId = matchingVariant.node.id;
+  //   try {
+  //     console.log("✅ Adding item to cart with variant ID:", variantId);
+  //     await addItemToCart(variantId, quantity);
+  //     alert("Added to cart!");
+  //   } catch (error) {
+  //     console.error("Error handling add to cart:", error);
+  //   }
+  // };
+
   const handleAddToCart = async () => {
     const mappedSize = getShopifyVariantSize(selectedSize);
-    console.log("🧠 Selected size:", selectedSize);
-    console.log("📦 Shopify mapped size:", mappedSize);
-
     const matchingVariant = product.variants.edges.find((edge) => {
       const option = edge.node.selectedOptions.find(
         (opt) => opt.name === "Size" || opt.name === "Title"
@@ -161,12 +201,16 @@ const ProductScreen = ({ route, navigation }) => {
     }
 
     const variantId = matchingVariant.node.id;
+
     try {
-      console.log("✅ Adding item to cart with variant ID:", variantId);
+      setIsAddingToCart(true); // start loading
       await addItemToCart(variantId, quantity);
       alert("Added to cart!");
     } catch (error) {
       console.error("Error handling add to cart:", error);
+      alert("Something went wrong while adding to cart.");
+    } finally {
+      setIsAddingToCart(false); // end loading
     }
   };
 
@@ -228,7 +272,7 @@ const ProductScreen = ({ route, navigation }) => {
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           setSelectedSize(item.label);
         }
-      }}      
+      }}
       disabled={!item.available}
     >
       <Text
@@ -374,9 +418,9 @@ const ProductScreen = ({ route, navigation }) => {
 
               {/* Plus Button */}
               <TouchableOpacity
-                style={styles.quantityButton} 
+                style={styles.quantityButton}
                 activeOpacity={1}
-                onPress={ async () => {
+                onPress={async () => {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   handleIncrement();
                 }}
@@ -401,15 +445,20 @@ const ProductScreen = ({ route, navigation }) => {
                   },
                 ]}
                 disabled={
-                  !product.variants.edges.some((v) => v.node.availableForSale)
+                  !product.variants.edges.some(
+                    (v) => v.node.availableForSale
+                  ) || isAddingToCart // disable during loading
                 }
                 onPress={async () => {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                   await handleAddToCart();
                 }}
-                
               >
-                <Text style={styles.addToBagText}>Add to cart</Text>
+                {isAddingToCart ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text style={styles.addToBagText}>Add to cart</Text>
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -424,6 +473,55 @@ const ProductScreen = ({ route, navigation }) => {
             }}
           >
             <Text style={styles.lowerCTAButton}>YOU MAY ALSO LIKE</Text>
+          </View>
+          {suggestedProducts.length > 0 && (
+            <FlatList
+              data={suggestedProducts}
+              keyExtractor={(item) => item.id}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingLeft: 20, paddingBottom: 20 }}
+              renderItem={({ item }) => {
+                const variant = item.variants.edges[0]?.node;
+                const price = parseFloat(variant?.price?.amount || "0").toFixed(
+                  2
+                );
+                const compareAt = variant?.compareAtPrice?.amount
+                  ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
+                  : null;
+
+                return (
+                  <TouchableOpacity
+                    style={{ width: 160, marginRight: 12 }}
+                    onPress={() =>
+                      navigation.push("Product", { product: item })
+                    }
+                  >
+                    <ProductCard
+                      image={
+                        item.images.edges[0]?.node.src ||
+                        "https://via.placeholder.com/100"
+                      }
+                      name={item.title || "No Name"}
+                      price={price}
+                      compareAtPrice={compareAt}
+                    />
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          )}
+        </View>
+        {/* <View>
+          <View
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              marginTop: 30,
+            }}
+          >
+            <Text style={styles.lowerCTAButton}>RECENTLY VIEWED</Text>
           </View>
           {suggestedProducts.length > 0 && (
             <FlatList
@@ -462,7 +560,7 @@ const ProductScreen = ({ route, navigation }) => {
               }}
             />
           )}
-        </View>
+        </View> */}
       </ScrollView>
     </>
   );

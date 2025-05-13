@@ -3,7 +3,13 @@ import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 
 const { height } = Dimensions.get("window");
 
-const ProductCard = ({ image, name, price, compareAtPrice }) => {
+const ProductCard = ({
+  image,
+  name,
+  price,
+  compareAtPrice,
+  availableForSale,
+}) => {
   const hasDiscount =
     compareAtPrice && parseFloat(compareAtPrice) > parseFloat(price);
 
@@ -11,6 +17,11 @@ const ProductCard = ({ image, name, price, compareAtPrice }) => {
     <View style={styles.card}>
       <View style={styles.imageContainer}>
         <Image source={{ uri: image }} style={styles.image} />
+        {!availableForSale && (
+          <View style={styles.soldOutBadge}>
+            <Text style={styles.soldOutText}>SOLD OUT</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.textContainer}>
@@ -49,12 +60,28 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderRadius: 12,
     overflow: "hidden",
+    position: "relative",
   },
   image: {
     width: "100%",
     height: "100%",
     resizeMode: "cover",
     borderRadius: 12,
+  },
+  soldOutBadge: {
+    position: "absolute",
+    top: 8,
+    right: 8,
+    backgroundColor: "#C8102F",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    zIndex: 10,
+  },
+  soldOutText: {
+    color: "#fff",
+    fontSize: 10,
+    fontFamily: "Futura-Bold",
   },
   textContainer: {
     width: "90%",
