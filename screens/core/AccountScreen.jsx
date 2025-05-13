@@ -16,10 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import RoundedBox from "../../components/RoundedBox";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {
-  fetchCustomerDetails,
-  fetchProductById,
-} from "../../api/shopifyApi"; // Import API function
+import { fetchCustomerDetails, fetchProductById } from "../../api/shopifyApi"; // Import API function
 import { getRecentlyViewedProducts } from "../../utils/storage";
 
 const AccountScreen = () => {
@@ -58,9 +55,10 @@ const AccountScreen = () => {
   useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={async () => {
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-          setModalVisible(true)
+        <TouchableOpacity
+          onPress={async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+            setModalVisible(true);
           }}
         >
           <Ionicons
@@ -236,7 +234,8 @@ const AccountScreen = () => {
                   console.log("Access token not found.");
                 }
               }}
-              style={styles.topButtonContainer} activeOpacity={1}
+              style={styles.topButtonContainer}
+              activeOpacity={1}
             >
               <View style={styles.leftSide}>
                 <Ionicons
@@ -257,7 +256,8 @@ const AccountScreen = () => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.innerButtonContainer} activeOpacity={1}
+              style={styles.innerButtonContainer}
+              activeOpacity={1}
               onPress={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 if (
@@ -282,7 +282,8 @@ const AccountScreen = () => {
               <Ionicons name="chevron-forward-outline" size={24} color="#000" />
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.lowerButtonContainer} activeOpacity={1}
+              style={styles.lowerButtonContainer}
+              activeOpacity={1}
               onPress={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
                 navigation.navigate("SweepstakesScreen"); // Navigate to Join VIP screen
@@ -328,6 +329,7 @@ const AccountScreen = () => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.recentlyViewedScroll}
                 renderItem={({ item }) => {
+                  console.log(item);
                   const variant = item.variants.edges[0]?.node;
                   const price = parseFloat(
                     variant?.price?.amount || "0"
@@ -341,18 +343,36 @@ const AccountScreen = () => {
                       style={{ width: 150, marginRight: 10 }}
                       activeOpacity={1}
                       onPress={async () => {
-                        await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                        navigation.navigate("Product", { product: item })
+                        await Haptics.impactAsync(
+                          Haptics.ImpactFeedbackStyle.Medium
+                        );
+                        navigation.navigate("Product", { product: item });
                       }}
                     >
                       <ProductCard
                         image={
                           item.images.edges[0]?.node.src ||
-                          "https://via.placeholder.com/100"
+                          "../assets/Legends.png"
                         }
                         name={item.title || "No Name"}
-                        price={price}
-                        compareAtPrice={compareAt}
+                        price={
+                          item.variants.edges[0]?.node.price?.amount
+                            ? parseFloat(
+                                item.variants.edges[0].node.price.amount
+                              ).toFixed(2)
+                            : "N/A"
+                        }
+                        compareAtPrice={
+                          item.variants.edges[0]?.node.compareAtPrice?.amount
+                            ? parseFloat(
+                                item.variants.edges[0].node.compareAtPrice
+                                  .amount
+                              ).toFixed(2)
+                            : null
+                        }
+                        availableForSale={
+                          item.variants.edges[0]?.node.availableForSale
+                        }
                       />
                     </TouchableOpacity>
                   );

@@ -58,8 +58,7 @@ const SearchScreen = () => {
 
     // Flexible image extraction
     const imageNode = item.images?.edges?.[0]?.node;
-    const imageUrl =
-      imageNode?.url || imageNode?.src || "https://via.placeholder.com/100";
+    const imageUrl = imageNode?.url || imageNode?.src || "..assets/Legends.png";
 
     return (
       <TouchableOpacity

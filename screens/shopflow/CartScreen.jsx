@@ -220,6 +220,8 @@ const CartScreen = ({ navigation }) => {
 
   const getDisplaySizeFromShopifyVariant = (shopifySize) => {
     switch (shopifySize) {
+      case "Default Title":
+        return null;
       case "Adult Small":
         return "Small";
       case "Adult Medium":
@@ -322,8 +324,7 @@ const CartScreen = ({ navigation }) => {
 
     // Fetch product image safely
     const productImage =
-      product?.product?.images?.edges?.[0]?.node?.src ||
-      "https://via.placeholder.com/100";
+      product?.product?.images?.edges?.[0]?.node?.src || "..assets/Legends.png";
 
     return (
       <View style={styles.cartItemContainer}>
@@ -357,7 +358,14 @@ const CartScreen = ({ navigation }) => {
           {/* <Text style={styles.productSize}>
             {product?.title || "Unknown Size"}
           </Text> */}
-          <Text style={styles.productSize}>
+          <Text
+            style={[
+              styles.productSize,
+              product?.title == "Default Title" && {
+                fontSize: 0,
+              },
+            ]}
+          >
             {getDisplaySizeFromShopifyVariant(product?.title)}
           </Text>
 

@@ -205,7 +205,7 @@ const ProductScreen = ({ route, navigation }) => {
     try {
       setIsAddingToCart(true); // start loading
       await addItemToCart(variantId, quantity);
-      alert("Added to cart!");
+      // alert("Added to cart!");
     } catch (error) {
       console.error("Error handling add to cart:", error);
       alert("Something went wrong while adding to cart.");
@@ -370,7 +370,7 @@ const ProductScreen = ({ route, navigation }) => {
             <View style={styles.sizeContainer}>
               <View style={styles.topContainer}>
                 <Text style={styles.sizeTitle}>
-                  Size{" "}
+                  Size:{" "}
                   <Text style={styles.sizeIndicator}>
                     {getSizeIndicator(selectedSize)}
                   </Text>
@@ -499,12 +499,26 @@ const ProductScreen = ({ route, navigation }) => {
                   >
                     <ProductCard
                       image={
-                        item.images.edges[0]?.node.src ||
-                        "https://via.placeholder.com/100"
+                        item.images.edges[0]?.node.src || "..assets/Legends.png"
                       }
                       name={item.title || "No Name"}
-                      price={price}
-                      compareAtPrice={compareAt}
+                      price={
+                        item.variants.edges[0]?.node.price?.amount
+                          ? parseFloat(
+                              item.variants.edges[0].node.price.amount
+                            ).toFixed(2)
+                          : "N/A"
+                      }
+                      compareAtPrice={
+                        item.variants.edges[0]?.node.compareAtPrice?.amount
+                          ? parseFloat(
+                              item.variants.edges[0].node.compareAtPrice.amount
+                            ).toFixed(2)
+                          : null
+                      }
+                      availableForSale={
+                        item.variants.edges[0]?.node.availableForSale
+                      }
                     />
                   </TouchableOpacity>
                 );
@@ -547,14 +561,30 @@ const ProductScreen = ({ route, navigation }) => {
                     }
                   >
                     <ProductCard
-                      image={
-                        item.images.edges[0]?.node.src ||
-                        "https://via.placeholder.com/100"
-                      }
-                      name={item.title || "No Name"}
-                      price={price}
-                      compareAtPrice={compareAt}
-                    />
+                        image={
+                          item.images.edges[0]?.node.src ||
+                          "../assets/Legends.png"
+                        }
+                        name={item.title || "No Name"}
+                        price={
+                          item.variants.edges[0]?.node.price?.amount
+                            ? parseFloat(
+                                item.variants.edges[0].node.price.amount
+                              ).toFixed(2)
+                            : "N/A"
+                        }
+                        compareAtPrice={
+                          item.variants.edges[0]?.node.compareAtPrice?.amount
+                            ? parseFloat(
+                                item.variants.edges[0].node.compareAtPrice
+                                  .amount
+                              ).toFixed(2)
+                            : null
+                        }
+                        availableForSale={
+                          item.variants.edges[0]?.node.availableForSale
+                        }
+                      />
                   </TouchableOpacity>
                 );
               }}
@@ -692,6 +722,7 @@ const styles = StyleSheet.create({
   },
   unavailableSizeText: {
     color: "#A9A9A9",
+    textDecorationLine: "line-through",
   },
   selectedSize: {
     backgroundColor: "#000",

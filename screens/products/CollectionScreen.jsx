@@ -49,9 +49,7 @@ const CollectionScreen = ({ route, navigation }) => {
         }}
       >
         <ProductCard
-          image={
-            item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
-          }
+          image={item.images.edges[0]?.node.src || "..assets/Legends.png"}
           name={item.title || "No Name"}
           price={
             item.variants.edges[0]?.node.price?.amount

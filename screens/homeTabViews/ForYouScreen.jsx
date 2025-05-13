@@ -220,12 +220,26 @@ const ForYouScreen = () => {
               >
                 <ProductCard
                   image={
-                    item.images.edges[0]?.node.src ||
-                    "https://via.placeholder.com/100"
+                    item.images.edges[0]?.node.src || "../assets/Legends.png"
                   }
                   name={item.title || "No Name"}
-                  price={price}
-                  compareAtPrice={compareAt}
+                  price={
+                    item.variants.edges[0]?.node.price?.amount
+                      ? parseFloat(
+                          item.variants.edges[0].node.price.amount
+                        ).toFixed(2)
+                      : "N/A"
+                  }
+                  compareAtPrice={
+                    item.variants.edges[0]?.node.compareAtPrice?.amount
+                      ? parseFloat(
+                          item.variants.edges[0].node.compareAtPrice.amount
+                        ).toFixed(2)
+                      : null
+                  }
+                  availableForSale={
+                    item.variants.edges[0]?.node.availableForSale
+                  }
                 />
               </TouchableOpacity>
             );
@@ -259,19 +273,33 @@ const ForYouScreen = () => {
               <TouchableOpacity
                 style={{ width: 160, marginRight: 12 }}
                 activeOpacity={1}
-                onPress={async () =>{
+                onPress={async () => {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  navigation.navigate("Product", { product: item })
+                  navigation.navigate("Product", { product: item });
                 }}
               >
                 <ProductCard
                   image={
-                    item.images.edges[0]?.node.src ||
-                    "https://via.placeholder.com/100"
+                    item.images.edges[0]?.node.src || "../assets/Legends.png"
                   }
                   name={item.title || "No Name"}
-                  price={price}
-                  compareAtPrice={compareAt}
+                  price={
+                    item.variants.edges[0]?.node.price?.amount
+                      ? parseFloat(
+                          item.variants.edges[0].node.price.amount
+                        ).toFixed(2)
+                      : "N/A"
+                  }
+                  compareAtPrice={
+                    item.variants.edges[0]?.node.compareAtPrice?.amount
+                      ? parseFloat(
+                          item.variants.edges[0].node.compareAtPrice.amount
+                        ).toFixed(2)
+                      : null
+                  }
+                  availableForSale={
+                    item.variants.edges[0]?.node.availableForSale
+                  }
                 />
               </TouchableOpacity>
             );
