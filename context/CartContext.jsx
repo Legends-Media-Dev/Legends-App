@@ -74,11 +74,7 @@ export const CartProvider = ({ children }) => {
         setHasHydrated(true);
       } catch (error) {
         console.error("Error initializing cart:", error);
-<<<<<<< HEAD
-        setHasHydrated(true);
-=======
         await resetCart(); // Ensure fallback on any error
->>>>>>> LMS4-Dylan
       }
     };
     initializeCart();
