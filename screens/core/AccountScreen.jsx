@@ -17,7 +17,10 @@ import { useNavigation } from "@react-navigation/native";
 import RoundedBox from "../../components/RoundedBox";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchCustomerDetails, fetchProductById } from "../../api/shopifyApi"; // Import API function
-import { getRecentlyViewedProducts } from "../../utils/storage";
+import {
+  getRecentlyViewedProducts,
+  setCustomerInfo,
+} from "../../utils/storage";
 
 const AccountScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -41,6 +44,7 @@ const AccountScreen = () => {
 
         const customerDetails = await fetchCustomerDetails(accessToken);
         setCustomerData(customerDetails);
+        await setCustomerInfo(customerDetails); // ✅ Save for later use
       } catch (error) {
         console.error("Error fetching customer details:", error);
       } finally {
@@ -329,7 +333,6 @@ const AccountScreen = () => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={styles.recentlyViewedScroll}
                 renderItem={({ item }) => {
-                  console.log(item);
                   const variant = item.variants.edges[0]?.node;
                   const price = parseFloat(
                     variant?.price?.amount || "0"

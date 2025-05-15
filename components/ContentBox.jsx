@@ -11,11 +11,13 @@ import { fetchAllProductsCollection } from "../api/shopifyApi";
 
 const ContentBox = ({
   topTitle,
+  centerTitle,
   topColor = "#4CAF50",
   screenName,
   handle = null,
   image = null,
   onPress = null, // Add optional custom handler
+  centerText = false,
 }) => {
   const navigation = useNavigation();
 
@@ -53,9 +55,18 @@ const ContentBox = ({
           style={styles.imageBox}
           imageStyle={styles.imageStyle}
         >
-          <View style={styles.overlay}>
+          <View
+            style={[styles.overlay, centerText && { justifyContent: "center" }]}
+          >
+            <View style={[styles.overlayContent]}>
+              <Text
+                style={[styles.title, { textAlign: "center", fontSize: 25 }]}
+              >
+                {centerTitle}
+              </Text>
+            </View>
             <View style={styles.overlayContent}>
-              <Text style={styles.title}>{topTitle}</Text>
+              <Text style={[styles.title]}>{topTitle}</Text>
             </View>
           </View>
         </ImageBackground>

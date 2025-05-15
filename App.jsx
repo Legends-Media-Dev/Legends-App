@@ -1,6 +1,11 @@
 // Import React and all dependencies
 import React, { useEffect, useState, useRef } from "react";
-import { NavigationContainer, Modal, Text, useNavigationContainerRef } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  Modal,
+  Text,
+  useNavigationContainerRef,
+} from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -42,6 +47,7 @@ import { isTokenValid } from "./utils/storage";
 import { AppState } from "react-native";
 import { useCart } from "./context/CartContext";
 import CartReminderModal from "./components/CartReminderModal";
+import SearchIconBadge from "./components/SearchIconBadge";
 
 // Create navigators
 const Stack = createStackNavigator();
@@ -99,6 +105,7 @@ function MainStack() {
           title: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
         })}
       />
       <Stack.Screen
@@ -116,6 +123,7 @@ function MainStack() {
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -125,6 +133,7 @@ function MainStack() {
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -133,6 +142,7 @@ function MainStack() {
         options={{
           headerTitle: () => <AnimatedHeader />,
           headerBackTitle: false,
+          headerLeft: () => <SearchIconBadge />,
         }}
       />
       <Stack.Screen
@@ -142,14 +152,17 @@ function MainStack() {
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="VIPPortalScreen"
         component={VIPPortalScreen}
-        options={() => ({
-          headerShown: true,
-          headerBackTitleVisible: true,
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -158,6 +171,17 @@ function MainStack() {
         options={({ navigation }) => ({
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
     </Stack.Navigator>
@@ -185,6 +209,7 @@ function ShopStack() {
         options={({ navigation }) => ({
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
         })}
       />
       <Stack.Screen
@@ -193,6 +218,7 @@ function ShopStack() {
         options={{
           headerBackTitle: false,
           headerTitle: () => <AnimatedHeader />,
+          headerLeft: () => <SearchIconBadge />,
         }}
       />
       <Stack.Screen
@@ -210,6 +236,7 @@ function ShopStack() {
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -219,6 +246,7 @@ function ShopStack() {
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -228,6 +256,7 @@ function ShopStack() {
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -237,6 +266,7 @@ function ShopStack() {
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
     </Stack.Navigator>
@@ -264,6 +294,7 @@ function SweepstakesStack() {
         options={({ navigation }) => ({
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
         })}
       />
       <Stack.Screen
@@ -281,7 +312,18 @@ function SweepstakesStack() {
           headerBackTitle: false,
           headerTitle: () => <AnimatedHeader />,
           headerBackTitleVisible: false,
+          headerLeft: () => <SearchIconBadge />,
         }}
+      />
+      <Stack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
       />
     </Stack.Navigator>
   );
@@ -332,6 +374,7 @@ function AccountStack() {
             title: "",
             headerTitle: () => <AnimatedHeader />,
             headerRight: () => <CartIconWithBadge />,
+            headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
           }}
         />
       ) : (
@@ -365,6 +408,7 @@ function AccountStack() {
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -374,6 +418,7 @@ function AccountStack() {
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -383,6 +428,7 @@ function AccountStack() {
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -400,6 +446,7 @@ function AccountStack() {
           headerBackTitle: false,
           headerTitle: () => <AnimatedHeader />,
           headerBackTitleVisible: false,
+          headerLeft: () => <SearchIconBadge />,
         }}
       />
       <Stack.Screen
@@ -408,6 +455,7 @@ function AccountStack() {
         options={({ navigation }) => ({
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -416,6 +464,7 @@ function AccountStack() {
         options={({ navigation }) => ({
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -432,6 +481,7 @@ function AccountStack() {
         options={{
           headerTitle: "",
           headerBackTitle: "",
+          headerLeft: () => <SearchIconBadge />,
         }}
       />
       <Stack.Screen
@@ -441,6 +491,17 @@ function AccountStack() {
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
     </Stack.Navigator>
@@ -514,11 +575,11 @@ function AppWithCartReminder() {
       setShowReminder(true);
       hasShownReminder.current = true;
     }
-  
+
     if (hasHydrated) {
       coldStart.current = false;
     }
-  }, [hasHydrated, cart]);   
+  }, [hasHydrated, cart]);
 
   return (
     <NavigationContainer ref={navRef}>
