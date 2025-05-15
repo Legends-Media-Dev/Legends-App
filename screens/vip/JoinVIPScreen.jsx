@@ -8,6 +8,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from "react-native";
 
 const { width } = Dimensions.get("window");
@@ -68,6 +69,10 @@ function JoinVIPScreen() {
             <Text style={styles.joinButtonText}>JOIN ONLINE TODAY</Text>
           </TouchableOpacity>
         </View>
+        <Image
+          source={require("../../assets/How_VIP_Works.png")} // adjust path as needed
+          style={styles.productImage}
+        />
       </ScrollView>
     </ImageBackground>
   );
@@ -145,7 +150,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF", // or match your splash bg
     justifyContent: "center",
     alignItems: "center",
-  },  
+  },
+  productImage: {
+    width: width,
+    height: (width - 10) * 1.25,
+    borderRadius: 12,
+    marginTop: 15,
+    resizeMode: "cover",
+  },
 });
 
 export default JoinVIPScreen;

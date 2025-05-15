@@ -196,6 +196,7 @@ const NewsScreen = () => {
               image={require("../../assets/vip-dark-background.png")}
               screenName={
                 customerVIPStatus ? "VIPPortalScreen" : "JoinVIPScreen"
+                // customerVIPStatus ? "JoinVIPScreen" : "JoinVIPScreen"
               }
             />
           </View>
