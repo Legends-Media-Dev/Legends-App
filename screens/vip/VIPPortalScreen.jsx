@@ -140,25 +140,51 @@ const VipPortalScreen = () => {
 
     if (item.type === "collection") {
       return (
-        <TouchableOpacity
-          onPress={async () => {
-            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            handleCollectionPress(item.handle, item.title);
-          }}
-          activeOpacity={1}
-        >
-          <ImageBackground
-            source={require("../../assets/vip-dark-background.png")}
-            style={styles.vipCard}
-            imageStyle={styles.vipCardImage}
+        <>
+          {/* VIP Exclusive Product Card */}
+          <TouchableOpacity
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              handleCollectionPress(item.handle, item.title);
+            }}
+            activeOpacity={1}
           >
-            <View style={styles.vipCardContent}>
-              <Text style={styles.vipExclusiveButtonText}>
-                VIP EXCLUSIVE PRODUCT
-              </Text>
+            <ImageBackground
+              source={require("../../assets/vip-dark-background.png")}
+              style={styles.vipCard}
+              imageStyle={styles.vipCardImage}
+            >
+              <View style={styles.vipCardContent}>
+                <Text style={styles.vipExclusiveButtonText}>
+                  VIP EXCLUSIVE PRODUCT
+                </Text>
+              </View>
+            </ImageBackground>
+          </TouchableOpacity>
+
+          {/* VIP Facebook Group Card */}
+          <TouchableOpacity
+            onPress={async () => {
+              await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              Linking.openURL("https://www.facebook.com/groups/YOURGROUPID");
+            }}
+            activeOpacity={1}
+          >
+            <View
+              style={{
+                backgroundColor: "#ADD8E6",
+                borderRadius: 12,
+                marginTop: -3,
+              }}
+            >
+              <View style={styles.vipCardContent}>
+                <Text style={styles.vipExclusiveButtonText}>
+                  VIP FACEBOOK GROUP
+                </Text>
+              </View>
             </View>
-          </ImageBackground>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </>
       );
     }
 
