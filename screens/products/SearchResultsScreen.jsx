@@ -52,6 +52,8 @@ const SearchResultsScreen = ({ route, navigation }) => {
     const price =
       rawAmount && !isNaN(Number(rawAmount)) ? Number(rawAmount) : null; // pass `null` if price is invalid
 
+    console.log(item.variants.edges[0].node.availableForSale);
+
     return (
       <TouchableOpacity
         style={styles.productWrapper}
@@ -62,7 +64,7 @@ const SearchResultsScreen = ({ route, navigation }) => {
         }}
       >
         <ProductCard
-          image={item.images.edges[0]?.node.src || "..assets/Legends.png"}
+          image={item.images.edges[0]?.node.url || "..assets/Legends.png"}
           name={item.title || "No Name"}
           price={
             item.variants.edges[0]?.node.price?.amount

@@ -184,6 +184,16 @@ function MainStack() {
           headerLeft: () => <SearchIconBadge />,
         })}
       />
+      <Stack.Screen
+        name="SearchResults"
+        component={SearchResultsScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
     </Stack.Navigator>
   );
 }
@@ -318,6 +328,16 @@ function SweepstakesStack() {
       <Stack.Screen
         name="Search"
         component={SearchScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="SearchResults"
+        component={SearchResultsScreen}
         options={({ navigation }) => ({
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
@@ -497,6 +517,16 @@ function AccountStack() {
       <Stack.Screen
         name="Search"
         component={SearchScreen}
+        options={({ navigation }) => ({
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="SearchResults"
+        component={SearchResultsScreen}
         options={({ navigation }) => ({
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,

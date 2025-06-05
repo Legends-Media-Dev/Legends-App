@@ -34,6 +34,13 @@ const ProductScreen = ({ route, navigation }) => {
   const [recentProducts, setRecentProducts] = useState([]);
   const suggestedCacheRef = useRef([]);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const currentPrice = parseFloat(
+    product.variants.edges[0]?.node.price?.amount || 0
+  );
+
+  const compareAt = parseFloat(
+    product.variants.edges[0]?.node.compareAtPrice?.amount || 0
+  );
 
   const extractPhotos = (imagesEdges) => {
     return imagesEdges
@@ -235,16 +242,21 @@ const ProductScreen = ({ route, navigation }) => {
   });
 
   const getSizeIndicator = (size) => {
-    if (size === "Small") {
-      return "S";
-    } else if (size === "Medium") {
-      return "M";
-    } else if (size === "Large") {
-      return "L";
-    } else if (size === "XLarge") {
-      return "XL";
-    } else if (size === "2XLarge") {
-      return "XXL";
+    switch (size) {
+      case "Small":
+        return "S";
+      case "Medium":
+        return "M";
+      case "Large":
+        return "L";
+      case "XLarge":
+        return "XL";
+      case "2XLarge":
+        return "XXL";
+      case "3XLarge":
+        return "XXXL"; // ✅ Add this
+      default:
+        return ""; // fallback
     }
   };
 
@@ -260,32 +272,32 @@ const ProductScreen = ({ route, navigation }) => {
     </View>
   );
 
-  const renderSizeItem = ({ item }) => (
-    <TouchableOpacity
-      style={[
-        styles.sizeOption,
-        selectedSize === item.label && styles.selectedSize,
-        !item.available && styles.unavailableSize,
-      ]}
-      onPress={async () => {
-        if (item.available) {
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          setSelectedSize(item.label);
-        }
-      }}
-      disabled={!item.available}
-    >
-      <Text
-        style={[
-          styles.sizeText,
-          selectedSize === item.label && styles.selectedSizeText,
-          !item.available && styles.unavailableSizeText,
-        ]}
-      >
-        {item.label}
-      </Text>
-    </TouchableOpacity>
-  );
+  // const renderSizeItem = ({ item }) => (
+  //   <TouchableOpacity
+  //     style={[
+  //       styles.sizeOption,
+  //       selectedSize === item.label && styles.selectedSize,
+  //       !item.available && styles.unavailableSize,
+  //     ]}
+  //     onPress={async () => {
+  //       if (item.available) {
+  //         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  //         setSelectedSize(item.label);
+  //       }
+  //     }}
+  //     disabled={!item.available}
+  //   >
+  //     <Text
+  //       style={[
+  //         styles.sizeText,
+  //         selectedSize === item.label && styles.selectedSizeText,
+  //         !item.available && styles.unavailableSizeText,
+  //       ]}
+  //     >
+  //       {item.label}
+  //     </Text>
+  //   </TouchableOpacity>
+  // );
 
   return (
     <>
@@ -336,18 +348,12 @@ const ProductScreen = ({ route, navigation }) => {
             <Text style={styles.productTitle}>{product.title}</Text>
             <View style={styles.priceContainer}>
               <Text style={styles.currentPrice}>
-                $
-                {parseFloat(
-                  product.variants.edges[0]?.node.price?.amount || 0
-                ).toFixed(2)}
+                ${currentPrice.toFixed(2)}
               </Text>
 
-              {product.variants.edges[0]?.node.compareAtPrice?.amount && (
+              {compareAt > currentPrice && (
                 <Text style={styles.originalPrice}>
-                  $
-                  {parseFloat(
-                    product.variants.edges[0].node.compareAtPrice.amount
-                  ).toFixed(2)}
+                  ${compareAt.toFixed(2)}
                 </Text>
               )}
             </View>
@@ -385,14 +391,39 @@ const ProductScreen = ({ route, navigation }) => {
                 </TouchableOpacity> */}
               </View>
               <View style={{ paddingLeft: 10 }}>
-                <FlatList
-                  data={sizes}
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  renderItem={renderSizeItem}
-                  keyExtractor={(item) => item.id}
-                  contentContainerStyle={styles.sizeOptions}
-                />
+                <View style={styles.gridContainer}>
+                  {sizes.map((item) => (
+                    <TouchableOpacity
+                      key={item.id}
+                      style={[
+                        styles.sizeOption,
+                        selectedSize === item.label && styles.selectedSize,
+                        !item.available && styles.unavailableSize,
+                      ]}
+                      onPress={async () => {
+                        if (item.available) {
+                          await Haptics.impactAsync(
+                            Haptics.ImpactFeedbackStyle.Light
+                          );
+                          setSelectedSize(item.label);
+                          console.log(selectedSize);
+                        }
+                      }}
+                      disabled={!item.available}
+                    >
+                      <Text
+                        style={[
+                          styles.sizeText,
+                          selectedSize === item.label &&
+                            styles.selectedSizeText,
+                          !item.available && styles.unavailableSizeText,
+                        ]}
+                      >
+                        {item.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
             </View>
           )}
@@ -517,7 +548,9 @@ const ProductScreen = ({ route, navigation }) => {
                           : null
                       }
                       availableForSale={
-                        item.variants.edges[0]?.node.availableForSale
+                        !item.variants.edges.every(
+                          (variantEdge) => !variantEdge.node.availableForSale
+                        )
                       }
                     />
                   </TouchableOpacity>
@@ -844,6 +877,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "center",
     alignItems: "center",
+  },
+  sizeOption: {
+    alignSelf: "flex-start", // allow it to wrap naturally
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 20, // gives it that pill shape and space around text
+    backgroundColor: "#E0E0E0",
+    margin: 5,
+  },
+  gridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "start",
+    paddingHorizontal: 10,
   },
 });
 

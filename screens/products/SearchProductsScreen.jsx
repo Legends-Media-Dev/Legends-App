@@ -29,7 +29,7 @@ const SearchScreen = () => {
     const loadProducts = async () => {
       try {
         if (query.trim().length === 0) {
-          const data = await fetchAllProductsCollection("new-release");
+          const data = await fetchAllProductsCollection("all-product");
           const products =
             data?.products?.edges?.map((edge) => edge.node) || [];
           setProducts(products);

@@ -374,7 +374,9 @@ const AccountScreen = () => {
                             : null
                         }
                         availableForSale={
-                          item.variants.edges[0]?.node.availableForSale
+                          !item.variants.edges.every(
+                            (variantEdge) => !variantEdge.node.availableForSale
+                          )
                         }
                       />
                     </TouchableOpacity>
