@@ -170,31 +170,6 @@ const ProductScreen = ({ route, navigation }) => {
     }
   };
 
-  // const handleAddToCart = async () => {
-  //   const mappedSize = getShopifyVariantSize(selectedSize);
-
-  //   const matchingVariant = product.variants.edges.find((edge) => {
-  //     const option = edge.node.selectedOptions.find(
-  //       (opt) => opt.name === "Size" || opt.name === "Title"
-  //     );
-  //     return option?.value === mappedSize;
-  //   });
-
-  //   if (!matchingVariant) {
-  //     console.error("❌ No matching variant found for selected size.");
-  //     return;
-  //   }
-
-  //   const variantId = matchingVariant.node.id;
-  //   try {
-  //     console.log("✅ Adding item to cart with variant ID:", variantId);
-  //     await addItemToCart(variantId, quantity);
-  //     alert("Added to cart!");
-  //   } catch (error) {
-  //     console.error("Error handling add to cart:", error);
-  //   }
-  // };
-
   const handleAddToCart = async () => {
     const mappedSize = getShopifyVariantSize(selectedSize);
     const matchingVariant = product.variants.edges.find((edge) => {
@@ -278,33 +253,6 @@ const ProductScreen = ({ route, navigation }) => {
       />
     </View>
   );
-
-  // const renderSizeItem = ({ item }) => (
-  //   <TouchableOpacity
-  //     style={[
-  //       styles.sizeOption,
-  //       selectedSize === item.label && styles.selectedSize,
-  //       !item.available && styles.unavailableSize,
-  //     ]}
-  //     onPress={async () => {
-  //       if (item.available) {
-  //         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  //         setSelectedSize(item.label);
-  //       }
-  //     }}
-  //     disabled={!item.available}
-  //   >
-  //     <Text
-  //       style={[
-  //         styles.sizeText,
-  //         selectedSize === item.label && styles.selectedSizeText,
-  //         !item.available && styles.unavailableSizeText,
-  //       ]}
-  //     >
-  //       {item.label}
-  //     </Text>
-  //   </TouchableOpacity>
-  // );
 
   return (
     <>
@@ -575,71 +523,6 @@ const ProductScreen = ({ route, navigation }) => {
             />
           )}
         </View>
-        {/* <View>
-          <View
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              marginTop: 30,
-            }}
-          >
-            <Text style={styles.lowerCTAButton}>RECENTLY VIEWED</Text>
-          </View>
-          {suggestedProducts.length > 0 && (
-            <FlatList
-              data={suggestedProducts}
-              keyExtractor={(item) => item.id}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingLeft: 20, paddingBottom: 20 }}
-              renderItem={({ item }) => {
-                const variant = item.variants.edges[0]?.node;
-                const price = parseFloat(variant?.price?.amount || "0").toFixed(
-                  2
-                );
-                const compareAt = variant?.compareAtPrice?.amount
-                  ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
-                  : null;
-
-                return (
-                  <TouchableOpacity
-                    style={{ width: 160, marginRight: 12 }}
-                    onPress={() =>
-                      navigation.navigate("Product", { product: item })
-                    }
-                  >
-                    <ProductCard
-                        image={
-                          item.images.edges[0]?.node.src ||
-                          "../assets/Legends.png"
-                        }
-                        name={item.title || "No Name"}
-                        price={
-                          item.variants.edges[0]?.node.price?.amount
-                            ? parseFloat(
-                                item.variants.edges[0].node.price.amount
-                              ).toFixed(2)
-                            : "N/A"
-                        }
-                        compareAtPrice={
-                          item.variants.edges[0]?.node.compareAtPrice?.amount
-                            ? parseFloat(
-                                item.variants.edges[0].node.compareAtPrice
-                                  .amount
-                              ).toFixed(2)
-                            : null
-                        }
-                        availableForSale={
-                          item.variants.edges[0]?.node.availableForSale
-                        }
-                      />
-                  </TouchableOpacity>
-                );
-              }}
-            />
-          )}
-        </View> */}
       </ScrollView>
     </>
   );
