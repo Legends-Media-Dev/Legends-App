@@ -5,10 +5,10 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Image,
   TouchableOpacity,
 } from "react-native";
 import { fetchBlogArticles } from "../../api/shopifyApi";
+import { Image } from "expo-image";
 
 const extractSweepstakesData = (article) => {
   console.log(article);
@@ -98,7 +98,11 @@ const SweepstakesItem = ({ item }) => {
 
       {currentImage && (
         <View style={styles.imageContainer}>
-          <Image source={{ uri: currentImage }} style={styles.mainImage} />
+          <Image
+            transition={300}
+            source={{ uri: currentImage }}
+            style={styles.mainImage}
+          />
 
           <View style={styles.overlayButtons}>
             <TouchableOpacity
@@ -252,7 +256,7 @@ const styles = StyleSheet.create({
   mainImage: {
     width: "100%",
     height: 200,
-    resizeMode: "cover",
+    contentFit: "cover",
   },
   overlayButtons: {
     position: "absolute",

@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  ImageBackground,
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,6 +19,7 @@ import {
   fetchAllProductsCollection,
 } from "../../api/shopifyApi";
 import vipBackground from "../../assets/vip-dark-background.png";
+import { ImageBackground } from "expo-image";
 
 const ForYouScreen = () => {
   const [recentlyViewed, setRecentlyViewed] = useState([]);
@@ -150,6 +150,7 @@ const ForYouScreen = () => {
             activeOpacity={1}
           >
             <ImageBackground
+              transition={300}
               source={vipBackground}
               style={styles.vipCard}
               imageStyle={styles.vipCardImage}
@@ -171,6 +172,7 @@ const ForYouScreen = () => {
           activeOpacity={1}
         >
           <ImageBackground
+            transition={300}
             source={vipBackground}
             style={styles.vipCard}
             imageStyle={styles.vipCardImage}
@@ -352,7 +354,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   vipCardImage: {
-    resizeMode: "cover",
+    contentFit: "cover",
     borderRadius: 12,
   },
   vipCardContent: {

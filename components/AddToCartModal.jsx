@@ -6,13 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
-  Image,
-  ImageBackground,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useCart } from "../context/CartContext";
 import LegendsLogo from "../assets/Legends.png";
 import { TouchableWithoutFeedback, Keyboard } from "react-native";
+import { Image, ImageBackground } from "expo-image";
 
 export default function AddToCartModal({ visible, onClose, onGoToCart }) {
   return (
@@ -28,7 +27,7 @@ export default function AddToCartModal({ visible, onClose, onGoToCart }) {
             <Image
               source={LegendsLogo}
               style={styles.logo}
-              resizeMode="contain"
+              contentFit="contain"
             />
 
             <View style={{ marginTop: "-13" }}>
@@ -44,7 +43,7 @@ export default function AddToCartModal({ visible, onClose, onGoToCart }) {
                 source={require("../assets/vip-dark-background.png")}
                 style={styles.buttonImageBackground}
                 imageStyle={{ borderRadius: 8 }}
-                resizeMode="cover"
+                contentFit="cover"
               >
                 <Text style={styles.buttonText}>GO TO CART</Text>
               </ImageBackground>

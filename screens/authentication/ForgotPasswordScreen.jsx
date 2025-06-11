@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
 import { forgotPassword } from "../../api/shopifyApi";
+import { Image } from "expo-image";
 
 const ForgotPasswordScreen = ({ route, navigation }) => {
   // State for managing input values
@@ -45,6 +46,7 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
         {/* Logo Section */}
         <View style={styles.imageContainer}>
           <Image
+            transition={300}
             source={require("../../assets/legends_logo.png")}
             style={styles.headerImage}
           />
@@ -136,7 +138,7 @@ const styles = StyleSheet.create({
   headerImage: {
     width: 230,
     height: 40,
-    resizeMode: "contain",
+    contentFit: "contain",
   },
   infoContainer: {
     display: "flex",

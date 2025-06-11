@@ -102,6 +102,7 @@ function MainStack() {
         name="MainScreen"
         component={MainScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           title: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -112,6 +113,7 @@ function MainStack() {
         name="WebViewScreen"
         component={WebViewScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: "",
         }}
@@ -120,6 +122,7 @@ function MainStack() {
         name="Collection"
         component={CollectionScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -130,6 +133,7 @@ function MainStack() {
         name="Product"
         component={ProductScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -140,6 +144,7 @@ function MainStack() {
         name="Cart"
         component={CartScreen}
         options={{
+          unmountOnBlur: true,
           headerTitle: () => <AnimatedHeader />,
           headerBackTitle: false,
           headerLeft: () => <SearchIconBadge />,
@@ -149,6 +154,7 @@ function MainStack() {
         name="JoinVIPScreen"
         component={JoinVIPScreen}
         options={() => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -159,6 +165,7 @@ function MainStack() {
         name="VIPPortalScreen"
         component={VIPPortalScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -169,6 +176,7 @@ function MainStack() {
         name="Sweepstakes"
         component={SweepstakesScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
           headerLeft: () => <SearchIconBadge />,
@@ -178,6 +186,7 @@ function MainStack() {
         name="Search"
         component={SearchScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -188,6 +197,7 @@ function MainStack() {
         name="SearchResults"
         component={SearchResultsScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -217,6 +227,7 @@ function ShopStack() {
         name="Shop"
         component={ShopScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
           headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
@@ -226,6 +237,7 @@ function ShopStack() {
         name="Cart"
         component={CartScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: () => <AnimatedHeader />,
           headerLeft: () => <SearchIconBadge />,
@@ -235,6 +247,7 @@ function ShopStack() {
         name="WebViewScreen"
         component={WebViewScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: "",
         }}
@@ -243,6 +256,7 @@ function ShopStack() {
         name="Collection"
         component={CollectionScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -253,6 +267,7 @@ function ShopStack() {
         name="Search"
         component={SearchScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -263,6 +278,7 @@ function ShopStack() {
         name="SearchResults"
         component={SearchResultsScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -273,6 +289,7 @@ function ShopStack() {
         name="Product"
         component={ProductScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -302,6 +319,7 @@ function SweepstakesStack() {
         name="Sweepstakes"
         component={SweepstakesScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
           headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
@@ -311,6 +329,7 @@ function SweepstakesStack() {
         name="WebViewScreen"
         component={WebViewScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: "",
         }}
@@ -329,6 +348,7 @@ function SweepstakesStack() {
         name="Search"
         component={SearchScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -339,6 +359,7 @@ function SweepstakesStack() {
         name="SearchResults"
         component={SearchResultsScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -391,6 +412,7 @@ function AccountStack() {
           name="Account"
           component={AccountScreen}
           options={{
+            unmountOnBlur: true,
             title: "",
             headerTitle: () => <AnimatedHeader />,
             headerRight: () => <CartIconWithBadge />,
@@ -402,6 +424,7 @@ function AccountStack() {
           name="Login"
           component={LoginScreen}
           options={{
+            unmountOnBlur: true,
             headerTitle: "Login",
             headerShown: false,
           }}
@@ -410,21 +433,18 @@ function AccountStack() {
       <Stack.Screen
         name="SignUpScreen"
         component={SignUpScreen}
-        options={() => ({
-          headerShown: false,
-        })}
+        options={() => ({ unmountOnBlur: true, headerShown: false })}
       />
       <Stack.Screen
         name="ForgotPasswordScreen"
         component={ForgotPasswordScreen}
-        options={() => ({
-          headerShown: false,
-        })}
+        options={() => ({ unmountOnBlur: true, headerShown: false })}
       />
       <Stack.Screen
         name="JoinVIPScreen"
         component={JoinVIPScreen}
         options={() => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -435,6 +455,7 @@ function AccountStack() {
         name="VIPPortalScreen"
         component={VIPPortalScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -445,6 +466,7 @@ function AccountStack() {
         name="Collection"
         component={CollectionScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -455,6 +477,7 @@ function AccountStack() {
         name="WebViewScreen"
         component={WebViewScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: "",
         }}
@@ -463,6 +486,7 @@ function AccountStack() {
         name="Cart"
         component={CartScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: () => <AnimatedHeader />,
           headerBackTitleVisible: false,
@@ -473,6 +497,7 @@ function AccountStack() {
         name="SweepstakesScreen"
         component={SweepstakesScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
           headerLeft: () => <SearchIconBadge />,
@@ -482,6 +507,7 @@ function AccountStack() {
         name="OrdersScreen"
         component={OrdersScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerLeft: () => <SearchIconBadge />,
@@ -491,6 +517,7 @@ function AccountStack() {
         name="PrivacyPolicyScreen"
         component={PrivacyPolicyScreen}
         options={() => ({
+          unmountOnBlur: true,
           headerShown: true,
           headerBackTitleVisible: true,
         })}
@@ -499,6 +526,7 @@ function AccountStack() {
         name="OrderConfirmationScreen"
         component={OrderConfirmationScreen}
         options={{
+          unmountOnBlur: true,
           headerTitle: "",
           headerBackTitle: "",
           headerLeft: () => <SearchIconBadge />,
@@ -508,6 +536,7 @@ function AccountStack() {
         name="Product"
         component={ProductScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -518,6 +547,7 @@ function AccountStack() {
         name="Search"
         component={SearchScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
@@ -528,6 +558,7 @@ function AccountStack() {
         name="SearchResults"
         component={SearchResultsScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,

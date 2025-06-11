@@ -5,12 +5,12 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  Image,
   Alert,
   ActivityIndicator,
 } from "react-native";
 import { useCart } from "../../context/CartContext";
 import { createCheckout, createCheckoutUpdated } from "../../api/shopifyApi";
+import { Image } from "expo-image";
 
 const CartScreen = ({ navigation }) => {
   const { cart, getCartDetails, updateCartDetails, deleteItemFromCart } =
@@ -331,6 +331,7 @@ const CartScreen = ({ navigation }) => {
         {/* Product Image */}
         <View style={styles.imageContainer}>
           <Image
+            transition={300}
             source={{
               uri: productImage,
             }}
@@ -488,7 +489,7 @@ const styles = StyleSheet.create({
   productImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "contain",
+    contentFit: "contain",
   },
   detailsContainer: {
     flex: 1,

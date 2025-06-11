@@ -1,9 +1,10 @@
 import React, { useState, useRef } from "react";
-import { View, Text, Image, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
 import { customerSignUp, customerSignIn } from "../../api/shopifyApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image } from "expo-image";
 
 const SignUpScreen = ({ route, navigation }) => {
   // State for managing input values
@@ -62,6 +63,7 @@ const SignUpScreen = ({ route, navigation }) => {
         {/* Logo Section */}
         <View style={styles.imageContainer}>
           <Image
+            transition={300}
             source={require("../../assets/legends_logo.png")}
             style={styles.headerImage}
           />
@@ -189,7 +191,7 @@ const styles = StyleSheet.create({
   headerImage: {
     width: 230,
     height: 40,
-    resizeMode: "contain",
+    contentFit: "contain",
   },
   infoContainer: {
     display: "flex",

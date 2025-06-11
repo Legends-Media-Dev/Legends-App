@@ -4,12 +4,11 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  ImageBackground,
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
 } from "react-native";
+import { Image, ImageBackground } from "expo-image";
 
 const { width } = Dimensions.get("window");
 
@@ -46,6 +45,7 @@ function JoinVIPScreen() {
 
   return (
     <ImageBackground
+      transition={300}
       source={require("../../assets/vip-dark-background.png")}
       style={styles.background}
     >
@@ -70,6 +70,7 @@ function JoinVIPScreen() {
           </TouchableOpacity>
         </View>
         <Image
+          transition={300}
           source={require("../../assets/How_VIP_Works.png")} // adjust path as needed
           style={styles.productImage}
         />
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
     height: (width - 10) * 1.25,
     borderRadius: 12,
     marginTop: 15,
-    resizeMode: "cover",
+    contentFit: "cover",
   },
 });
 

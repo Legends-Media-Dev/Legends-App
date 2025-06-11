@@ -1,13 +1,8 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ImageBackground,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { fetchAllProductsCollection } from "../api/shopifyApi";
+import { Image, ImageBackground } from "expo-image";
 
 const ContentBox = ({
   topTitle,
@@ -54,6 +49,7 @@ const ContentBox = ({
           source={typeof image === "string" ? { uri: image } : image}
           style={styles.imageBox}
           imageStyle={styles.imageStyle}
+          transition={300}
         >
           <View
             style={[styles.overlay, centerText && { justifyContent: "center" }]}
@@ -105,7 +101,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   imageStyle: {
-    resizeMode: "cover",
+    cnotentFit: "cover",
     borderRadius: 10,
   },
   overlay: {

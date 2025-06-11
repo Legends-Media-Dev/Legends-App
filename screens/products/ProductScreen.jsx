@@ -3,7 +3,6 @@ import {
   StyleSheet,
   View,
   Text,
-  Image,
   TouchableOpacity,
   Dimensions,
   FlatList,
@@ -24,6 +23,7 @@ import {
   fetchAllProductsCollection,
 } from "../../api/shopifyApi";
 import { addRecentlyViewedProduct } from "../../utils/storage";
+import { Image } from "expo-image";
 
 const ProductScreen = ({ route, navigation }) => {
   const { addItemToCart } = useCart();
@@ -271,7 +271,11 @@ const ProductScreen = ({ route, navigation }) => {
 
   const renderItem = ({ item }) => (
     <View style={styles.imageWrapper}>
-      <Image source={{ uri: item.uri }} style={styles.productImage} />
+      <Image
+        transition={300}
+        source={{ uri: item.uri }}
+        style={styles.productImage}
+      />
     </View>
   );
 
@@ -658,7 +662,7 @@ const styles = StyleSheet.create({
   productImage: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
+    contentFit: "cover",
   },
   carousel: {
     flexGrow: 0,

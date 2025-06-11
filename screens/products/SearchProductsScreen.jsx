@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   productImage: {
     width: 50,
     height: 50,
-    resizeMode: "contain",
+    contentFit: "contain",
     marginRight: 12,
   },
   productText: {

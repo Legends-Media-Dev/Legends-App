@@ -9,12 +9,11 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   FlatList,
-  ImageBackground,
   Modal,
   ScrollView,
-  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { Image, ImageBackground } from "expo-image";
 
 import {
   fetchCollections,
@@ -190,6 +189,7 @@ const VipPortalScreen = () => {
             activeOpacity={1}
           >
             <ImageBackground
+              transition={300}
               source={require("../../assets/vip-dark-background.png")}
               style={styles.vipCard}
               imageStyle={styles.vipCardImage}
@@ -260,9 +260,10 @@ const VipPortalScreen = () => {
               }}
             >
               <Image
+                transition={300}
                 source={{ uri: partner.uri }}
                 style={styles.partnerImage}
-                resizeMode="contain"
+                contentFit="contain"
               />
             </TouchableOpacity>
           ))}
@@ -335,6 +336,7 @@ const VipPortalScreen = () => {
                     {selectedArticle.title}
                   </Text>
                   <Image
+                    transition={300}
                     source={{ uri: selectedArticle.image }}
                     style={styles.articleImage}
                   />
@@ -376,7 +378,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   vipCardImage: {
-    resizeMode: "cover",
+    contentFit: "cover",
     borderRadius: 12,
   },
   vipCardContent: {
