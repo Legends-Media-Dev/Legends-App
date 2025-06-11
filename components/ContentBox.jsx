@@ -58,13 +58,27 @@ const ContentBox = ({
           <View
             style={[styles.overlay, centerText && { justifyContent: "center" }]}
           >
-            <View style={[styles.overlayContent]}>
-              <Text
-                style={[styles.title, { textAlign: "center", fontSize: 25 }]}
+            {centerTitle ? (
+              <View
+                style={[
+                  styles.overlayContent,
+                  { justifyContent: "center", display: "flex" },
+                ]}
               >
-                {centerTitle}
-              </Text>
-            </View>
+                <View style={styles.vipButton}>
+                  <Text
+                    style={[
+                      styles.title,
+                      { textAlign: "center", fontSize: 25 },
+                    ]}
+                  >
+                    {centerTitle}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              ""
+            )}
             <View style={styles.overlayContent}>
               <Text style={[styles.title]}>{topTitle}</Text>
             </View>
@@ -106,6 +120,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Futura-Bold",
     color: "#fff",
+    textTransform: "uppercase",
+  },
+  vipButton: {
+    backgroundColor: "red", // dark gray
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    marginBottom: -10,
+    borderRadius: 8,
+    alignSelf: "center",
+  },
+
+  vipButtonText: {
+    color: "#fff",
+    fontFamily: "Futura-Bold",
+    fontSize: 18,
+    textAlign: "center",
     textTransform: "uppercase",
   },
 });

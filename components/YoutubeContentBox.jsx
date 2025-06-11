@@ -7,6 +7,7 @@ import {
   ImageBackground,
   Linking,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 const YoutubeContentBox = ({
   topTitle,
@@ -32,6 +33,12 @@ const YoutubeContentBox = ({
         imageStyle={styles.image}
       >
         <View style={styles.overlay}>
+          <Ionicons
+            name="logo-youtube"
+            style={{ position: "absolute", top: 15, left: 15 }}
+            size={35}
+            color="red"
+          />
           <Text style={styles.title}>{topTitle}</Text>
         </View>
       </ImageBackground>

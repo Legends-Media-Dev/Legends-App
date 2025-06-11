@@ -32,6 +32,44 @@ const VipPortalScreen = () => {
   const [screenData, setScreenData] = useState([]);
   const [showWheel, setShowWheel] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const partnerLogos = [
+    {
+      id: "ghost",
+      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Ghost.png?v=1684369049",
+      url: "https://www.ghostlifestyle.com/",
+    },
+    {
+      id: "meguiars",
+      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Meguiar_s.png?v=1684369049",
+      url: "https://www.meguiars.com/#/",
+    },
+    {
+      id: "toprank",
+      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Top_Rank.png?v=1684369049",
+      url: "https://www.importavehicle.com/",
+    },
+    {
+      id: "fitment",
+      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Fitment_Industries.png?v=1684369049",
+      url: "https://www.fitmentindustries.com/?utm_source=google&utm_medium=cpc&utm_campaign=6773145759&utm_content=125574610510&utm_term=fitment%20industries&gclid=CjwKCAjw9pGjBhB-EiwAa5jl3DY1dU77CLtJtYRvmNOzgP82JC30ikAThr0p8epIMKkT9SUrC-DozBoCVMIQAvD_BwE",
+    },
+    {
+      id: "miller",
+      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Miller.png?v=1684369049",
+      url: "https://www.millerwelds.com/?gclid=CjwKCAjw9pGjBhB-EiwAa5jl3KylMNeXDs1r-Qk7v6d68ug1DpU7hJOCwkrnRasl0RgMV5SHvLTdqRoC-JsQAvD_BwE",
+    },
+    {
+      id: "act",
+      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/ACT.png?v=1684369049",
+      url: "https://www.advancedclutch.com/",
+    },
+    {
+      id: "bridgestone",
+      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Bridgestone.png?v=1684369049",
+      url: "https://www.bridgestonetire.com/sem/bridgestone-tire/?https://ad.doubleclick.net/ddm/clk/546719407;355536812;q&lw_cmp=sem_bst-us_g_con_brand&keyword=bridgestone%20tires&campaign=10134808723&adgroup=101970748296&gad=1&gclid=CjwKCAjw9pGjBhB-EiwAa5jl3A2eegjgfI6FPudRRdlsLKeKNPVaSaliOMxxSdCY79dZ4peOKJWMMRoCFWwQAvD_BwE&ef_id=ZGVz-QAAAFjKhANx:20230518004327:s",
+    },
+    // add the rest...
+  ];
 
   useEffect(() => {
     const loadData = async () => {
@@ -58,6 +96,8 @@ const VipPortalScreen = () => {
           ...vipCollections,
           { type: "section", title: "VIP BLOG ARTICLES" },
           ...blogArticles,
+          { type: "section", title: "PARTNERS" },
+          { type: "partnerGrid", data: partnerLogos }, // 👈 new section type
         ]);
       } catch (err) {
         console.error("Error loading screen data:", err);
@@ -166,7 +206,9 @@ const VipPortalScreen = () => {
           <TouchableOpacity
             onPress={async () => {
               await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              Linking.openURL("https://www.facebook.com/groups/YOURGROUPID");
+              Linking.openURL(
+                "https://www.facebook.com/groups/626026679443756"
+              );
             }}
             activeOpacity={1}
           >
@@ -201,6 +243,30 @@ const VipPortalScreen = () => {
             onPress={() => setSelectedArticle(item)} // ✅ Override ContentBox press behavior
           />
         </TouchableOpacity>
+      );
+    }
+
+    if (item.type === "partnerGrid") {
+      return (
+        <View style={styles.partnerGridContainer}>
+          {item.data.map((partner) => (
+            <TouchableOpacity
+              key={partner.id}
+              style={styles.partnerLogoBox}
+              onPress={() => {
+                if (partner.url) {
+                  Linking.openURL(partner.url);
+                }
+              }}
+            >
+              <Image
+                source={{ uri: partner.uri }}
+                style={styles.partnerImage}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          ))}
+        </View>
       );
     }
 
@@ -379,6 +445,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignSelf: "flex-end",
     marginBottom: 20,
+  },
+  partnerGridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+  },
+
+  partnerLogoBox: {
+    width: (width - 48) / 3, // 3 logos per row with margin
+    height: 100,
+    backgroundColor: "#f5f5f5",
+    marginBottom: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+  },
+
+  partnerImage: {
+    width: "70%",
+    height: "70%",
   },
 });
 

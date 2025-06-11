@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
 import { useCart } from "../../context/CartContext"; // Import CartContext
 const { width } = Dimensions.get("window");
+import AddToCartModal from "../../components/AddToCartModal";
 
 import { getRecentlyViewedProducts } from "../../utils/storage";
 import {
@@ -37,6 +38,7 @@ const ProductScreen = ({ route, navigation }) => {
   const currentPrice = parseFloat(
     product.variants.edges[0]?.node.price?.amount || 0
   );
+  const [showReminder, setShowReminder] = useState(false);
 
   const compareAt = parseFloat(
     product.variants.edges[0]?.node.compareAtPrice?.amount || 0
@@ -212,6 +214,7 @@ const ProductScreen = ({ route, navigation }) => {
     try {
       setIsAddingToCart(true); // start loading
       await addItemToCart(variantId, quantity);
+      setShowReminder(true);
       // alert("Added to cart!");
     } catch (error) {
       console.error("Error handling add to cart:", error);
@@ -306,6 +309,15 @@ const ProductScreen = ({ route, navigation }) => {
           <ActivityIndicator size="small" />
         </View>
       )}
+      <AddToCartModal
+        visible={showReminder}
+        onClose={() => setShowReminder(false)}
+        onGoToCart={() => {
+          setShowReminder(false);
+          navigation.navigate("Cart");
+        }}
+      />
+
       <ScrollView style={styles.container}>
         <View style={styles.imageContainer}>
           <FlatList
