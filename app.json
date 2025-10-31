@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.bordmedia.legends-media",
+      "bundleIdentifier": "com.legendsmedia.legends",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
