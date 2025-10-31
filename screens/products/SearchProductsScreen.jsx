@@ -5,37 +5,82 @@ import {
   TextInput,
   FlatList,
   TouchableOpacity,
-  Image,
   Keyboard,
   StyleSheet,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import Fuse from "fuse.js"; // 🆕 add this import
 import ProductCardMini from "../../components/ProductCardMini";
 
 import {
   fetchAllProductsCollection,
-  searchProducts,
   searchProductsSF,
 } from "../../api/shopifyApi";
 
 const SearchScreen = () => {
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState([]);
+  const [allProducts, setAllProducts] = useState([]); // 🆕 store all products for fuzzy search
   const navigation = useNavigation();
+
+  // 🆕 Load all products once for local fuzzy searching
+  useEffect(() => {
+    const loadAllProducts = async () => {
+      try {
+        const data = await fetchAllProductsCollection("all-product");
+        const all = data?.products?.edges?.map((edge) => edge.node) || [];
+        setAllProducts(all);
+        setProducts(all); // show everything initially
+      } catch (err) {
+        console.error("Error loading all products:", err);
+      }
+    };
+    loadAllProducts();
+  }, []);
+
+  // 🧠 helper for common typo normalization (optional but useful)
+  const normalizeQuery = (input) => {
+    let q = input.toLowerCase();
+    q = q.replace(/hzts|h4ts|ha5s|ha+s/gi, "hats");
+    q = q.replace(/shrits|shirs|shrit|shrt/gi, "shirts");
+    q = q.replace(/hoddie|hodie|hoody/gi, "hoodie");
+    return q.trim();
+  };
 
   useEffect(() => {
     const loadProducts = async () => {
       try {
         if (query.trim().length === 0) {
-          const data = await fetchAllProductsCollection("all-product");
-          const products =
-            data?.products?.edges?.map((edge) => edge.node) || [];
-          setProducts(products);
+          setProducts(allProducts);
+          return;
+        }
+
+        // 🆕 Use Fuse.js for fuzzy search
+        const normalizedQuery = normalizeQuery(query);
+        const fuse = new Fuse(allProducts, {
+          keys: ["title", "description"],
+          threshold: 0.4, // 0 = exact, 1 = very loose
+        });
+
+        const fuzzyResults = fuse.search(normalizedQuery);
+        const matchedProducts = fuzzyResults.map((r) => r.item);
+
+        // 🆕 If no fuzzy matches, fallback to Shopify search (for remote matches)
+        if (matchedProducts.length === 0) {
+          const results = await searchProductsSF(normalizedQuery);
+          if (results && results.length > 0) {
+            setProducts(results);
+          } else {
+            // Optional fallback to accessories if both fuzzy + search fail
+            const fallback = await fetchAllProductsCollection("accessories");
+            const fallbackProducts =
+              fallback?.products?.edges?.map((edge) => edge.node) || [];
+            setProducts(fallbackProducts);
+          }
         } else {
-          const results = await searchProductsSF(query.trim());
-          setProducts(results || []);
+          setProducts(matchedProducts);
         }
       } catch (err) {
         console.error("Error loading products:", err);
@@ -44,7 +89,7 @@ const SearchScreen = () => {
 
     const debounce = setTimeout(loadProducts, 300);
     return () => clearTimeout(debounce);
-  }, [query]);
+  }, [query, allProducts]);
 
   const handleSearch = () => {
     if (query.trim()) {
@@ -55,8 +100,6 @@ const SearchScreen = () => {
 
   const renderProductItem = ({ item }) => {
     const variant = item.variants.edges[0]?.node;
-
-    // Flexible image extraction
     const imageNode = item.images?.edges?.[0]?.node;
     const imageUrl = imageNode?.url || imageNode?.src || "..assets/Legends.png";
 

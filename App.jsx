@@ -6,6 +6,7 @@ import {
   Text,
   useNavigationContainerRef,
 } from "@react-navigation/native";
+import { HeaderStyleInterpolators } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -96,6 +97,7 @@ function MainStack() {
         headerTintColor: "#000",
         headerTitleStyle: { fontWeight: "bold" },
         headerBackTitleVisible: false,
+        headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
       }}
     >
       <Stack.Screen
@@ -221,6 +223,7 @@ function ShopStack() {
         headerTintColor: "#000",
         headerTitleStyle: { fontWeight: "bold" },
         headerBackTitleVisible: false,
+        headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
       }}
     >
       <Stack.Screen
@@ -313,6 +316,7 @@ function SweepstakesStack() {
         headerTintColor: "#000",
         headerTitleStyle: { fontWeight: "bold" },
         headerBackTitleVisible: false,
+        headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
       }}
     >
       <Stack.Screen
@@ -405,6 +409,7 @@ function AccountStack() {
         headerTintColor: "#000",
         headerTitleStyle: { fontWeight: "bold" },
         headerBackTitleVisible: false,
+        headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
       }}
     >
       {isAuthenticated ? (
@@ -529,6 +534,7 @@ function AccountStack() {
           unmountOnBlur: true,
           headerTitle: "",
           headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
           headerLeft: () => <SearchIconBadge />,
         }}
       />

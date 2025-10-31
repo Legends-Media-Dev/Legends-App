@@ -159,6 +159,7 @@ const SweepstakesScreen = () => {
           const cleaned = extractSweepstakesData(article);
 
           if (tags.includes("current")) {
+            console.log(cleaned)
             current.push(cleaned);
           } else if (tags.includes("previous")) {
             previous.push(cleaned);
