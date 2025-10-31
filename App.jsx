@@ -6,6 +6,11 @@ import {
   Text,
   useNavigationContainerRef,
 } from "@react-navigation/native";
+
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
+import { Platform } from "react-native";
+
 import { HeaderStyleInterpolators } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
@@ -53,6 +58,14 @@ import SearchIconBadge from "./components/SearchIconBadge";
 // Create navigators
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 // Reusable Header Component
 function AnimatedHeader() {
@@ -575,6 +588,44 @@ function AccountStack() {
   );
 }
 
+async function registerForPushNotificationsAsync() {
+  let token;
+
+  if (Device.isDevice) {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+
+    if (finalStatus !== "granted") {
+      alert("Failed to get push token for push notification!");
+      return;
+    }
+
+    // 🧠 IMPORTANT: include your projectId here for TestFlight builds
+    const projectId = "53372938-06cb-43b4-8f47-24a1359a4711"; // find in app.json under extra.eas.projectId
+    token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+    console.log("Expo push token:", token);
+  } else {
+    alert("Must use physical device for Push Notifications");
+  }
+
+  if (Platform.OS === "android") {
+    await Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  return token;
+}
+
 // App Component with Bottom Tabs
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -606,6 +657,7 @@ export default function App() {
   useEffect(() => {
     loadFonts().then(() => setFontsLoaded(true));
     checkAuthentication();
+    registerForPushNotificationsAsync();
   }, []);
 
   if (!fontsLoaded) {
