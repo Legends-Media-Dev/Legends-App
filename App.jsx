@@ -43,7 +43,6 @@ import OrderConfirmationScreen from "./screens/shopflow/OrderConfirmationScreen"
 
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
-import AppLoading from "expo-app-loading";
 import { Animated, View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -660,9 +659,9 @@ export default function App() {
     registerForPushNotificationsAsync();
   }, []);
 
-  if (!fontsLoaded) {
-    return <AppLoading />;
-  }
+  // if (!fontsLoaded) {
+  //   return <AppLoading />;
+  // }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
