@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Image, ImageBackground } from "expo-image";
+import vipBackground from "../../assets/vip-background.png";
 
 import {
   fetchCollections,
@@ -212,11 +213,15 @@ const VipPortalScreen = () => {
             }}
             activeOpacity={1}
           >
-            <View
+            <ImageBackground
+            source={vipBackground}
               style={{
-                backgroundColor: "#ADD8E6",
                 borderRadius: 12,
                 marginTop: -3,
+                overflow: "hidden",
+              }}
+              imageStyle={{
+                borderRadius:12,
               }}
             >
               <View style={styles.vipCardContent}>
@@ -224,7 +229,7 @@ const VipPortalScreen = () => {
                   VIP FACEBOOK GROUP
                 </Text>
               </View>
-            </View>
+            </ImageBackground>
           </TouchableOpacity>
         </>
       );
