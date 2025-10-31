@@ -52,8 +52,6 @@ function OrdersScreen({ route }) {
     }
   };
 
-  //   console.log(orders[0].lineItems.edges[0].node.quantity);
-
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Past Orders</Text>

@@ -26,6 +26,7 @@
     "expo-image": "^2.3.0",
     "expo-notifications": "~0.31.1",
     "expo-status-bar": "~2.2.3",
+    "fuse.js": "^7.1.0",
     "hermes-engine": "^0.11.0",
     "lottie-react-native": "7.2.2",
     "react": "19.0.0",

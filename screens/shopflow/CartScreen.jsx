@@ -57,30 +57,6 @@ const CartScreen = ({ navigation }) => {
     setTotalPrice(newTotalPrice);
   };
 
-  // const syncCartWithServer = async () => {
-  //   try {
-  //     // Include items with quantity 0 to inform the server to remove them
-  //     const updatedLines = Object.entries(quantities).map(
-  //       ([lineId, quantity]) => ({
-  //         id: lineId,
-  //         quantity,
-  //       })
-  //     );
-
-  //     if (!cart?.id || updatedLines.length === 0) {
-  //       throw new Error("Missing cartId or updatedLines");
-  //     }
-
-  //     // Sync with the server
-  //     await updateCartDetails(updatedLines);
-
-  //     // Re-fetch cart details after syncing to ensure UI reflects updates
-  //     await getCartDetails();
-  //   } catch (error) {
-  //     console.error("Failed to update cart on the server:", error);
-  //   }
-  // };
-
   const syncCartWithServer = async (customQuantities = null) => {
     try {
       const quantitiesToUse = customQuantities || quantities;
@@ -103,29 +79,6 @@ const CartScreen = ({ navigation }) => {
       throw error; // ✅ THIS LINE IS ESSENTIAL
     }
   };
-
-  // const handleIncrement = async (itemId) => {
-  //   try {
-  //     setQuantities((prevQuantities) => {
-  //       const updatedQuantities = {
-  //         ...prevQuantities,
-  //         [itemId]: prevQuantities[itemId] + 1,
-  //       };
-
-  //       calculateTotalPrice(updatedQuantities); // Recalculate total price
-  //       syncCartWithServer(updatedQuantities); // Sync with server
-  //       return updatedQuantities;
-  //     });
-
-  //     // Directly update the cart with the new quantity
-  //     await updateCartDetails([
-  //       { id: itemId, quantity: quantities[itemId] + 1 },
-  //     ]);
-  //     await getCartDetails(); // Refresh cart details
-  //   } catch (error) {
-  //     console.error("Failed to increment item quantity:", error);
-  //   }
-  // };
 
   const handleIncrement = async (itemId) => {
     try {
@@ -268,25 +221,6 @@ const CartScreen = ({ navigation }) => {
     return Object.values(quantities).reduce((total, qty) => total + qty, 0);
   };
 
-  // const handleRemoveItem = async (itemId) => {
-  //   try {
-  //     // Call the deleteItemFromCart function to remove the item from the cart
-  //     await deleteItemFromCart(itemId);
-
-  //     // Update quantities state by removing the deleted item
-  //     const updatedQuantities = { ...quantities };
-  //     delete updatedQuantities[itemId];
-  //     setQuantities(updatedQuantities);
-
-  //     // Refresh cart details
-  //     await getCartDetails();
-
-  //     // Recalculate total price
-  //     calculateTotalPrice(updatedQuantities);
-  //   } catch (error) {
-  //     console.error("Failed to remove item from cart:", error);
-  //   }
-  // };
   const handleRemoveItem = async (itemId) => {
     try {
       setRemovingItemId(itemId); // show loader
@@ -347,9 +281,10 @@ const CartScreen = ({ navigation }) => {
             {/* Price Section */}
             <View style={styles.priceContainer}>
               <Text style={styles.currentPrice}>
-                ${totalItemPrice.toFixed(2)} {/* Show total item price */}
+                ${totalItemPrice.toFixed(2)}
               </Text>
-              {compareAtPrice && (
+
+              {Number(compareAtPrice) > Number(price) && (
                 <Text style={styles.compareAtPrice}>
                   ${totalComparePrice.toFixed(2)}
                 </Text>
