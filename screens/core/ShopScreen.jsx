@@ -21,28 +21,56 @@ const ShopScreen = () => {
   const navigation = useNavigation();
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-  const getCollections = async () => {
-    try {
-      const data = await fetchCollections();
-
-      // Exclude VIP collections
-      const nonVipCollections = (data || []).filter(
-        (c) => !c.title.toUpperCase().includes("VIP")
-      );
-
-      setCollections(nonVipCollections);
-    } catch (error) {
-      console.error("Error fetching collections:", error);
-    } finally {
-      setLoading(false);
-    }
+  const collectionLabelMap = {
+    "all-product": "SHOP ALL",
+    "mystery-deals": "MYSTERY DEALS",
+    "new-release": "NEW RELEASE",
+    tshirts: "TSHIRTS",
+    hoodies: "HOODIES",
+    accessories: "ACCESSORIES",
+    stickers: "STICKERS",
+    "digital-downloads": "DOWNLOADS",
+    "last-chance-offers": "LAST CHANCE OFFERS",
+    "learn-more-vip": "JOIN VIP",
   };
 
-  getCollections();
-}, []);
+  useEffect(() => {
+    const desiredOrder = [
+      "ALL PRODUCT",
+      "MYSTERY DEALS",
+      "NEW RELEASE",
+      "TSHIRTS",
+      "HOODIES",
+      "ACCESSORIES",
+      "STICKERS",
+      "DIGITAL DOWNLOADS",
+      "LAST CHANCE OFFERS",
+      "LEARN MORE - VIP",
+    ];
 
+    const getCollections = async () => {
+      try {
+        const data = await fetchCollections();
+        const mapped = [];
+
+        // Match Shopify collection titles to their desired position
+        for (let title of desiredOrder) {
+          const match = data.find(
+            (c) => c.title.trim().toUpperCase() === title.trim().toUpperCase()
+          );
+          if (match) mapped.push(match);
+        }
+
+        setCollections(mapped);
+      } catch (error) {
+        console.error("Error fetching collections:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getCollections();
+  }, []);
 
   const handleCollectionPress = async (handle, title) => {
     try {
@@ -60,7 +88,8 @@ const ShopScreen = () => {
   const renderCollectionItem = ({ item }) => {
     return (
       <TouchableOpacity
-        style={styles.collectionItem} activeOpacity={1}
+        style={styles.collectionItem}
+        activeOpacity={1}
         onPress={async () => {
           if (item.handle && item.title) {
             await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); // Trigger haptic
@@ -70,10 +99,12 @@ const ShopScreen = () => {
           }
         }}
       >
-        <Text style={styles.collectionText}>{item.title || "No Title"}</Text>
+        <Text style={styles.collectionText}>
+          {collectionLabelMap[item.handle] || item.title || "No Title"}
+        </Text>
       </TouchableOpacity>
     );
-  };  
+  };
 
   return (
     <>
@@ -83,15 +114,16 @@ const ShopScreen = () => {
         </View>
       )}
       <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.searchButton} activeOpacity={1}
-        onPress={async () => {
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          navigation.navigate("Search");
-        }}
-      >
-        <Text style={styles.searchButtonText}>Search Products</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.searchButton}
+          activeOpacity={1}
+          onPress={async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            navigation.navigate("Search");
+          }}
+        >
+          <Text style={styles.searchButtonText}>Search Products</Text>
+        </TouchableOpacity>
 
         <FlatList
           data={collections}

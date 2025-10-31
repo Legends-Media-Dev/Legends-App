@@ -29,7 +29,7 @@ const SearchScreen = () => {
     const loadProducts = async () => {
       try {
         if (query.trim().length === 0) {
-          const data = await fetchAllProductsCollection("new-release");
+          const data = await fetchAllProductsCollection("all-product");
           const products =
             data?.products?.edges?.map((edge) => edge.node) || [];
           setProducts(products);
@@ -58,8 +58,7 @@ const SearchScreen = () => {
 
     // Flexible image extraction
     const imageNode = item.images?.edges?.[0]?.node;
-    const imageUrl =
-      imageNode?.url || imageNode?.src || "https://via.placeholder.com/100";
+    const imageUrl = imageNode?.url || imageNode?.src || "..assets/Legends.png";
 
     return (
       <TouchableOpacity
@@ -166,7 +165,7 @@ const styles = StyleSheet.create({
   productImage: {
     width: 50,
     height: 50,
-    resizeMode: "contain",
+    contentFit: "contain",
     marginRight: 12,
   },
   productText: {

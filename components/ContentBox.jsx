@@ -1,21 +1,18 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ImageBackground,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { fetchAllProductsCollection } from "../api/shopifyApi";
+import { Image, ImageBackground } from "expo-image";
 
 const ContentBox = ({
   topTitle,
+  centerTitle,
   topColor = "#4CAF50",
   screenName,
   handle = null,
   image = null,
   onPress = null, // Add optional custom handler
+  centerText = false,
 }) => {
   const navigation = useNavigation();
 
@@ -52,10 +49,34 @@ const ContentBox = ({
           source={typeof image === "string" ? { uri: image } : image}
           style={styles.imageBox}
           imageStyle={styles.imageStyle}
+          transition={300}
         >
-          <View style={styles.overlay}>
+          <View
+            style={[styles.overlay, centerText && { justifyContent: "center" }]}
+          >
+            {centerTitle ? (
+              <View
+                style={[
+                  styles.overlayContent,
+                  { justifyContent: "center", display: "flex" },
+                ]}
+              >
+                <View style={styles.vipButton}>
+                  <Text
+                    style={[
+                      styles.title,
+                      { textAlign: "center", fontSize: 25 },
+                    ]}
+                  >
+                    {centerTitle}
+                  </Text>
+                </View>
+              </View>
+            ) : (
+              ""
+            )}
             <View style={styles.overlayContent}>
-              <Text style={styles.title}>{topTitle}</Text>
+              <Text style={[styles.title]}>{topTitle}</Text>
             </View>
           </View>
         </ImageBackground>
@@ -80,7 +101,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   imageStyle: {
-    resizeMode: "cover",
+    cnotentFit: "cover",
     borderRadius: 10,
   },
   overlay: {
@@ -95,6 +116,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Futura-Bold",
     color: "#fff",
+    textTransform: "uppercase",
+  },
+  vipButton: {
+    backgroundColor: "red", // dark gray
+    paddingVertical: 12,
+    paddingHorizontal: 40,
+    marginBottom: -10,
+    borderRadius: 8,
+    alignSelf: "center",
+  },
+
+  vipButtonText: {
+    color: "#fff",
+    fontFamily: "Futura-Bold",
+    fontSize: 18,
+    textAlign: "center",
     textTransform: "uppercase",
   },
 });

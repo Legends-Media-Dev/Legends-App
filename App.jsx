@@ -1,6 +1,11 @@
 // Import React and all dependencies
 import React, { useEffect, useState, useRef } from "react";
-import { NavigationContainer, Modal, Text, useNavigationContainerRef } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  Modal,
+  Text,
+  useNavigationContainerRef,
+} from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -42,6 +47,7 @@ import { isTokenValid } from "./utils/storage";
 import { AppState } from "react-native";
 import { useCart } from "./context/CartContext";
 import CartReminderModal from "./components/CartReminderModal";
+import SearchIconBadge from "./components/SearchIconBadge";
 
 // Create navigators
 const Stack = createStackNavigator();
@@ -96,15 +102,18 @@ function MainStack() {
         name="MainScreen"
         component={MainScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           title: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
         })}
       />
       <Stack.Screen
         name="WebViewScreen"
         component={WebViewScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: "",
         }}
@@ -113,51 +122,86 @@ function MainStack() {
         name="Collection"
         component={CollectionScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="Product"
         component={ProductScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="Cart"
         component={CartScreen}
         options={{
+          unmountOnBlur: true,
           headerTitle: () => <AnimatedHeader />,
           headerBackTitle: false,
+          headerLeft: () => <SearchIconBadge />,
         }}
       />
       <Stack.Screen
         name="JoinVIPScreen"
         component={JoinVIPScreen}
         options={() => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="VIPPortalScreen"
         component={VIPPortalScreen}
-        options={() => ({
-          headerShown: true,
-          headerBackTitleVisible: true,
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="Sweepstakes"
         component={SweepstakesScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="SearchResults"
+        component={SearchResultsScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
     </Stack.Navigator>
@@ -183,22 +227,27 @@ function ShopStack() {
         name="Shop"
         component={ShopScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
         })}
       />
       <Stack.Screen
         name="Cart"
         component={CartScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: () => <AnimatedHeader />,
+          headerLeft: () => <SearchIconBadge />,
         }}
       />
       <Stack.Screen
         name="WebViewScreen"
         component={WebViewScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: "",
         }}
@@ -207,36 +256,44 @@ function ShopStack() {
         name="Collection"
         component={CollectionScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="Search"
         component={SearchScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="SearchResults"
         component={SearchResultsScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="Product"
         component={ProductScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
     </Stack.Navigator>
@@ -262,14 +319,17 @@ function SweepstakesStack() {
         name="Sweepstakes"
         component={SweepstakesScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
         })}
       />
       <Stack.Screen
         name="WebViewScreen"
         component={WebViewScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: "",
         }}
@@ -281,7 +341,30 @@ function SweepstakesStack() {
           headerBackTitle: false,
           headerTitle: () => <AnimatedHeader />,
           headerBackTitleVisible: false,
+          headerLeft: () => <SearchIconBadge />,
         }}
+      />
+      <Stack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="SearchResults"
+        component={SearchResultsScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
       />
     </Stack.Navigator>
   );
@@ -329,9 +412,11 @@ function AccountStack() {
           name="Account"
           component={AccountScreen}
           options={{
+            unmountOnBlur: true,
             title: "",
             headerTitle: () => <AnimatedHeader />,
             headerRight: () => <CartIconWithBadge />,
+            headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
           }}
         />
       ) : (
@@ -339,6 +424,7 @@ function AccountStack() {
           name="Login"
           component={LoginScreen}
           options={{
+            unmountOnBlur: true,
             headerTitle: "Login",
             headerShown: false,
           }}
@@ -347,48 +433,51 @@ function AccountStack() {
       <Stack.Screen
         name="SignUpScreen"
         component={SignUpScreen}
-        options={() => ({
-          headerShown: false,
-        })}
+        options={() => ({ unmountOnBlur: true, headerShown: false })}
       />
       <Stack.Screen
         name="ForgotPasswordScreen"
         component={ForgotPasswordScreen}
-        options={() => ({
-          headerShown: false,
-        })}
+        options={() => ({ unmountOnBlur: true, headerShown: false })}
       />
       <Stack.Screen
         name="JoinVIPScreen"
         component={JoinVIPScreen}
         options={() => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="VIPPortalScreen"
         component={VIPPortalScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="Collection"
         component={CollectionScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="WebViewScreen"
         component={WebViewScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: "",
         }}
@@ -397,31 +486,38 @@ function AccountStack() {
         name="Cart"
         component={CartScreen}
         options={{
+          unmountOnBlur: true,
           headerBackTitle: false,
           headerTitle: () => <AnimatedHeader />,
           headerBackTitleVisible: false,
+          headerLeft: () => <SearchIconBadge />,
         }}
       />
       <Stack.Screen
         name="SweepstakesScreen"
         component={SweepstakesScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="OrdersScreen"
         component={OrdersScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
         name="PrivacyPolicyScreen"
         component={PrivacyPolicyScreen}
         options={() => ({
+          unmountOnBlur: true,
           headerShown: true,
           headerBackTitleVisible: true,
         })}
@@ -430,17 +526,43 @@ function AccountStack() {
         name="OrderConfirmationScreen"
         component={OrderConfirmationScreen}
         options={{
+          unmountOnBlur: true,
           headerTitle: "",
           headerBackTitle: "",
+          headerLeft: () => <SearchIconBadge />,
         }}
       />
       <Stack.Screen
         name="Product"
         component={ProductScreen}
         options={({ navigation }) => ({
+          unmountOnBlur: true,
           headerBackTitle: "",
           headerTitle: () => <AnimatedHeader />,
           headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="SearchResults"
+        component={SearchResultsScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
     </Stack.Navigator>
@@ -514,11 +636,11 @@ function AppWithCartReminder() {
       setShowReminder(true);
       hasShownReminder.current = true;
     }
-  
+
     if (hasHydrated) {
       coldStart.current = false;
     }
-  }, [hasHydrated, cart]);   
+  }, [hasHydrated, cart]);
 
   return (
     <NavigationContainer ref={navRef}>

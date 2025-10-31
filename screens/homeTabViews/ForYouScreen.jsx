@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-  ImageBackground,
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -20,6 +19,7 @@ import {
   fetchAllProductsCollection,
 } from "../../api/shopifyApi";
 import vipBackground from "../../assets/vip-dark-background.png";
+import { ImageBackground } from "expo-image";
 
 const ForYouScreen = () => {
   const [recentlyViewed, setRecentlyViewed] = useState([]);
@@ -150,6 +150,7 @@ const ForYouScreen = () => {
             activeOpacity={1}
           >
             <ImageBackground
+              transition={300}
               source={vipBackground}
               style={styles.vipCard}
               imageStyle={styles.vipCardImage}
@@ -171,6 +172,7 @@ const ForYouScreen = () => {
           activeOpacity={1}
         >
           <ImageBackground
+            transition={300}
             source={vipBackground}
             style={styles.vipCard}
             imageStyle={styles.vipCardImage}
@@ -220,12 +222,28 @@ const ForYouScreen = () => {
               >
                 <ProductCard
                   image={
-                    item.images.edges[0]?.node.src ||
-                    "https://via.placeholder.com/100"
+                    item.images.edges[0]?.node.src || "../assets/Legends.png"
                   }
                   name={item.title || "No Name"}
-                  price={price}
-                  compareAtPrice={compareAt}
+                  price={
+                    item.variants.edges[0]?.node.price?.amount
+                      ? parseFloat(
+                          item.variants.edges[0].node.price.amount
+                        ).toFixed(2)
+                      : "N/A"
+                  }
+                  compareAtPrice={
+                    item.variants.edges[0]?.node.compareAtPrice?.amount
+                      ? parseFloat(
+                          item.variants.edges[0].node.compareAtPrice.amount
+                        ).toFixed(2)
+                      : null
+                  }
+                  availableForSale={
+                    !item.variants.edges.every(
+                      (variantEdge) => !variantEdge.node.availableForSale
+                    )
+                  }
                 />
               </TouchableOpacity>
             );
@@ -259,19 +277,35 @@ const ForYouScreen = () => {
               <TouchableOpacity
                 style={{ width: 160, marginRight: 12 }}
                 activeOpacity={1}
-                onPress={async () =>{
+                onPress={async () => {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  navigation.navigate("Product", { product: item })
+                  navigation.navigate("Product", { product: item });
                 }}
               >
                 <ProductCard
                   image={
-                    item.images.edges[0]?.node.src ||
-                    "https://via.placeholder.com/100"
+                    item.images.edges[0]?.node.src || "../assets/Legends.png"
                   }
                   name={item.title || "No Name"}
-                  price={price}
-                  compareAtPrice={compareAt}
+                  price={
+                    item.variants.edges[0]?.node.price?.amount
+                      ? parseFloat(
+                          item.variants.edges[0].node.price.amount
+                        ).toFixed(2)
+                      : "N/A"
+                  }
+                  compareAtPrice={
+                    item.variants.edges[0]?.node.compareAtPrice?.amount
+                      ? parseFloat(
+                          item.variants.edges[0].node.compareAtPrice.amount
+                        ).toFixed(2)
+                      : null
+                  }
+                  availableForSale={
+                    !item.variants.edges.every(
+                      (variantEdge) => !variantEdge.node.availableForSale
+                    )
+                  }
                 />
               </TouchableOpacity>
             );
@@ -320,7 +354,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   vipCardImage: {
-    resizeMode: "cover",
+    contentFit: "cover",
     borderRadius: 12,
   },
   vipCardContent: {

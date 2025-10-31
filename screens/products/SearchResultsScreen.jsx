@@ -52,22 +52,33 @@ const SearchResultsScreen = ({ route, navigation }) => {
     const price =
       rawAmount && !isNaN(Number(rawAmount)) ? Number(rawAmount) : null; // pass `null` if price is invalid
 
+    console.log(item.variants.edges[0].node.availableForSale);
+
     return (
       <TouchableOpacity
         style={styles.productWrapper}
         activeOpacity={1}
         onPress={async () => {
           await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          navigation.navigate("Product", { product: item })
+          navigation.navigate("Product", { product: item });
         }}
       >
         <ProductCard
-          image={
-            item.images.edges[0]?.node.url || "https://via.placeholder.com/100"
+          image={item.images.edges[0]?.node.url || "..assets/Legends.png"}
+          name={item.title || "No Name"}
+          price={
+            item.variants.edges[0]?.node.price?.amount
+              ? parseFloat(item.variants.edges[0].node.price.amount).toFixed(2)
+              : "N/A"
           }
-          name={item.title}
-          price={price}
-          compareAtPrice={compareAt}
+          compareAtPrice={
+            item.variants.edges[0]?.node.compareAtPrice?.amount
+              ? parseFloat(
+                  item.variants.edges[0].node.compareAtPrice.amount
+                ).toFixed(2)
+              : null
+          }
+          availableForSale={item.variants.edges[0]?.node.availableForSale}
         />
       </TouchableOpacity>
     );

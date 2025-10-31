@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
+import { Image } from "expo-image";
 
 const ProductCardMini = ({ image, name, price, compareAtPrice }) => {
   const priceAmount = parseFloat(price?.amount || 0);
@@ -8,7 +9,7 @@ const ProductCardMini = ({ image, name, price, compareAtPrice }) => {
 
   return (
     <View style={styles.card}>
-      <Image source={{ uri: image }} style={styles.image} />
+      <Image source={{ uri: image }} transition={300} style={styles.image} />
 
       <View style={styles.textContainer}>
         <Text numberOfLines={2} style={styles.productName}>
@@ -44,7 +45,7 @@ const styles = StyleSheet.create({
   image: {
     width: 50,
     height: 50,
-    resizeMode: "contain",
+    contentFit: "contain",
     borderRadius: 6,
     marginRight: 12,
   },

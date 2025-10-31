@@ -104,3 +104,21 @@ export const clearAllStorage = async () => {
     console.error("Error clearing storage:", error);
   }
 };
+
+export const setCustomerInfo = async (data) => {
+  try {
+    await AsyncStorage.setItem("customerInfo", JSON.stringify(data));
+  } catch (err) {
+    console.error("Error saving customer info:", err);
+  }
+};
+
+export const getCustomerInfo = async () => {
+  try {
+    const raw = await AsyncStorage.getItem("customerInfo");
+    return raw ? JSON.parse(raw) : null;
+  } catch (err) {
+    console.error("Error reading customer info:", err);
+    return null;
+  }
+};

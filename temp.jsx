@@ -148,8 +148,7 @@ const CartScreen = ({ navigation }) => {
 
     // Fetch product image safely
     const productImage =
-      product?.product?.images?.edges?.[0]?.node?.src ||
-      "https://via.placeholder.com/100";
+      product?.product?.images?.edges?.[0]?.node?.src || "..assets/Legends.png";
 
     return (
       <View style={styles.cartItemContainer}>

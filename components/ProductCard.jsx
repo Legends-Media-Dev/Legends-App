@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { Image } from "expo-image";
 
 const { height } = Dimensions.get("window");
 
@@ -16,7 +17,7 @@ const ProductCard = ({
   return (
     <View style={styles.card}>
       <View style={styles.imageContainer}>
-        <Image source={{ uri: image }} style={styles.image} />
+        <Image transition={300} source={{ uri: image }} style={styles.image} />
         {!availableForSale && (
           <View style={styles.soldOutBadge}>
             <Text style={styles.soldOutText}>SOLD OUT</Text>
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
   image: {
     width: "100%",
     height: "100%",
-    resizeMode: "cover",
+    contentFit: "cover",
     borderRadius: 12,
   },
   soldOutBadge: {

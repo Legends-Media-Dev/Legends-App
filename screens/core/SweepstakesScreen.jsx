@@ -5,12 +5,13 @@ import {
   StyleSheet,
   ScrollView,
   ActivityIndicator,
-  Image,
   TouchableOpacity,
 } from "react-native";
 import { fetchBlogArticles } from "../../api/shopifyApi";
+import { Image } from "expo-image";
 
 const extractSweepstakesData = (article) => {
+  console.log(article);
   const html = article.contentHtml || "";
 
   const rawParagraphs = [...html.matchAll(/<p[^>]*>(.*?)<\/p>/g)].map(
@@ -42,20 +43,25 @@ const decodeHtmlEntities = (str) => {
     .replace(/&gt;/gi, ">")
     .replace(/&quot;/gi, '"')
     .replace(/&#39;/gi, "'");
-};  
+};
 
 const parseDetails = (description) => {
   const details = {};
-  const sweepstakesPeriodMatch = description.match(/SWEEPSTAKES PERIOD: ([^,]+)/i);
-  const arvMatch = description.match(/ARV: ([^,]+)/i);
+  const sweepstakesPeriodMatch = description.match(
+    /SWEEPSTAKES PERIOD: ([^,]+)/i
+  );
+  const arvMatch = description.match(/ARV:\s*\$?([^,]+,[^,]+)/i);
   const winnerMatch = description.match(/WINNER: ([^,]+)/i);
   const locationMatch = description.match(/LOCATION: (.+?)(?=\s+[A-Z\s]+?:)/i);
-  const itemsBoughtMatch = description.match(/ITEMS?\s+BOUGHT:\s*(.+?)(?:\s+[A-Z][A-Z\s]+?:|$)/i);
+  const itemsBoughtMatch = description.match(
+    /ITEMS?\s+BOUGHT:\s*(.+?)(?:\s+[A-Z][A-Z\s]+?:|$)/i
+  );
 
   if (sweepstakesPeriodMatch) details.period = sweepstakesPeriodMatch[1].trim();
   if (arvMatch) details.arv = arvMatch[1].trim();
   if (winnerMatch) details.winner = winnerMatch[1].trim();
-  if (locationMatch) details.location = locationMatch[1].replace(/,$/, "").trim();
+  if (locationMatch)
+    details.location = locationMatch[1].replace(/,$/, "").trim();
   if (itemsBoughtMatch) {
     details.itemsBought = decodeHtmlEntities(itemsBoughtMatch[1].trim());
   }
@@ -72,25 +78,36 @@ const SweepstakesItem = ({ item }) => {
     <View style={styles.card}>
       <Text style={styles.articleTitle}>{item.title}</Text>
 
-      {item.description1 && <Text style={styles.articleText}>{item.description1}</Text>}
-      {details.arv && <Text style={styles.articleText}>ARV: {details.arv}</Text>}
-      {details.winner && <Text style={styles.articleText}>WINNER: {details.winner}</Text>}
-      {details.location && <Text style={styles.articleText}>LOCATION: {details.location}</Text>}
+      {item.description1 && (
+        <Text style={styles.articleText}>{item.description1}</Text>
+      )}
+      {details.arv && (
+        <Text style={styles.articleText}>ARV: {details.arv}</Text>
+      )}
+      {details.winner && (
+        <Text style={styles.articleText}>WINNER: {details.winner}</Text>
+      )}
+      {details.location && (
+        <Text style={styles.articleText}>LOCATION: {details.location}</Text>
+      )}
       {details.itemsBought && (
-        <Text style={styles.articleText}>ITEMS BOUGHT: {details.itemsBought}</Text>
+        <Text style={styles.articleText}>
+          ITEMS BOUGHT: {details.itemsBought}
+        </Text>
       )}
 
       {currentImage && (
         <View style={styles.imageContainer}>
-          <Image source={{ uri: currentImage }} style={styles.mainImage} />
+          <Image
+            transition={300}
+            source={{ uri: currentImage }}
+            style={styles.mainImage}
+          />
 
           <View style={styles.overlayButtons}>
             <TouchableOpacity
               onPress={() => setShowAfter(false)}
-              style={[
-                styles.overlayBtn,
-                !showAfter && styles.overlayBtnActive,
-              ]}
+              style={[styles.overlayBtn, !showAfter && styles.overlayBtnActive]}
             >
               <Text
                 style={[
@@ -104,10 +121,7 @@ const SweepstakesItem = ({ item }) => {
 
             <TouchableOpacity
               onPress={() => setShowAfter(true)}
-              style={[
-                styles.overlayBtn,
-                showAfter && styles.overlayBtnActive,
-              ]}
+              style={[styles.overlayBtn, showAfter && styles.overlayBtnActive]}
             >
               <Text
                 style={[
@@ -242,7 +256,7 @@ const styles = StyleSheet.create({
   mainImage: {
     width: "100%",
     height: 200,
-    resizeMode: "cover",
+    contentFit: "cover",
   },
   overlayButtons: {
     position: "absolute",

@@ -6,9 +6,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
-  Image,
-  ImageBackground,
 } from "react-native";
+import { Image, ImageBackground } from "expo-image";
+
 import { Ionicons } from "@expo/vector-icons";
 import { useCart } from "../context/CartContext";
 import LegendsLogo from "../assets/Legends.png";
@@ -29,7 +29,12 @@ export default function CartReminderModal({ visible, onClose, onGoToCart }) {
             <Ionicons name="close" size={24} color="#000" />
           </TouchableOpacity>
 
-          <Image source={LegendsLogo} style={styles.logo} resizeMode="contain" />
+          <Image
+            source={LegendsLogo}
+            style={styles.logo}
+            contentFit="contain"
+            transition={300}
+          />
 
           <Text style={styles.title}>Pick up right where you left off!</Text>
           <Text style={styles.message}>Complete your order now.</Text>
@@ -40,23 +45,24 @@ export default function CartReminderModal({ visible, onClose, onGoToCart }) {
             data={imagesToShow}
             keyExtractor={(item) => item.node.id}
             renderItem={({ item }) => {
-                const imageUrl = 
-                    item?.node?.merchandise?.product?.images?.edges?.[0]?.node?.src;
+              const imageUrl =
+                item?.node?.merchandise?.product?.images?.edges?.[0]?.node?.src;
 
-                if (!imageUrl) return null;
+              if (!imageUrl) return null;
 
               return (
                 <Image
-                    source={{ uri: imageUrl }}
-                    style={styles.productImage}
-                />             
+                  transition={300}
+                  source={{ uri: imageUrl }}
+                  style={styles.productImage}
+                />
               );
             }}
             contentContainerStyle={{
-                marginTop: 16,
-                marginBottom: 16,
-                justifyContent: "center",
-                alignItems: "center",
+              marginTop: 16,
+              marginBottom: 16,
+              justifyContent: "center",
+              alignItems: "center",
             }}
             showsHorizontalScrollIndicator={false}
           />
@@ -70,12 +76,13 @@ export default function CartReminderModal({ visible, onClose, onGoToCart }) {
           {/* CTA Button */}
           <TouchableOpacity onPress={onGoToCart} style={styles.buttonPrimary}>
             <ImageBackground
-                source={require("../assets/vip-dark-background.png")}
-                style={styles.buttonImageBackground}
-                imageStyle={{ borderRadius: 8 }}
-                resizeMode="cover"
+              source={require("../assets/vip-dark-background.png")}
+              style={styles.buttonImageBackground}
+              imageStyle={{ borderRadius: 8 }}
+              contentFit="cover"
+              transition={300}
             >
-                <Text style={styles.buttonText}>FINISH CHECKOUT</Text>
+              <Text style={styles.buttonText}>FINISH CHECKOUT</Text>
             </ImageBackground>
           </TouchableOpacity>
         </View>
@@ -151,7 +158,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: "hidden",
     marginTop: 8,
-  },  
+  },
   buttonText: {
     color: "#fff",
     fontFamily: "Futura-Bold",

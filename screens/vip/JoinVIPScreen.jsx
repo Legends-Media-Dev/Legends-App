@@ -4,11 +4,11 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  ImageBackground,
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { Image, ImageBackground } from "expo-image";
 
 const { width } = Dimensions.get("window");
 
@@ -45,6 +45,7 @@ function JoinVIPScreen() {
 
   return (
     <ImageBackground
+      transition={300}
       source={require("../../assets/vip-dark-background.png")}
       style={styles.background}
     >
@@ -68,6 +69,11 @@ function JoinVIPScreen() {
             <Text style={styles.joinButtonText}>JOIN ONLINE TODAY</Text>
           </TouchableOpacity>
         </View>
+        <Image
+          transition={300}
+          source={require("../../assets/How_VIP_Works.png")} // adjust path as needed
+          style={styles.productImage}
+        />
       </ScrollView>
     </ImageBackground>
   );
@@ -145,7 +151,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF", // or match your splash bg
     justifyContent: "center",
     alignItems: "center",
-  },  
+  },
+  productImage: {
+    width: width,
+    height: (width - 10) * 1.25,
+    borderRadius: 12,
+    marginTop: 15,
+    contentFit: "cover",
+  },
 });
 
 export default JoinVIPScreen;

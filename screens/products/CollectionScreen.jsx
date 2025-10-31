@@ -39,6 +39,9 @@ const CollectionScreen = ({ route, navigation }) => {
 
   // console.log(products[1].variants.edges[0].node.availableForSale);
   const renderProductItem = ({ item }) => {
+    const allVariants = item.variants.edges.map((edge) => edge.node);
+    const isSoldOut = allVariants.every((variant) => !variant.availableForSale);
+
     return (
       <TouchableOpacity
         style={styles.productWrapper}
@@ -49,9 +52,7 @@ const CollectionScreen = ({ route, navigation }) => {
         }}
       >
         <ProductCard
-          image={
-            item.images.edges[0]?.node.src || "https://via.placeholder.com/100"
-          }
+          image={item.images.edges[0]?.node.src || "..assets/Legends.png"}
           name={item.title || "No Name"}
           price={
             item.variants.edges[0]?.node.price?.amount
@@ -65,7 +66,7 @@ const CollectionScreen = ({ route, navigation }) => {
                 ).toFixed(2)
               : null
           }
-          availableForSale={item.variants.edges[0]?.node.availableForSale}
+          availableForSale={!isSoldOut}
         />
       </TouchableOpacity>
     );

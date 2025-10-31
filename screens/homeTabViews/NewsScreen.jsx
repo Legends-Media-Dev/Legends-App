@@ -17,6 +17,8 @@ import {
   fetchBlogArticles,
 } from "../../api/shopifyApi";
 
+import { getCustomerInfo } from "../../utils/storage";
+
 const NewsScreen = () => {
   const [latestVideo, setLatestVideo] = useState(null);
   const [heroImage, setHeroImage] = useState(null);
@@ -28,6 +30,7 @@ const NewsScreen = () => {
   const [heroImageLoadingAs, setHeroImageLoadingAs] = useState(true);
   const [sweepstakesImage, setSweepstakesImage] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [customerVIPStatus, setCustomerVIPStatus] = useState("");
 
   const hasFetchedVideo = useRef(false);
   const loading = heroImageLoading || heroImageLoadingTs || heroImageLoadingAs;
@@ -121,11 +124,27 @@ const NewsScreen = () => {
     }
   };
 
+  const loadCustomerInfo = async () => {
+    const data = await getCustomerInfo();
+
+    if (data && Array.isArray(data.tags)) {
+      const customerTags = data.tags;
+      const isVIP =
+        customerTags.includes("Active Subscriber") ||
+        customerTags.includes("VIP Gold");
+
+      setCustomerVIPStatus(isVIP);
+    } else {
+      setCustomerVIPStatus(false);
+    }
+  };
+
   useEffect(() => {
     // TEMP: remove cart ID manually for debug/testing
     // AsyncStorage.removeItem("shopifyCartId")
     //   .then(() => console.log("🗑️ Manually cleared cart ID from AsyncStorage"))
     //   .catch((err) => console.error("Failed to clear cart ID:", err));
+    loadCustomerInfo();
     fetchHero();
     fetchHeroTs();
     fetchHeroAs();
@@ -172,9 +191,13 @@ const NewsScreen = () => {
 
           <View style={styles.contentWrapper}>
             <ContentBox
-              topTitle="MORE PERKS? SAY LESS. JOIN VIP."
+              topTitle={customerVIPStatus ? "ACCESS THE VIP PORTAL!" : "MORE PERKS? SAY LESS."}
+              centerTitle={customerVIPStatus ? "VIP PORTAL" : "JOIN VIP"}
               image={require("../../assets/vip-dark-background.png")}
-              screenName="JoinVIPScreen"
+              screenName={
+                customerVIPStatus ? "VIPPortalScreen" : "JoinVIPScreen"
+                // customerVIPStatus ? "JoinVIPScreen" : "JoinVIPScreen"
+              }
             />
           </View>
         </View>

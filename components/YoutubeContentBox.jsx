@@ -4,9 +4,10 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ImageBackground,
   Linking,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { ImageBackground } from "expo-image";
 
 const YoutubeContentBox = ({
   topTitle,
@@ -30,8 +31,15 @@ const YoutubeContentBox = ({
         source={{ uri: thumbnail }}
         style={styles.box}
         imageStyle={styles.image}
+        transition={300}
       >
         <View style={styles.overlay}>
+          <Ionicons
+            name="logo-youtube"
+            style={{ position: "absolute", top: 15, left: 15 }}
+            size={35}
+            color="red"
+          />
           <Text style={styles.title}>{topTitle}</Text>
         </View>
       </ImageBackground>
@@ -52,7 +60,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   image: {
-    resizeMode: "cover",
+    contentFit: "cover",
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

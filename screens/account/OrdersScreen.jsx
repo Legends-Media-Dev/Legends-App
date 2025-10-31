@@ -26,7 +26,13 @@ function OrdersScreen({ route }) {
 
       try {
         const fetchedOrders = await fetchAllCustomerOrders(accessToken);
-        setOrders(fetchedOrders);
+
+        // Sort orders by processedAt in descending order (newest first)
+        const sortedOrders = [...fetchedOrders].sort((a, b) => {
+          return new Date(b.processedAt) - new Date(a.processedAt);
+        });
+
+        setOrders(sortedOrders);
       } catch (error) {
         console.error("Failed to fetch customer orders:", error.message);
       } finally {
@@ -89,7 +95,7 @@ function OrdersScreen({ route }) {
                 </View>
                 <View>
                   <Text style={styles.orderInfoTextBig}>
-                    ${item.totalPrice.amount}
+                    ${parseFloat(item.totalPrice.amount).toFixed(2)}
                   </Text>
                 </View>
               </View>
