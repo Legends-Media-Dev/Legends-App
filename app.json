@@ -3,28 +3,7 @@
     "name": "Legends",
     "slug": "legends-media",
     "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash-icon.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#000000"
-    },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.legendsmedia.legends",
-      "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
-      }
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/splash-icon.png",
-        "backgroundColor": "#000000"
-      }
-    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -32,6 +11,9 @@
       "eas": {
         "projectId": "53372938-06cb-43b4-8f47-24a1359a4711"
       }
-    }
+    },
+    "plugins": [
+      "expo-asset"
+    ]
   }
 }
