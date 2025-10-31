@@ -191,7 +191,6 @@ const NewsScreen = () => {
 
           <View style={styles.contentWrapper}>
             <ContentBox
-              topTitle={customerVIPStatus ? "ACCESS THE VIP PORTAL!" : "MORE PERKS? SAY LESS."}
               centerTitle={customerVIPStatus ? "VIP PORTAL" : "JOIN VIP"}
               image={require("../../assets/vip-dark-background.png")}
               screenName={

@@ -7,6 +7,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
+  Linking
 } from "react-native";
 import { Image, ImageBackground } from "expo-image";
 
@@ -27,6 +28,10 @@ const perks = [
 
 function JoinVIPScreen() {
   const [loading, setLoading] = React.useState(true);
+
+  const handlePress = () => {
+    Linking.openURL('https://legends.media/pages/vip-page');
+  }
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -65,13 +70,13 @@ function JoinVIPScreen() {
             ))}
           </View>
 
-          <TouchableOpacity style={styles.joinButton} activeOpacity={1}>
+          <TouchableOpacity style={styles.joinButton} activeOpacity={1} onPress={handlePress}>
             <Text style={styles.joinButtonText}>JOIN ONLINE TODAY</Text>
           </TouchableOpacity>
         </View>
         <Image
           transition={300}
-          source={require("../../assets/How_VIP_Works.png")} // adjust path as needed
+          source={require("../../assets/How_VIP_Works.png")} 
           style={styles.productImage}
         />
       </ScrollView>

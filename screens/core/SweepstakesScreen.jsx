@@ -36,42 +36,8 @@ const extractSweepstakesData = (article) => {
   };
 };
 
-const decodeHtmlEntities = (str) => {
-  return str
-    .replace(/&amp;/gi, "&")
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'");
-};
-
-const parseDetails = (description) => {
-  const details = {};
-  const sweepstakesPeriodMatch = description.match(
-    /SWEEPSTAKES PERIOD: ([^,]+)/i
-  );
-  const arvMatch = description.match(/ARV:\s*\$?([^,]+,[^,]+)/i);
-  const winnerMatch = description.match(/WINNER: ([^,]+)/i);
-  const locationMatch = description.match(/LOCATION: (.+?)(?=\s+[A-Z\s]+?:)/i);
-  const itemsBoughtMatch = description.match(
-    /ITEMS?\s+BOUGHT:\s*(.+?)(?:\s+[A-Z][A-Z\s]+?:|$)/i
-  );
-
-  if (sweepstakesPeriodMatch) details.period = sweepstakesPeriodMatch[1].trim();
-  if (arvMatch) details.arv = arvMatch[1].trim();
-  if (winnerMatch) details.winner = winnerMatch[1].trim();
-  if (locationMatch)
-    details.location = locationMatch[1].replace(/,$/, "").trim();
-  if (itemsBoughtMatch) {
-    details.itemsBought = decodeHtmlEntities(itemsBoughtMatch[1].trim());
-  }
-
-  return details;
-};
-
 const SweepstakesItem = ({ item }) => {
   const [showAfter, setShowAfter] = useState(false);
-  const details = parseDetails(item.description2);
   const currentImage = showAfter ? item.image2 : item.image1;
 
   return (
@@ -80,20 +46,6 @@ const SweepstakesItem = ({ item }) => {
 
       {item.description1 && (
         <Text style={styles.articleText}>{item.description1}</Text>
-      )}
-      {details.arv && (
-        <Text style={styles.articleText}>ARV: {details.arv}</Text>
-      )}
-      {details.winner && (
-        <Text style={styles.articleText}>WINNER: {details.winner}</Text>
-      )}
-      {details.location && (
-        <Text style={styles.articleText}>LOCATION: {details.location}</Text>
-      )}
-      {details.itemsBought && (
-        <Text style={styles.articleText}>
-          ITEMS BOUGHT: {details.itemsBought}
-        </Text>
       )}
 
       {currentImage && (
