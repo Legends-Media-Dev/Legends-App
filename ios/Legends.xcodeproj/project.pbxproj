@@ -262,7 +262,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.bordmedia.legends-media";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.legendsmedia.legends";
 				PRODUCT_NAME = Legends;
 				SWIFT_OBJC_BRIDGING_HEADER = "Legends/Legends-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -291,7 +291,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.bordmedia.legends-media";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.legendsmedia.legends";
 				PRODUCT_NAME = Legends;
 				SWIFT_OBJC_BRIDGING_HEADER = "Legends/Legends-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
