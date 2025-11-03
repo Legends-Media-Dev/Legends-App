@@ -10,6 +10,7 @@ import {
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
+import { saveUserNotificationToken } from "./api/shopifyApi";
 
 import { HeaderStyleInterpolators } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -606,9 +607,25 @@ async function registerForPushNotificationsAsync() {
     }
 
     // 🧠 IMPORTANT: include your projectId here for TestFlight builds
-    const projectId = "53372938-06cb-43b4-8f47-24a1359a4711"; // find in app.json under extra.eas.projectId
+    const projectId = "53372938-06cb-43b4-8f47-24a1359a4711"; // from app.json
     token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
     console.log("Expo push token:", token);
+
+    // 🔹 Gather optional device info
+    const deviceInfo = {
+      brand: Device.brand,
+      modelName: Device.modelName,
+      osVersion: Device.osVersion,
+      platform: Platform.OS,
+    };
+
+    try {
+      // 🔹 Save token + device info to Firestore via Cloud Function
+      await saveUserNotificationToken(token, deviceInfo);
+      console.log("✅ Token saved successfully to Firestore");
+    } catch (error) {
+      console.error("❌ Failed to save token:", error);
+    }
   } else {
     alert("Must use physical device for Push Notifications");
   }
