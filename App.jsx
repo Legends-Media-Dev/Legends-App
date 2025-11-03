@@ -608,8 +608,21 @@ async function registerForPushNotificationsAsync() {
 
     // 🧠 IMPORTANT: include your projectId here for TestFlight builds
     const projectId = "53372938-06cb-43b4-8f47-24a1359a4711"; // from app.json
-    token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
-    console.log("Expo push token:", token);
+
+    try {
+      const response = await Notifications.getExpoPushTokenAsync({ projectId });
+      if (!response?.data) {
+        console.warn(
+          "⚠️ No Expo push token returned — check entitlements and projectId"
+        );
+        return;
+      }
+      token = response.data;
+      console.log("✅ Expo push token:", token);
+    } catch (error) {
+      console.error("❌ Error getting Expo push token:", error);
+      return;
+    }
 
     // 🔹 Gather optional device info
     const deviceInfo = {
@@ -673,7 +686,33 @@ export default function App() {
   useEffect(() => {
     loadFonts().then(() => setFontsLoaded(true));
     checkAuthentication();
-    registerForPushNotificationsAsync();
+  }, []);
+
+  useEffect(() => {
+    let hasRegistered = false;
+
+    const init = async () => {
+      await loadFonts();
+      setFontsLoaded(true);
+      await checkAuthentication();
+
+      if (!hasRegistered) {
+        hasRegistered = true;
+        await registerForPushNotificationsAsync();
+      }
+    };
+
+    init();
+  }, []);
+
+  useEffect(() => {
+    const subscription = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log("📬 Notification received in foreground:", notification);
+      }
+    );
+
+    return () => subscription.remove();
   }, []);
 
   // if (!fontsLoaded) {

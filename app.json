@@ -4,6 +4,15 @@
     "slug": "legends-media",
     "version": "1.0.0",
     "newArchEnabled": true,
+    "ios": {
+      "bundleIdentifier": "com.legendsmedia.app",
+      "supportsTablet": true,
+      "usesAppleSignIn": false,
+      "infoPlist": {
+        "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized notifications and offers.",
+        "UIBackgroundModes": ["remote-notification"]
+      }
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -12,8 +21,6 @@
         "projectId": "53372938-06cb-43b4-8f47-24a1359a4711"
       }
     },
-    "plugins": [
-      "expo-asset"
-    ]
+    "plugins": ["expo-asset"]
   }
 }
