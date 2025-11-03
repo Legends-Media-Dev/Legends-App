@@ -67,6 +67,9 @@ const CLOUD_FUNCTION_URL_FMRY =
 const CLOUD_FUNCTION_URL_FBBH =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchBlogByHandle";
 
+const CLOUD_FUNCTION_URL_SAVE_USER_NOTI =
+  "https://us-central1-premier-ikon.cloudfunctions.net/saveUserNotiHandler";
+
 /**
  * Fetch Collections
  */
@@ -547,6 +550,29 @@ export const fetchBlogArticles = async (blogHandle) => {
     return response.data; // This is the blog object
   } catch (error) {
     console.error("Error fetching blog articles:", error);
+    throw error;
+  }
+};
+
+/**
+ * Save Expo Push Token to Firestore via Cloud Function
+ */
+export const saveUserNotificationToken = async (token, deviceInfo = {}) => {
+  try {
+    if (!token) throw new Error("Missing Expo push token");
+
+    const response = await axios.post(CLOUD_FUNCTION_URL_SAVE_USER_NOTI, {
+      token,
+      deviceInfo,
+    });
+
+    console.log("✅ Notification token saved:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "❌ Error saving notification token:",
+      error.response?.data || error.message
+    );
     throw error;
   }
 };
