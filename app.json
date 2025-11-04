@@ -3,6 +3,7 @@
     "name": "Legends",
     "slug": "legends-media",
     "version": "1.0.0",
+    "icon": "./assets/icon.png",
     "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.legendsmedia.legends",
@@ -10,11 +11,9 @@
       "usesAppleSignIn": false,
       "infoPlist": {
         "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized notifications and offers.",
-        "UIBackgroundModes": ["remote-notification"]
+        "UIBackgroundModes": ["remote-notification"],
+        "ITSAppUsesNonExemptEncryption": false
       }
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
     },
     "extra": {
       "eas": {
