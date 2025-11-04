@@ -11,6 +11,9 @@ import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
 import { saveUserNotificationToken } from "./api/shopifyApi";
+import { registerForPushNotificationsAsync } from "./utils/notifications";
+
+const PROJECT_ID = "53372938-06cb-43b4-8f47-24a1359a4711";
 
 import { HeaderStyleInterpolators } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -54,6 +57,8 @@ import { AppState } from "react-native";
 import { useCart } from "./context/CartContext";
 import CartReminderModal from "./components/CartReminderModal";
 import SearchIconBadge from "./components/SearchIconBadge";
+
+import { getCustomerInfo } from "./utils/storage"; // use your existing helper
 
 // Create navigators
 const Stack = createStackNavigator();
@@ -588,73 +593,6 @@ function AccountStack() {
   );
 }
 
-async function registerForPushNotificationsAsync() {
-  let token;
-
-  if (Device.isDevice) {
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-
-    if (existingStatus !== "granted") {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-
-    if (finalStatus !== "granted") {
-      alert("Failed to get push token for push notification!");
-      return;
-    }
-
-    // 🧠 IMPORTANT: include your projectId here for TestFlight builds
-    const projectId = "53372938-06cb-43b4-8f47-24a1359a4711"; // from app.json
-
-    try {
-      const response = await Notifications.getExpoPushTokenAsync({ projectId });
-      if (!response?.data) {
-        console.warn(
-          "⚠️ No Expo push token returned — check entitlements and projectId"
-        );
-        return;
-      }
-      token = response.data;
-      console.log("✅ Expo push token:", token);
-    } catch (error) {
-      console.error("❌ Error getting Expo push token:", error);
-      return;
-    }
-
-    // 🔹 Gather optional device info
-    const deviceInfo = {
-      brand: Device.brand,
-      modelName: Device.modelName,
-      osVersion: Device.osVersion,
-      platform: Platform.OS,
-    };
-
-    try {
-      // 🔹 Save token + device info to Firestore via Cloud Function
-      await saveUserNotificationToken(token, deviceInfo);
-      console.log("✅ Token saved successfully to Firestore");
-    } catch (error) {
-      console.error("❌ Failed to save token:", error);
-    }
-  } else {
-    alert("Must use physical device for Push Notifications");
-  }
-
-  if (Platform.OS === "android") {
-    await Notifications.setNotificationChannelAsync("default", {
-      name: "default",
-      importance: Notifications.AndroidImportance.MAX,
-      vibrationPattern: [0, 250, 250, 250],
-      lightColor: "#FF231F7C",
-    });
-  }
-
-  return token;
-}
-
 // App Component with Bottom Tabs
 export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
@@ -686,6 +624,7 @@ export default function App() {
   useEffect(() => {
     loadFonts().then(() => setFontsLoaded(true));
     checkAuthentication();
+    // await AsyncStorage.clear();
   }, []);
 
   useEffect(() => {
@@ -705,15 +644,15 @@ export default function App() {
     init();
   }, []);
 
-  useEffect(() => {
-    const subscription = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        console.log("📬 Notification received in foreground:", notification);
-      }
-    );
+  // useEffect(() => {
+  //   const subscription = Notifications.addNotificationReceivedListener(
+  //     (notification) => {
+  //       console.log("📬 Notification received in foreground:", notification);
+  //     }
+  //   );
 
-    return () => subscription.remove();
-  }, []);
+  //   return () => subscription.remove();
+  // }, []);
 
   // if (!fontsLoaded) {
   //   return <AppLoading />;

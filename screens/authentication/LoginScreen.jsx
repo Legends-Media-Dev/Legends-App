@@ -8,13 +8,15 @@ import {
 } from "react-native";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
-import { setItem } from "../../utils/storage";
-import { customerSignIn } from "../../api/shopifyApi";
+import { customerSignIn, fetchCustomerDetails } from "../../api/shopifyApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Image, ImageBackground } from "expo-image";
+import { Image } from "expo-image";
+import { registerForPushNotificationsAsync } from "../../utils/notifications";
+
+// 🔹 import helpers for push token linking
+import { setCustomerInfo } from "../../utils/storage";
 
 const LoginScreen = ({ route, navigation }) => {
-  // State for managing input values
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const passwordInputRef = useRef(null);
@@ -31,24 +33,63 @@ const LoginScreen = ({ route, navigation }) => {
     setError("");
 
     try {
+      // 1️⃣ Sign in with Shopify credentials
       const response = await customerSignIn(email, password);
       const accessToken = response?.accessToken;
       const expiresAt = response?.expiresAt;
 
-      if (accessToken && expiresAt) {
-        await AsyncStorage.setItem("shopifyAccessToken", accessToken);
-        await AsyncStorage.setItem("accessTokenExpiry", expiresAt);
-
-        navigation.reset({
-          index: 0,
-          routes: [{ name: "ACCOUNT" }],
-        });
-      } else {
+      if (!accessToken || !expiresAt) {
         setError("Incorrect email or password.");
+        return;
       }
+
+      // 2️⃣ Save auth info
+      await AsyncStorage.setItem("shopifyAccessToken", accessToken);
+      await AsyncStorage.setItem("accessTokenExpiry", expiresAt);
+
+      // 3️⃣ Fetch customer details from Cloud Function
+      let customer = null;
+      try {
+        // console.log("📡 Fetching Shopify customer details...");
+        const customerData = await fetchCustomerDetails(accessToken);
+
+        if (customerData?.email) {
+          customer = {
+            id: customerData?.email, // 🔹 Use email as stable unique identifier
+            email: customerData?.email,
+            firstName: customerData?.firstName || "",
+            lastName: customerData?.lastName || "",
+            tags: customerData?.tags || [],
+          };
+
+          await setCustomerInfo(customer);
+          // console.log("👤 Saved customer info:", customer.email);
+        } else {
+          console.warn(
+            "⚠️ No valid customer data returned from fetchCustomerDetails"
+          );
+        }
+      } catch (err) {
+        console.error("❌ Error fetching customer info:", err);
+      }
+
+      // 4️⃣ Update Firestore push token with linked user
+      try {
+        // console.log("📲 Linking Expo push token to logged-in user...");
+        await registerForPushNotificationsAsync(true); // force Firestore update
+        // console.log("✅ Firestore push token linked successfully");
+      } catch (err) {
+        console.warn("⚠️ Could not update push token after login:", err);
+      }
+
+      // 5️⃣ Navigate to Account screen
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "ACCOUNT" }],
+      });
     } catch (error) {
+      console.error("❌ Sign-in error:", error.message);
       setError("Login failed. Please try again.");
-      console.error("Sign-in error:", error.message);
     } finally {
       setLoading(false);
     }
@@ -63,7 +104,7 @@ const LoginScreen = ({ route, navigation }) => {
       )}
 
       <View>
-        {/* Logo Section */}
+        {/* Logo */}
         <View style={styles.imageContainer}>
           <Image
             transition={300}
@@ -72,7 +113,7 @@ const LoginScreen = ({ route, navigation }) => {
           />
         </View>
 
-        {/* Header Text Section */}
+        {/* Header */}
         <View style={styles.infoContainer}>
           <Text style={styles.header}>SIGN IN</Text>
           <Text style={styles.subHeader}>
@@ -80,7 +121,7 @@ const LoginScreen = ({ route, navigation }) => {
           </Text>
         </View>
 
-        {/* Input Fields Section */}
+        {/* Inputs */}
         <View style={styles.authContainer}>
           <AuthInput
             label="Email"
@@ -116,12 +157,14 @@ const LoginScreen = ({ route, navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
+
         {error !== "" && (
           <Text style={{ color: "red", textAlign: "center", marginTop: 10 }}>
             {error}
           </Text>
         )}
 
+        {/* Submit button */}
         <View style={styles.buttonContainer}>
           <RoundedBox
             isFilled={true}
@@ -139,6 +182,8 @@ const LoginScreen = ({ route, navigation }) => {
           />
         </View>
       </View>
+
+      {/* Footer */}
       <View style={styles.lowerContainer}>
         <View
           style={{
@@ -189,32 +234,32 @@ const styles = StyleSheet.create({
   },
   header: {
     fontFamily: "Futura-Bold",
-    fontSize: 24, // Corrected as a number
+    fontSize: 24,
   },
   subHeader: {
     fontFamily: "Futura-Medium",
-    fontSize: 16, // Corrected as a number
+    fontSize: 16,
   },
   authContainer: {
     display: "flex",
     width: "90%",
-    alignSelf: "center", // Align inputs and text within the container
+    alignSelf: "center",
     marginTop: 30,
   },
   forgotPasswordContainer: {
     marginTop: 10,
     paddingRight: 5,
-    width: "100%", // Ensures the "Forgot your password?" spans the width of the container
-    alignItems: "flex-end", // Aligns the text to the right
+    width: "100%",
+    alignItems: "flex-end",
   },
   forgotPasswordText: {
-    color: "black", // Button-like color (blue)
+    color: "black",
     fontSize: 14,
     fontFamily: "Futura-Medium",
   },
   buttonContainer: {
     width: "90%",
-    alignSelf: "center", // Ensures it's centered like your input fields
+    alignSelf: "center",
     marginTop: 30,
   },
   lowerContainer: {
@@ -227,11 +272,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   signUpContainer: {
-    alignItems: "center", // Center the text
+    alignItems: "center",
   },
   signUpButton: {
-    color: "#C8102F", // Highlight color for the button
-    fontWeight: "bold", // Bold to differentiate it as a button
+    color: "#C8102F",
+    fontWeight: "bold",
   },
   loadingOverlay: {
     position: "absolute",
@@ -239,7 +284,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: "rgba(255, 255, 255, 0.8)", // or "#FFF" for solid
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
     justifyContent: "center",
     alignItems: "center",
     zIndex: 999,

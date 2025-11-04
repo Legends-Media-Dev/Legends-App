@@ -11,7 +11,9 @@
       "usesAppleSignIn": false,
       "infoPlist": {
         "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized notifications and offers.",
-        "UIBackgroundModes": ["remote-notification"],
+        "UIBackgroundModes": [
+          "remote-notification"
+        ],
         "ITSAppUsesNonExemptEncryption": false
       }
     },
@@ -20,6 +22,12 @@
         "projectId": "53372938-06cb-43b4-8f47-24a1359a4711"
       }
     },
-    "plugins": ["expo-asset", "expo-notifications"]
+    "plugins": [
+      "expo-asset",
+      "expo-notifications"
+    ],
+    "android": {
+      "package": "com.legendsmedia.legends"
+    }
   }
 }

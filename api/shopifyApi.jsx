@@ -374,7 +374,7 @@ export const fetchCustomerDetails = async (accessToken) => {
       accessToken,
     });
 
-    // console.log("fetchCustomerDetails response:", response.data);
+    console.log("fetchCustomerDetails response:", response.data);
 
     // Return the customer details
     return response.data;
@@ -561,12 +561,40 @@ export const saveUserNotificationToken = async (token, deviceInfo = {}) => {
   try {
     if (!token) throw new Error("Missing Expo push token");
 
+    // 🧩 Try to pull user info if available
+    let userId = null;
+    let email = null;
+    try {
+      const userInfoRaw = await AsyncStorage.getItem("customerInfo");
+      if (userInfoRaw) {
+        const userInfo = JSON.parse(userInfoRaw);
+        userId = userInfo?.id || null;
+        email = userInfo?.email || null;
+      }
+    } catch (err) {
+      console.warn(
+        "⚠️ Could not load customer info for notification token:",
+        err
+      );
+    }
+
+    // 🧠 Debug log — shows what we’re about to send to Firestore
+    // console.log("📤 Preparing to save push token to Firestore:", {
+    //   token,
+    //   userId,
+    //   email,
+    //   deviceInfo,
+    // });
+
+    // 🚀 Send token + user info + device info to Cloud Function
     const response = await axios.post(CLOUD_FUNCTION_URL_SAVE_USER_NOTI, {
       token,
+      userId,
+      email,
       deviceInfo,
     });
 
-    console.log("✅ Notification token saved:", response.data);
+    // console.log("✅ Firestore response:", response.data);
     return response.data;
   } catch (error) {
     console.error(
