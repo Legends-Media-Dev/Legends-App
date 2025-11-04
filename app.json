@@ -5,7 +5,7 @@
     "version": "1.0.0",
     "newArchEnabled": true,
     "ios": {
-      "bundleIdentifier": "com.legendsmedia.app",
+      "bundleIdentifier": "com.legendsmedia.legends",
       "supportsTablet": true,
       "usesAppleSignIn": false,
       "infoPlist": {
@@ -21,6 +21,6 @@
         "projectId": "53372938-06cb-43b4-8f47-24a1359a4711"
       }
     },
-    "plugins": ["expo-asset"]
+    "plugins": ["expo-asset", "expo-notifications"]
   }
 }
