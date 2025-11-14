@@ -15,14 +15,17 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { Image, ImageBackground } from "expo-image";
 import vipBackground from "../../assets/vip-background.png";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Haptics from "expo-haptics";
 
 import {
   fetchCollections,
   fetchAllProductsCollection,
   fetchBlogArticles,
+  fetchCustomerDetails,
 } from "../../api/shopifyApi";
 import ContentBox from "../../components/ContentBox";
-import * as Haptics from "expo-haptics";
+import JoinVIPScreen from "./JoinVIPScreen";
 
 const { width, height } = Dimensions.get("window");
 
@@ -32,6 +35,9 @@ const VipPortalScreen = () => {
   const [screenData, setScreenData] = useState([]);
   const [showWheel, setShowWheel] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
+  const [customerData, setCustomerData] = useState(null);
+  const [isVip, setIsVip] = useState(false);
+
   const partnerLogos = [
     {
       id: "ghost",
@@ -68,37 +74,53 @@ const VipPortalScreen = () => {
       uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Bridgestone.png?v=1684369049",
       url: "https://www.bridgestonetire.com/sem/bridgestone-tire/?https://ad.doubleclick.net/ddm/clk/546719407;355536812;q&lw_cmp=sem_bst-us_g_con_brand&keyword=bridgestone%20tires&campaign=10134808723&adgroup=101970748296&gad=1&gclid=CjwKCAjw9pGjBhB-EiwAa5jl3A2eegjgfI6FPudRRdlsLKeKNPVaSaliOMxxSdCY79dZ4peOKJWMMRoCFWwQAvD_BwE&ef_id=ZGVz-QAAAFjKhANx:20230518004327:s",
     },
-    // add the rest...
   ];
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const collectionsData = await fetchCollections();
-        const vipCollections = collectionsData
-          .filter((c) => c.title.includes("VIP DIGITAL DOWNLOADS"))
-          .map((item) => ({ ...item, type: "collection" }));
+        // Check customer VIP status
+        const accessToken = await AsyncStorage.getItem("shopifyAccessToken");
+        if (accessToken) {
+          const customerDetails = await fetchCustomerDetails(accessToken);
+          setCustomerData(customerDetails);
+          
+          // Check if customer is VIP
+          const customerIsVip = 
+            customerDetails?.tags?.includes("VIP Gold") ||
+            customerDetails?.tags?.includes("Active Subscriber");
+          
+          setIsVip(customerIsVip);
+          
+          // Only load VIP content if user is VIP
+          if (customerIsVip) {
+            const collectionsData = await fetchCollections();
+            const vipCollections = collectionsData
+              .filter((c) => c.title.includes("VIP DIGITAL DOWNLOADS"))
+              .map((item) => ({ ...item, type: "collection" }));
 
-        const blog = await fetchBlogArticles("vip");
-        const blogArticles = (blog.articles?.edges || [])
-          .map((edge) => {
-            const image = edge.node.image?.src;
-            const title = edge.node.title;
-            const description = edge.node.contentHtml;
-            return image && description && title
-              ? { image, description, title, type: "vipArticle" }
-              : null;
-          })
-          .filter(Boolean);
+            const blog = await fetchBlogArticles("vip");
+            const blogArticles = (blog.articles?.edges || [])
+              .map((edge) => {
+                const image = edge.node.image?.src;
+                const title = edge.node.title;
+                const description = edge.node.contentHtml;
+                return image && description && title
+                  ? { image, description, title, type: "vipArticle" }
+                  : null;
+              })
+              .filter(Boolean);
 
-        setScreenData([
-          { type: "section", title: "EXCLUSIVE COLLECTIONS" },
-          ...vipCollections,
-          { type: "section", title: "VIP BLOG ARTICLES" },
-          ...blogArticles,
-          { type: "section", title: "PARTNERS" },
-          { type: "partnerGrid", data: partnerLogos }, // 👈 new section type
-        ]);
+            setScreenData([
+              { type: "section", title: "EXCLUSIVE COLLECTIONS" },
+              ...vipCollections,
+              { type: "section", title: "VIP BLOG ARTICLES" },
+              ...blogArticles,
+              { type: "section", title: "PARTNERS" },
+              { type: "partnerGrid", data: partnerLogos },
+            ]);
+          }
+        }
       } catch (err) {
         console.error("Error loading screen data:", err);
       } finally {
@@ -112,14 +134,9 @@ const VipPortalScreen = () => {
   const renderParsedText = (html) => {
     if (!html) return null;
 
-    // Handle anchor tags separately first
     const anchorTagRegex = /<a[^>]*href="([^"]+)"[^>]*>(.*?)<\/a>/gi;
 
     let parsed = [];
-    let lastIndex = 0;
-    let match;
-
-    // Temporarily replace links with a placeholder to preserve them
     const placeholders = [];
     html = html.replace(anchorTagRegex, (full, url, text) => {
       const id = placeholders.length;
@@ -127,23 +144,19 @@ const VipPortalScreen = () => {
       return `[[LINK_${id}]]`;
     });
 
-    // Strip all remaining tags and replace block tags with line breaks
     const clean = html
-      .replace(/<[^>]+>/g, "") // Remove all HTML tags
+      .replace(/<[^>]+>/g, "")
       .replace(/&nbsp;/g, " ")
       .replace(/&amp;/g, "&")
-      .replace(/\n{3,}/g, "\n\n") // Prevent too many newlines
+      .replace(/\n{3,}/g, "\n\n")
       .trim();
 
-    // Split on placeholder markers
     const parts = clean.split(/\[\[LINK_(\d+)\]\]/g);
 
     parts.forEach((part, index) => {
       if (index % 2 === 0) {
-        // Plain text
         if (part) parsed.push(part);
       } else {
-        // Link part
         const link = placeholders[Number(part)];
         parsed.push(
           <Text
@@ -214,14 +227,14 @@ const VipPortalScreen = () => {
             activeOpacity={1}
           >
             <ImageBackground
-            source={vipBackground}
+              source={vipBackground}
               style={{
                 borderRadius: 12,
                 marginTop: -3,
                 overflow: "hidden",
               }}
               imageStyle={{
-                borderRadius:12,
+                borderRadius: 12,
               }}
             >
               <View style={styles.vipCardContent}>
@@ -245,7 +258,7 @@ const VipPortalScreen = () => {
                 ? { uri: item.image }
                 : require("../../assets/vip-background.png")
             }
-            onPress={() => setSelectedArticle(item)} // ✅ Override ContentBox press behavior
+            onPress={() => setSelectedArticle(item)}
           />
         </TouchableOpacity>
       );
@@ -279,11 +292,22 @@ const VipPortalScreen = () => {
     return null;
   };
 
-  return loading ? (
-    <View style={styles.loadingOverlay}>
-      <ActivityIndicator size="small" />
-    </View>
-  ) : (
+  // Show loading state
+  if (loading) {
+    return (
+      <View style={styles.loadingOverlay}>
+        <ActivityIndicator size="small" />
+      </View>
+    );
+  }
+
+  // If not VIP, show Join VIP Screen
+  if (!isVip) {
+    return <JoinVIPScreen />;
+  }
+
+  // If VIP, show VIP Portal content
+  return (
     <>
       <FlatList
         data={screenData}
@@ -293,39 +317,13 @@ const VipPortalScreen = () => {
         showsVerticalScrollIndicator={false}
       />
 
-      {/* <Modal
-        visible={showWheel}
-        animationType="slide"
-        onRequestClose={() => setShowWheel(false)}
-      >
-        <View style={{ flex: 1 }}>
-          <TouchableOpacity
-            onPress={() => setShowWheel(false)}
-            style={{
-              padding: 12,
-              backgroundColor: "#C8102F",
-              alignItems: "center",
-            }}
-          >
-            <Text style={{ color: "white", fontFamily: "Futura-Bold" }}>
-              Close
-            </Text>
-          </TouchableOpacity>
-          <WebView
-            source={{ uri: "https://yourpage.com/spinwheel" }}
-            style={{ flex: 1 }}
-          />
-        </View>
-      </Modal> */}
       <Modal
         visible={!!selectedArticle}
         transparent={true}
         animationType="slide"
         onRequestClose={() => setSelectedArticle(null)}
       >
-        {/* Semi-transparent dark background */}
         <View style={styles.modalOverlay}>
-          {/* Modal content */}
           <View style={styles.modalContent}>
             <TouchableOpacity
               onPress={() => setSelectedArticle(null)}
@@ -405,11 +403,10 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.4)", // translucent gray overlay
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
     justifyContent: "flex-start",
     paddingTop: height * 0.08,
   },
-
   modalContent: {
     flex: 1,
     backgroundColor: "white",
@@ -417,27 +414,23 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 16,
     padding: 20,
   },
-
   closeText: {
     fontFamily: "Futura-Bold",
     fontSize: 16,
     marginBottom: 20,
     color: "#C8102F",
   },
-
   articleTitle: {
     fontSize: 24,
     fontFamily: "Futura-Bold",
     marginBottom: 16,
   },
-
   articleImage: {
     width: "100%",
     height: 200,
     borderRadius: 10,
     marginBottom: 20,
   },
-
   articleDescription: {
     fontFamily: "Futura-Regular",
     fontSize: 16,
@@ -459,9 +452,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 10,
   },
-
   partnerLogoBox: {
-    width: (width - 48) / 3, // 3 logos per row with margin
+    width: (width - 48) / 3,
     height: 100,
     backgroundColor: "#f5f5f5",
     marginBottom: 12,
@@ -469,7 +461,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 8,
   },
-
   partnerImage: {
     width: "70%",
     height: "70%",

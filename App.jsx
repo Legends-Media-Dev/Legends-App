@@ -59,6 +59,7 @@ import CartReminderModal from "./components/CartReminderModal";
 import SearchIconBadge from "./components/SearchIconBadge";
 
 import { getCustomerInfo } from "./utils/storage"; // use your existing helper
+import VipPortalScreen from "./screens/vip/VIPPortalScreen";
 
 // Create navigators
 const Stack = createStackNavigator();
@@ -321,6 +322,100 @@ function ShopStack() {
   );
 }
 
+function VipStack() {
+  return (
+    <Stack.Navigator
+      initialRouteName="VipPortalScreen"
+      screenOptions={{
+        headerStyle: {
+          backgroundColor: "#fff",
+          elevation: 0,
+          shadowColor: "transparent",
+        },
+        headerTintColor: "#000",
+        headerTitleStyle: { fontWeight: "bold" },
+        headerBackTitleVisible: false,
+        headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
+      }}
+    >
+      <Stack.Screen
+        name="VipPortalScreen"
+        component={VipPortalScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
+        })}
+      />
+      <Stack.Screen
+        name="JoinVIPScreen"
+        component={JoinVIPScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
+        })}
+      />
+      <Stack.Screen
+        name="Collection"
+        component={CollectionScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="Product"
+        component={ProductScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="Cart"
+        component={CartScreen}
+        options={{
+          unmountOnBlur: true,
+          headerTitle: () => <AnimatedHeader />,
+          headerBackTitle: false,
+          headerLeft: () => <SearchIconBadge />,
+        }}
+      />
+      <Stack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="SearchResults"
+        component={SearchResultsScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+    </Stack.Navigator>
+  );
+}
+
 // Sweepstakes Stack Navigator
 function SweepstakesStack() {
   return (
@@ -393,7 +488,7 @@ function SweepstakesStack() {
 }
 
 // Account Stack Navigator with Conditional Navigation
-function AccountStack() {
+function AccountStack() { 
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
@@ -704,7 +799,10 @@ function AppWithCartReminder() {
               iconName = focused ? "home" : "home-outline";
             } else if (route.name === "SHOP") {
               iconName = focused ? "bag" : "bag-outline";
-            } else if (route.name === "SWEEPSTAKES") {
+            } 
+            // else if (route.name === "SWEEPSTAKES") {
+            //   iconName = focused ? "pricetag" : "pricetag-outline";
+            else if (route.name === "VIP") {
               iconName = focused ? "pricetag" : "pricetag-outline";
             } else if (route.name === "ACCOUNT") {
               iconName = focused ? "person" : "person-outline";
@@ -718,7 +816,8 @@ function AppWithCartReminder() {
       >
         <Tab.Screen name="HOME" component={MainStack} />
         <Tab.Screen name="SHOP" component={ShopStack} />
-        <Tab.Screen name="SWEEPSTAKES" component={SweepstakesStack} />
+        {/* <Tab.Screen name="SWEEPSTAKES" component={SweepstakesStack} /> */}
+        <Tab.Screen name="VIP" component={VipStack} />
         <Tab.Screen name="ACCOUNT" component={AccountStack} />
       </Tab.Navigator>
 
