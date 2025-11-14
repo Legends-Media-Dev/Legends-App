@@ -803,7 +803,7 @@ function AppWithCartReminder() {
             // else if (route.name === "SWEEPSTAKES") {
             //   iconName = focused ? "pricetag" : "pricetag-outline";
             else if (route.name === "VIP") {
-              iconName = focused ? "pricetag" : "pricetag-outline";
+              iconName = focused ? "trophy" : "trophy-outline";
             } else if (route.name === "ACCOUNT") {
               iconName = focused ? "person" : "person-outline";
             }
