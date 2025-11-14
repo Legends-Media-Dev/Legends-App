@@ -142,7 +142,7 @@ const SweepstakesScreen = () => {
     <ScrollView style={styles.container}>
       {currentArticles.length > 0 && (
         <>
-          <Text style={styles.outlineTitle}>CURRENT SWEEPSTAKES</Text>
+          <Text style={styles.outlineTitle}>CURRENT GIVEAWAYS</Text>
           {currentArticles.map((item) => (
             <SweepstakesItem key={item.id} item={item} />
           ))}
@@ -151,7 +151,7 @@ const SweepstakesScreen = () => {
 
       {previousArticles.length > 0 && (
         <>
-          <Text style={styles.outlineTitle}>PREVIOUS SWEEPSTAKES</Text>
+          <Text style={styles.outlineTitle}>PREVIOUS GIVEAWAYS</Text>
           {previousArticles.map((item) => (
             <SweepstakesItem key={item.id} item={item} />
           ))}
