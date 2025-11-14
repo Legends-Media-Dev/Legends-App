@@ -141,6 +141,7 @@ const AccountScreen = () => {
     try {
       await AsyncStorage.removeItem("shopifyAccessToken");
       await AsyncStorage.removeItem("accessTokenExpiry");
+      await AsyncStorage.removeItem("customerInfo");
 
       console.log("User logged out.");
       setModalVisible(false);

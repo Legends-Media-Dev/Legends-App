@@ -215,7 +215,7 @@ const NewsScreen = () => {
         <View style={{ marginTop: 8 }}>
           <View style={styles.contentWrapper}>
             <ContentBox
-              topTitle="CURIOUS ABOUT OUR SWEEPSTAKES?"
+              topTitle="CURIOUS ABOUT OUR GIVEAWAYS?"
               image={
                 sweepstakesImage
                   ? { uri: sweepstakesImage }
