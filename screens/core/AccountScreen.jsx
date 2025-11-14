@@ -24,6 +24,7 @@ import {
 
 const AccountScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [deleteAccountModalVisible, setDeleteAccountModalVisible] = useState(false);
   const [customerData, setCustomerData] = useState(null);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
@@ -143,6 +144,7 @@ const AccountScreen = () => {
 
       console.log("User logged out.");
       setModalVisible(false);
+      setDeleteAccountModalVisible(false);
 
       // Navigate back to the ACCOUNT tab, which will show the Login screen
       navigation.reset({
@@ -192,6 +194,48 @@ const AccountScreen = () => {
               borderColor="#C8102F"
               borderWidth={2}
               text="Log Out"
+              textColor="white"
+              fontVariant="medium"
+              textSize={16}
+              onClick={handleLogout}
+              width={"50%"}
+              height={40}
+            />
+          </View>
+        </View>
+      </Modal>
+
+      {/* Delete Account Confirmation Modal */}
+      <Modal
+        isVisible={deleteAccountModalVisible}
+        animationIn="slideInUp"
+        animationOut="slideOutDown"
+        onBackdropPress={() => setDeleteAccountModalVisible(false)}
+      >
+        <View style={styles.modalContent}>
+          <Text style={styles.modalText}>
+            Delete your account?
+          </Text>
+          <View style={styles.modalButtonContainer}>
+            <RoundedBox
+              isFilled={true}
+              fillColor="transparent"
+              borderColor="#C8102F"
+              borderWidth={2}
+              text="Cancel"
+              textColor="#C8102F"
+              fontVariant="medium"
+              textSize={16}
+              onClick={() => setDeleteAccountModalVisible(false)}
+              width={"50%"}
+              height={40}
+            />
+            <RoundedBox
+              isFilled={true}
+              fillColor="#C8102F"
+              borderColor="#C8102F"
+              borderWidth={2}
+              text="Delete"
               textColor="white"
               fontVariant="medium"
               textSize={16}
@@ -290,12 +334,12 @@ const AccountScreen = () => {
               activeOpacity={1}
               onPress={async () => {
                 await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                navigation.navigate("SweepstakesScreen"); // Navigate to Join VIP screen
+                setDeleteAccountModalVisible(true);
               }}
             >
               <View style={styles.leftSide}>
-                <Ionicons name="gift-outline" size={24} color="#000" />
-                <Text style={styles.buttonText}>SWEEPSTAKES</Text>
+                <Ionicons name="trash-outline" size={24} color="#000" />
+                <Text style={styles.buttonText}>DELETE ACCOUNT</Text>
               </View>
               <Ionicons name="chevron-forward-outline" size={24} color="#000" />
             </TouchableOpacity>
