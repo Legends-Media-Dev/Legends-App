@@ -743,16 +743,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    let hasRegistered = false;
-
     const init = async () => {
       await loadFonts();
       setFontsLoaded(true);
       await checkAuthentication();
 
-      if (!hasRegistered) {
-        hasRegistered = true;
-        await registerForPushNotificationsAsync();
+      // ✅ Register push notifications on every app launch
+      // This ensures all users (including existing ones) are registered in Firestore
+      // The function will check if token changed and only update if needed
+      // It will add new users or update existing ones automatically
+      try {
+        await registerForPushNotificationsAsync(false); // false = only update if token changed
+      } catch (error) {
+        console.warn("⚠️ Could not register push notifications:", error);
       }
     };
 
