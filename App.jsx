@@ -749,11 +749,13 @@ export default function App() {
       await checkAuthentication();
 
       // ✅ Register push notifications on every app launch
-      // This ensures all users (including existing ones) are registered in Firestore
-      // The function will check if token changed and only update if needed
-      // It will add new users or update existing ones automatically
+      // Force update to ensure token is always saved to Firestore, even if:
+      // - User denied permissions previously
+      // - Token was deleted from Firebase
+      // - App was updated
+      // This ensures all users (new and existing) are always registered
       try {
-        await registerForPushNotificationsAsync(false); // false = only update if token changed
+        await registerForPushNotificationsAsync(true); // true = always save to ensure it's in Firebase
       } catch (error) {
         console.warn("⚠️ Could not register push notifications:", error);
       }

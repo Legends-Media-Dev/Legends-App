@@ -41,12 +41,19 @@ export async function registerForPushNotificationsAsync(forceUpdate = false) {
 
   const cachedToken = await AsyncStorage.getItem("expoPushToken");
 
-  // ✅ Skip only if unchanged and not forced
-  if (!forceUpdate && cachedToken === token) {
+  // ✅ Always save on app launch (forceUpdate) to ensure token is in Firebase
+  // This handles cases where:
+  // - Token was deleted from Firebase
+  // - User denied permissions previously but token still exists
+  // - App was updated and needs to re-register
+  const shouldSave = forceUpdate || cachedToken !== token || !cachedToken;
+  
+  if (!shouldSave) {
     // console.log("ℹ️ Token unchanged — skipping Firestore save");
     return token;
   }
 
+  // Update cached token
   await AsyncStorage.setItem("expoPushToken", token);
 
   // ✅ Get customer info from storage
@@ -75,18 +82,21 @@ export async function registerForPushNotificationsAsync(forceUpdate = false) {
     updatedAt: new Date().toISOString(),
   };
 
-  //   console.log("📤 Preparing to save push token to Firestore:", {
-  //     userId,
-  //     email,
-  //     deviceInfo,
-  //   });
+  // console.log("📤 Preparing to save push token to Firestore:", {
+  //   token: token.substring(0, 20) + "...",
+  //   userId,
+  //   email,
+  //   forceUpdate,
+  //   shouldSave,
+  // });
 
   try {
     const response = await saveUserNotificationToken(token, deviceInfo);
     // console.log("✅ Firestore response:", response);
-    // console.log("✅ Push token saved successfully");
+    console.log("✅ Push token saved to Firestore successfully");
   } catch (error) {
-    console.error("❌ Failed to save push token:", error);
+    console.error("❌ Failed to save push token to Firestore:", error);
+    // Still return token even if save failed
   }
 
   // ✅ Set up Android notification channel only if permissions are granted
