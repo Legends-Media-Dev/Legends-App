@@ -42,10 +42,10 @@ const SweepstakesItem = ({ item }) => {
 
   return (
     <View style={styles.card}>
-      <Text style={styles.articleTitle}>{item.title}</Text>
+      <Text allowFontScaling={false} style={styles.articleTitle}>{item.title}</Text>
 
       {item.description1 && (
-        <Text style={styles.articleText}>{item.description1}</Text>
+        <Text allowFontScaling={false} style={styles.articleText}>{item.description1}</Text>
       )}
 
       {currentImage && (
@@ -142,7 +142,7 @@ const SweepstakesScreen = () => {
     <ScrollView style={styles.container}>
       {currentArticles.length > 0 && (
         <>
-          <Text style={styles.outlineTitle}>CURRENT GIVEAWAYS</Text>
+          <Text allowFontScaling={false} style={styles.outlineTitle}>CURRENT GIVEAWAYS</Text>
           {currentArticles.map((item) => (
             <SweepstakesItem key={item.id} item={item} />
           ))}
@@ -151,7 +151,7 @@ const SweepstakesScreen = () => {
 
       {previousArticles.length > 0 && (
         <>
-          <Text style={styles.outlineTitle}>PREVIOUS GIVEAWAYS</Text>
+          <Text allowFontScaling={false} style={styles.outlineTitle}>PREVIOUS GIVEAWAYS</Text>
           {previousArticles.map((item) => (
             <SweepstakesItem key={item.id} item={item} />
           ))}

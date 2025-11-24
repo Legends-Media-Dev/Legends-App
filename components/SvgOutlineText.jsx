@@ -7,6 +7,7 @@ const SvgOutlineText = ({ children, size = 25, stroke = "#000", fill = "transpar
     <View style={style}>
       <Svg height={size + 10} width="100%">
         <SvgText
+          allowFontScaling={false}
           stroke={stroke}
           strokeWidth={1.5}
           fill={fill}

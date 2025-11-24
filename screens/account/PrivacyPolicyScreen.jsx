@@ -4,7 +4,7 @@ import { View, Text } from "react-native";
 function PrivacyPolicyScreen() {
   return (
     <View>
-      <Text>PRIVACY POLICY</Text>
+      <Text allowFontScaling={false}>PRIVACY POLICY</Text>
     </View>
   );
 }

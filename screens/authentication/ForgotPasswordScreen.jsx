@@ -54,8 +54,8 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
 
         {/* Header Text Section */}
         <View style={styles.infoContainer}>
-          <Text style={styles.header}>FORGOT PASSWORD</Text>
-          <Text style={styles.subHeader}>
+          <Text allowFontScaling={false} style={styles.header}>FORGOT PASSWORD</Text>
+          <Text allowFontScaling={false} style={styles.subHeader}>
             Enter your email below, and we’ll send you a link to reset your
             password.
           </Text>
@@ -76,9 +76,9 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
 
         {/* Error or Success Message */}
         {message ? (
-          <Text style={styles.successMessage}>{message}</Text>
+          <Text allowFontScaling={false} style={styles.successMessage}>{message}</Text>
         ) : error ? (
-          <Text style={styles.errorMessage}>{error}</Text>
+          <Text allowFontScaling={false} style={styles.errorMessage}>{error}</Text>
         ) : null}
 
         <View style={styles.buttonContainer}>
@@ -108,9 +108,10 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
           }}
         />
         <View style={styles.signUpContainer}>
-          <Text style={styles.textButton}>
+          <Text allowFontScaling={false} style={styles.textButton}>
             Remember your password?{" "}
             <Text
+              allowFontScaling={false}
               style={styles.signUpButton}
               onPress={() => navigation.goBack()}
             >

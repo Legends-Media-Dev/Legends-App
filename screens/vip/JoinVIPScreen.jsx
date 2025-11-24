@@ -56,7 +56,7 @@ function JoinVIPScreen() {
     >
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.card}>
-          <Text style={styles.tierLabel}>GOLD</Text>
+          <Text allowFontScaling={false} style={styles.tierLabel}>GOLD</Text>
           <Text style={styles.priceText}>
             $25<Text style={styles.moText}>/mo</Text>
           </Text>
@@ -64,14 +64,14 @@ function JoinVIPScreen() {
           <View style={styles.perkSection}>
             {perks.map((perk, index) => (
               <View key={index} style={styles.perkRow}>
-                <Text style={styles.dot}>●</Text>
-                <Text style={styles.perkText}>{perk}</Text>
+                <Text allowFontScaling={false} style={styles.dot}>●</Text>
+                <Text allowFontScaling={false} style={styles.perkText}>{perk}</Text>
               </View>
             ))}
           </View>
 
           <TouchableOpacity style={styles.joinButton} activeOpacity={1} onPress={handlePress}>
-            <Text style={styles.joinButtonText}>JOIN ONLINE TODAY</Text>
+            <Text allowFontScaling={false} style={styles.joinButtonText}>JOIN ONLINE TODAY</Text>
           </TouchableOpacity>
         </View>
         <Image

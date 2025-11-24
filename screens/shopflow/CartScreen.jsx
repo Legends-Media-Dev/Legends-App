@@ -276,16 +276,16 @@ const CartScreen = ({ navigation }) => {
         {/* Product Details */}
         <View style={styles.detailsContainer}>
           <View style={{ gap: 7 }}>
-            <Text style={styles.productTitle}>{product?.product?.title}</Text>
+            <Text allowFontScaling={false} style={styles.productTitle}>{product?.product?.title}</Text>
 
             {/* Price Section */}
             <View style={styles.priceContainer}>
-              <Text style={styles.currentPrice}>
+              <Text allowFontScaling={false} style={styles.currentPrice}>
                 ${totalItemPrice.toFixed(2)}
               </Text>
 
               {Number(compareAtPrice) > Number(price) && (
-                <Text style={styles.compareAtPrice}>
+                <Text allowFontScaling={false} style={styles.compareAtPrice}>
                   ${totalComparePrice.toFixed(2)}
                 </Text>
               )}
@@ -295,6 +295,7 @@ const CartScreen = ({ navigation }) => {
             {product?.title || "Unknown Size"}
           </Text> */}
           <Text
+            allowFontScaling={false}
             style={[
               styles.productSize,
               product?.title == "Default Title" && {
@@ -314,18 +315,18 @@ const CartScreen = ({ navigation }) => {
                 onPress={() => handleDecrement(itemId)}
                 disabled={quantity === 1}
               >
-                <Text style={styles.buttonText}>-</Text>
+                <Text allowFontScaling={false} style={styles.buttonText}>-</Text>
               </TouchableOpacity>
 
               {/* Quantity Value */}
-              <Text style={styles.quantity}>{quantity}</Text>
+              <Text allowFontScaling={false} style={styles.quantity}>{quantity}</Text>
 
               {/* Plus Button */}
               <TouchableOpacity
                 style={styles.quantityButton}
                 onPress={() => handleIncrement(itemId)}
               >
-                <Text style={styles.buttonText}>+</Text>
+                <Text allowFontScaling={false} style={styles.buttonText}>+</Text>
               </TouchableOpacity>
             </View>
 
@@ -338,7 +339,7 @@ const CartScreen = ({ navigation }) => {
               {removingItemId === itemId ? (
                 <ActivityIndicator size="small" color="#000" />
               ) : (
-                <Text style={styles.removeButton}>Remove</Text>
+                <Text allowFontScaling={false} style={styles.removeButton}>Remove</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -351,7 +352,7 @@ const CartScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Top Cart Indicator */}
       <View style={styles.topContainer}>
-        <Text style={styles.cartIndicator}>My Bag ({getTotalItems()})</Text>
+        <Text allowFontScaling={false} style={styles.cartIndicator}>My Bag ({getTotalItems()})</Text>
       </View>
 
       {/* Cart Items */}
@@ -363,15 +364,15 @@ const CartScreen = ({ navigation }) => {
         />
       ) : (
         <View style={styles.emptyCartContainer}>
-          <Text style={styles.emptyCartText}>Your cart is empty.</Text>
+          <Text allowFontScaling={false} style={styles.emptyCartText}>Your cart is empty.</Text>
         </View>
       )}
 
       <View style={styles.lowerCheckoutContainer}>
         {/* Total Section */}
         <View style={styles.costContainer}>
-          <Text style={styles.total}>Estimated Total:</Text>
-          <Text style={styles.cartTotal}>
+          <Text allowFontScaling={false} style={styles.total}>Estimated Total:</Text>
+          <Text allowFontScaling={false} style={styles.cartTotal}>
             ${cart?.lines?.edges?.length > 0 ? totalPrice.toFixed(2) : "0.00"}
           </Text>
         </View>
@@ -385,7 +386,7 @@ const CartScreen = ({ navigation }) => {
           onPress={handleNavigateToCheckoutUpdated}
           disabled={cart?.lines?.edges?.length === 0} // Disable button when cart is empty
         >
-          <Text style={styles.checkoutText}>Checkout</Text>
+          <Text allowFontScaling={false} style={styles.checkoutText}>Checkout</Text>
         </TouchableOpacity>
       </View>
     </View>

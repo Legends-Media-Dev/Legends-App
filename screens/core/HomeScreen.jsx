@@ -42,7 +42,7 @@ class HomeScreen extends Component {
                 style={styles.tabItem}
                 onPress={() => this.setState({ index: i })}
               >
-                <Animated.Text style={[styles.tabText, { opacity }]}>
+                <Animated.Text allowFontScaling={false} style={[styles.tabText, { opacity }]}>
                   {route.title}
                 </Animated.Text>
                 {this.state.index === i && <View style={styles.activeTabLine} />}

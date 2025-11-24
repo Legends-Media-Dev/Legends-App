@@ -12,19 +12,20 @@ const ProductCardMini = ({ image, name, price, compareAtPrice }) => {
       <Image source={{ uri: image }} transition={300} style={styles.image} />
 
       <View style={styles.textContainer}>
-        <Text numberOfLines={2} style={styles.productName}>
+        <Text allowFontScaling={false} numberOfLines={2} style={styles.productName}>
           {name}
         </Text>
 
         <View style={styles.priceRow}>
           <Text
+            allowFontScaling={false}
             style={[styles.productPrice, hasDiscount && styles.discountedPrice]}
           >
             ${priceAmount.toFixed(2)}
           </Text>
 
           {hasDiscount && (
-            <Text style={styles.compareAtPrice}>
+            <Text allowFontScaling={false} style={styles.compareAtPrice}>
               ${compareAmount.toFixed(2)}
             </Text>
           )}

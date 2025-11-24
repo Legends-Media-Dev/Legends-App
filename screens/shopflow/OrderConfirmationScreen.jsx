@@ -9,7 +9,7 @@ const OrderConfirmationScreen = ({ route }) => {
   if (!orderUrl) {
     return (
       <View style={styles.centered}>
-        <Text>No order URL provided.</Text>
+        <Text allowFontScaling={false}>No order URL provided.</Text>
       </View>
     );
   }

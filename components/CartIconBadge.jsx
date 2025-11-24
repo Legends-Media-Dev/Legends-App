@@ -20,7 +20,7 @@ const CartIconWithBadge = () => {
         <Ionicons name="bag-outline" size={24} color="#000" />
         {cartItemCount > 0 && (
           <View style={styles.badge}>
-            <Text style={styles.badgeText}>{cartItemCount}</Text>
+            <Text allowFontScaling={false} style={styles.badgeText}>{cartItemCount}</Text>
           </View>
         )}
       </View>

@@ -1,9 +1,20 @@
 // Import React and all dependencies
+import { Text, TextInput, Animated } from "react-native";
+
+if (!Text.defaultProps) Text.defaultProps = {};
+Text.defaultProps.allowFontScaling = false;
+
+if (!TextInput.defaultProps) TextInput.defaultProps = {};
+TextInput.defaultProps.allowFontScaling = false;
+
+if (!Animated.Text.defaultProps) Animated.Text.defaultProps = {};
+Animated.Text.defaultProps.allowFontScaling = false;
+
+
 import React, { useEffect, useState, useRef } from "react";
 import {
   NavigationContainer,
   Modal,
-  Text,
   useNavigationContainerRef,
 } from "@react-navigation/native";
 
@@ -47,7 +58,7 @@ import OrderConfirmationScreen from "./screens/shopflow/OrderConfirmationScreen"
 
 import { CartProvider } from "./context/CartContext";
 import * as Font from "expo-font";
-import { Animated, View, TouchableOpacity } from "react-native";
+import { View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { isTokenValid } from "./utils/storage";
@@ -388,6 +399,15 @@ function VipStack() {
           headerTitle: () => <AnimatedHeader />,
           headerBackTitle: false,
           headerLeft: () => <SearchIconBadge />,
+        }}
+      />
+      <Stack.Screen
+        name="WebViewScreen"
+        component={WebViewScreen}
+        options={{
+          unmountOnBlur: true,
+          headerBackTitle: false,
+          headerTitle: "",
         }}
       />
       <Stack.Screen

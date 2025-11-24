@@ -36,8 +36,8 @@ export default function CartReminderModal({ visible, onClose, onGoToCart }) {
             transition={300}
           />
 
-          <Text style={styles.title}>Pick up right where you left off!</Text>
-          <Text style={styles.message}>Complete your order now.</Text>
+          <Text allowFontScaling={false} style={styles.title}>Pick up right where you left off!</Text>
+          <Text allowFontScaling={false} style={styles.message}>Complete your order now.</Text>
 
           {/* Product Images */}
           <FlatList
@@ -68,7 +68,7 @@ export default function CartReminderModal({ visible, onClose, onGoToCart }) {
           />
 
           {remainingCount > 0 && (
-            <Text style={styles.extraText}>
+            <Text allowFontScaling={false} style={styles.extraText}>
               +{remainingCount} other product{remainingCount > 1 ? "s" : ""}
             </Text>
           )}
@@ -82,7 +82,7 @@ export default function CartReminderModal({ visible, onClose, onGoToCart }) {
               contentFit="cover"
               transition={300}
             >
-              <Text style={styles.buttonText}>FINISH CHECKOUT</Text>
+              <Text allowFontScaling={false} style={styles.buttonText}>FINISH CHECKOUT</Text>
             </ImageBackground>
           </TouchableOpacity>
         </View>

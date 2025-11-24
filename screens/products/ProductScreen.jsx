@@ -306,17 +306,17 @@ const ProductScreen = ({ route, navigation }) => {
         <View style={styles.detailsContainer}>
           <View style={{ padding: 20, paddingBottom: 5 }}>
             {!product.variants.edges.some((v) => v.node.availableForSale) ? (
-              <Text style={styles.productSoldOutTitle}>SOLD OUT</Text>
+              <Text allowFontScaling={false} style={styles.productSoldOutTitle}>SOLD OUT</Text>
             ) : null}
 
-            <Text style={styles.productTitle}>{product.title}</Text>
+            <Text allowFontScaling={false} style={styles.productTitle}>{product.title}</Text>
             <View style={styles.priceContainer}>
-              <Text style={styles.currentPrice}>
+              <Text allowFontScaling={false} style={styles.currentPrice}>
                 ${currentPrice.toFixed(2)}
               </Text>
 
               {compareAt > currentPrice && (
-                <Text style={styles.originalPrice}>
+                <Text allowFontScaling={false} style={styles.originalPrice}>
                   ${compareAt.toFixed(2)}
                 </Text>
               )}
@@ -332,21 +332,21 @@ const ProductScreen = ({ route, navigation }) => {
             }}
           />
           <View style={{ paddingLeft: 20, paddingRight: 20, marginBottom: 40 }}>
-            <Text style={styles.productDescription}>{product.description}</Text>
+            <Text allowFontScaling={false} style={styles.productDescription}>{product.description}</Text>
           </View>
 
           {/* Size Selector */}
           {sizes[0].label == "Default Title" ? null : (
             <View style={styles.sizeContainer}>
               <View style={styles.topContainer}>
-                <Text style={styles.sizeTitle}>
+                <Text allowFontScaling={false} style={styles.sizeTitle}>
                   Size:{" "}
-                  <Text style={styles.sizeIndicator}>
+                  <Text allowFontScaling={false} style={styles.sizeIndicator}>
                     {getSizeIndicator(selectedSize)}
                   </Text>
                 </Text>
                 {/* <TouchableOpacity style={styles.sizeGuideContainer}>
-                  <Text style={styles.sizeGuide}>Size Guide </Text>
+                  <Text allowFontScaling={false} style={styles.sizeGuide}>Size Guide </Text>
                   <Ionicons
                     name="chevron-forward-outline"
                     size={20}
@@ -376,6 +376,7 @@ const ProductScreen = ({ route, navigation }) => {
                       disabled={!item.available}
                     >
                       <Text
+                        allowFontScaling={false}
                         style={[
                           styles.sizeText,
                           selectedSize === item.label &&
@@ -393,7 +394,7 @@ const ProductScreen = ({ route, navigation }) => {
           )}
 
           <View style={styles.quantityContainer}>
-            <Text style={styles.sizeTitle}>Quantity:</Text>
+            <Text allowFontScaling={false} style={styles.sizeTitle}>Quantity:</Text>
             <View style={styles.selectorContainer}>
               {/* Minus Button */}
               <TouchableOpacity
@@ -405,11 +406,11 @@ const ProductScreen = ({ route, navigation }) => {
                 }}
                 disabled={quantity === 1}
               >
-                <Text style={styles.buttonText}>-</Text>
+                <Text allowFontScaling={false} style={styles.buttonText}>-</Text>
               </TouchableOpacity>
 
               {/* Quantity Value */}
-              <Text style={styles.quantity}>{quantity}</Text>
+              <Text allowFontScaling={false} style={styles.quantity}>{quantity}</Text>
 
               {/* Plus Button */}
               <TouchableOpacity
@@ -420,7 +421,7 @@ const ProductScreen = ({ route, navigation }) => {
                   handleIncrement();
                 }}
               >
-                <Text style={styles.buttonText}>+</Text>
+                <Text allowFontScaling={false} style={styles.buttonText}>+</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -452,7 +453,7 @@ const ProductScreen = ({ route, navigation }) => {
                 {isAddingToCart ? (
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
-                  <Text style={styles.addToBagText}>Add to cart</Text>
+                  <Text allowFontScaling={false} style={styles.addToBagText}>Add to cart</Text>
                 )}
               </TouchableOpacity>
             </View>
@@ -467,7 +468,7 @@ const ProductScreen = ({ route, navigation }) => {
               marginTop: 30,
             }}
           >
-            <Text style={styles.lowerCTAButton}>YOU MAY ALSO LIKE</Text>
+            <Text allowFontScaling={false} style={styles.lowerCTAButton}>YOU MAY ALSO LIKE</Text>
           </View>
           {suggestedProducts.length > 0 && (
             <FlatList

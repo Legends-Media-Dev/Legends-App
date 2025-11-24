@@ -71,8 +71,8 @@ const SignUpScreen = ({ route, navigation }) => {
 
         {/* Header Text Section */}
         <View style={styles.infoContainer}>
-          <Text style={styles.header}>JOIN NOW</Text>
-          <Text style={styles.subHeader}>
+          <Text allowFontScaling={false} style={styles.header}>JOIN NOW</Text>
+          <Text allowFontScaling={false} style={styles.subHeader}>
             Sign up to unlock your rewards and benefits.
           </Text>
         </View>
@@ -161,9 +161,10 @@ const SignUpScreen = ({ route, navigation }) => {
           }}
         />
         <View style={styles.signUpContainer}>
-          <Text style={styles.textButton}>
+          <Text allowFontScaling={false} style={styles.textButton}>
             Already have an account?{" "}
             <Text
+              allowFontScaling={false}
               style={styles.signUpButton}
               onPress={() => navigation.goBack()}
             >

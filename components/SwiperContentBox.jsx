@@ -35,12 +35,12 @@ const SwiperContentBox = ({
   return (
     <View style={styles.boxContainer}>
       {/* Text Box */}
-      <Text style={styles.title}>{title}</Text>
+      <Text allowFontScaling={false} style={styles.title}>{title}</Text>
       {description1 ? (
-        <Text style={styles.description}>{description1}</Text>
+        <Text allowFontScaling={false} style={styles.description}>{description1}</Text>
       ) : null}
       {description2 ? (
-        <Text style={styles.description}>{description2}</Text>
+        <Text allowFontScaling={false} style={styles.description}>{description2}</Text>
       ) : null}
 
       {/* Show Image Reveal */}
@@ -66,8 +66,8 @@ const SwiperContentBox = ({
         </Animated.View>
 
         {/* Text overlay */}
-        <Text style={[styles.label, { left: 10 }]}>BEFORE</Text>
-        <Text style={[styles.label, { right: 10 }]}>AFTER</Text>
+        <Text allowFontScaling={false} style={[styles.label, { left: 10 }]}>BEFORE</Text>
+        <Text allowFontScaling={false} style={[styles.label, { right: 10 }]}>AFTER</Text>
       </View>
     </View>
   );

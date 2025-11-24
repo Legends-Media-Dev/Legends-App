@@ -161,6 +161,7 @@ const VipPortalScreen = () => {
         parsed.push(
           <Text
             key={`link-${part}`}
+            allowFontScaling={false}
             style={{ color: "#1DB954", textDecorationLine: "underline" }}
             onPress={() => Linking.openURL(link.url)}
           >
@@ -188,7 +189,7 @@ const VipPortalScreen = () => {
 
   const renderItem = ({ item }) => {
     if (item.type === "section") {
-      return <Text style={styles.sectionTitle}>{item.title}</Text>;
+      return <Text allowFontScaling={false} style={styles.sectionTitle}>{item.title}</Text>;
     }
 
     if (item.type === "collection") {
@@ -209,7 +210,7 @@ const VipPortalScreen = () => {
               imageStyle={styles.vipCardImage}
             >
               <View style={styles.vipCardContent}>
-                <Text style={styles.vipExclusiveButtonText}>
+                <Text allowFontScaling={false} style={styles.vipExclusiveButtonText}>
                   VIP EXCLUSIVE PRODUCT
                 </Text>
               </View>
@@ -238,7 +239,7 @@ const VipPortalScreen = () => {
               }}
             >
               <View style={styles.vipCardContent}>
-                <Text style={styles.vipExclusiveButtonText}>
+                <Text allowFontScaling={false} style={styles.vipExclusiveButtonText}>
                   VIP FACEBOOK GROUP
                 </Text>
               </View>
@@ -335,7 +336,7 @@ const VipPortalScreen = () => {
             {selectedArticle && (
               <>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                  <Text style={styles.articleTitle}>
+                  <Text allowFontScaling={false} style={styles.articleTitle}>
                     {selectedArticle.title}
                   </Text>
                   <Image
@@ -343,7 +344,7 @@ const VipPortalScreen = () => {
                     source={{ uri: selectedArticle.image }}
                     style={styles.articleImage}
                   />
-                  <Text style={styles.articleDescription}>
+                  <Text allowFontScaling={false} style={styles.articleDescription}>
                     {renderParsedText(selectedArticle.description)}
                   </Text>
                 </ScrollView>

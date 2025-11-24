@@ -128,9 +128,9 @@ const ForYouScreen = () => {
     <ScrollView style={styles.container}>
       <View style={{ paddingLeft: 20, paddingTop: 20 }}>
         {customerData && customerData.firstName ? (
-          <Text style={styles.title}>Hi, {customerData.firstName}</Text>
+          <Text allowFontScaling={false} style={styles.title}>Hi, {customerData.firstName}</Text>
         ) : (
-          <Text style={styles.title}>Welcome Back!</Text>
+          <Text allowFontScaling={false} style={styles.title}>Welcome Back!</Text>
         )}
       </View>
 
@@ -156,7 +156,7 @@ const ForYouScreen = () => {
               imageStyle={styles.vipCardImage}
             >
               <View style={styles.vipCardContent}>
-                <Text style={styles.vipExclusiveButtonText}>
+                <Text allowFontScaling={false} style={styles.vipExclusiveButtonText}>
                   VIP EXCLUSIVE PRODUCT
                 </Text>
               </View>
@@ -178,8 +178,8 @@ const ForYouScreen = () => {
             imageStyle={styles.vipCardImage}
           >
             <View style={styles.vipCardContent}>
-              <Text style={styles.vipTitle}>JOIN VIP</Text>
-              <Text style={styles.vipText}>
+              <Text allowFontScaling={false} style={styles.vipTitle}>JOIN VIP</Text>
+              <Text allowFontScaling={false} style={styles.vipText}>
                 Get early access to drops, giveaways, and limited releases.
               </Text>
             </View>
@@ -188,13 +188,13 @@ const ForYouScreen = () => {
       )}
 
       <View style={styles.sectionHeader}>
-        <Text style={styles.subheading}>Recently Viewed</Text>
+        <Text allowFontScaling={false} style={styles.subheading}>Recently Viewed</Text>
       </View>
 
       {loading ? (
         <ActivityIndicator style={{ marginTop: 20 }} size="large" />
       ) : recentlyViewed.length === 0 ? (
-        <Text style={styles.noProductsText}>
+        <Text allowFontScaling={false} style={styles.noProductsText}>
           No recently viewed products yet.
         </Text>
       ) : (
@@ -252,13 +252,13 @@ const ForYouScreen = () => {
       )}
 
       <View style={styles.sectionHeader}>
-        <Text style={styles.subheading}>TSHIRTS</Text>
+        <Text allowFontScaling={false} style={styles.subheading}>TSHIRTS</Text>
       </View>
 
       {loading ? (
         <ActivityIndicator style={{ marginTop: 20 }} size="large" />
       ) : tshirtData.length === 0 ? (
-        <Text style={styles.noProductsText}>Error fetching Tshirts</Text>
+        <Text allowFontScaling={false} style={styles.noProductsText}>Error fetching Tshirts</Text>
       ) : (
         <FlatList
           data={tshirtData}

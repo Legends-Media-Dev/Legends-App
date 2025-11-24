@@ -39,8 +39,8 @@ const HeroImage = ({
           transition={300}
         >
           <View style={styles.overlay}>
-            <Text style={styles.heroTitle}>{title}</Text>
-            {subtitle && <Text style={styles.heroSubtitle}>{subtitle}</Text>}
+            <Text allowFontScaling={false} style={styles.heroTitle}>{title}</Text>
+            {subtitle && <Text allowFontScaling={false} style={styles.heroSubtitle}>{subtitle}</Text>}
           </View>
         </ImageBackground>
       )}

@@ -40,7 +40,7 @@ const YoutubeContentBox = ({
             size={35}
             color="red"
           />
-          <Text style={styles.title}>{topTitle}</Text>
+          <Text allowFontScaling={false} style={styles.title}>{topTitle}</Text>
         </View>
       </ImageBackground>
     </TouchableOpacity>

@@ -54,7 +54,7 @@ function OrdersScreen({ route }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Past Orders</Text>
+      <Text allowFontScaling={false} style={styles.header}>Past Orders</Text>
       {loading ? (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" />
@@ -71,12 +71,12 @@ function OrdersScreen({ route }) {
             >
               <View style={styles.topContainer}>
                 <View style={styles.topLeftContainer}>
-                  <Text style={styles.orderText}>Order Number</Text>
-                  <Text style={styles.orderInfoText}>{item.orderNumber}</Text>
+                  <Text allowFontScaling={false} style={styles.orderText}>Order Number</Text>
+                  <Text allowFontScaling={false} style={styles.orderInfoText}>{item.orderNumber}</Text>
                 </View>
                 <View style={styles.topRightContainer}>
-                  <Text style={styles.orderText}>Order Date</Text>
-                  <Text style={styles.orderInfoText}>
+                  <Text allowFontScaling={false} style={styles.orderText}>Order Date</Text>
+                  <Text allowFontScaling={false} style={styles.orderInfoText}>
                     {new Date(item.processedAt).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
@@ -87,12 +87,12 @@ function OrdersScreen({ route }) {
               </View>
               <View style={styles.bottomContainer}>
                 <View>
-                  <Text style={styles.orderInfoTextBig}>
+                  <Text allowFontScaling={false} style={styles.orderInfoTextBig}>
                     {item.lineItems.edges[0].node.quantity} item
                   </Text>
                 </View>
                 <View>
-                  <Text style={styles.orderInfoTextBig}>
+                  <Text allowFontScaling={false} style={styles.orderInfoTextBig}>
                     ${parseFloat(item.totalPrice.amount).toFixed(2)}
                   </Text>
                 </View>
@@ -101,7 +101,7 @@ function OrdersScreen({ route }) {
           )}
         />
       ) : (
-        <Text style={styles.noOrders}>No orders found.</Text>
+        <Text allowFontScaling={false} style={styles.noOrders}>No orders found.</Text>
       )}
     </View>
   );

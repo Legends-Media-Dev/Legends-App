@@ -115,8 +115,8 @@ const LoginScreen = ({ route, navigation }) => {
 
         {/* Header */}
         <View style={styles.infoContainer}>
-          <Text style={styles.header}>SIGN IN</Text>
-          <Text style={styles.subHeader}>
+          <Text allowFontScaling={false} style={styles.header}>SIGN IN</Text>
+          <Text allowFontScaling={false} style={styles.subHeader}>
             Sign in to view your rewards and benefits.
           </Text>
         </View>
@@ -151,7 +151,7 @@ const LoginScreen = ({ route, navigation }) => {
             <TouchableOpacity
               onPress={() => navigation.navigate("ForgotPasswordScreen")}
             >
-              <Text style={styles.forgotPasswordText}>
+              <Text allowFontScaling={false} style={styles.forgotPasswordText}>
                 Forgot your password?
               </Text>
             </TouchableOpacity>
@@ -159,7 +159,7 @@ const LoginScreen = ({ route, navigation }) => {
         </View>
 
         {error !== "" && (
-          <Text style={{ color: "red", textAlign: "center", marginTop: 10 }}>
+          <Text allowFontScaling={false} style={{ color: "red", textAlign: "center", marginTop: 10 }}>
             {error}
           </Text>
         )}
@@ -194,9 +194,10 @@ const LoginScreen = ({ route, navigation }) => {
           }}
         />
         <View style={styles.signUpContainer}>
-          <Text style={styles.textButton}>
+          <Text allowFontScaling={false} style={styles.textButton}>
             Don’t have an account?{" "}
             <Text
+              allowFontScaling={false}
               style={styles.signUpButton}
               onPress={() => navigation.navigate("SignUpScreen")}
             >

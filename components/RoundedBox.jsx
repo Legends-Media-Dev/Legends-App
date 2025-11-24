@@ -35,8 +35,9 @@ const RoundedBox = ({
         isDisabled && { opacity: 0.5 }, // Reduce opacity for a disabled state
         style,
       ]}
-    >
+    > 
       <Text
+        allowFontScaling={false}
         style={[
           styles.text,
           {

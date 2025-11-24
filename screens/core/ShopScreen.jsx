@@ -99,7 +99,7 @@ const ShopScreen = () => {
           }
         }}
       >
-        <Text style={styles.collectionText}>
+        <Text allowFontScaling={false} style={styles.collectionText}>
           {collectionLabelMap[item.handle] || item.title || "No Title"}
         </Text>
       </TouchableOpacity>
@@ -122,7 +122,7 @@ const ShopScreen = () => {
             navigation.navigate("Search");
           }}
         >
-          <Text style={styles.searchButtonText}>Search Products</Text>
+          <Text allowFontScaling={false} style={styles.searchButtonText}>Search Products</Text>
         </TouchableOpacity>
 
         <FlatList

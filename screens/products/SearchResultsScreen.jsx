@@ -127,7 +127,7 @@ const SearchResultsScreen = ({ route, navigation }) => {
   if (results.length === 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.noResultsText}>No products found.</Text>
+        <Text allowFontScaling={false} style={styles.noResultsText}>No products found.</Text>
       </View>
     );
   }

@@ -63,6 +63,7 @@ const ContentBox = ({
               >
                 <View style={styles.vipButton}>
                   <Text
+                    allowFontScaling={false}
                     style={[
                       styles.title,
                       { textAlign: "center", fontSize: 25 },
@@ -76,13 +77,13 @@ const ContentBox = ({
               ""
             )}
             <View style={styles.overlayContent}>
-              <Text style={[styles.title]}>{topTitle}</Text>
+              <Text allowFontScaling={false} style={[styles.title]}>{topTitle}</Text>
             </View>
           </View>
         </ImageBackground>
       ) : (
         <View style={[styles.imageBox, { backgroundColor: topColor }]}>
-          <Text style={styles.title}>{topTitle}</Text>
+          <Text allowFontScaling={false} style={styles.title}>{topTitle}</Text>
         </View>
       )}
     </TouchableOpacity>

@@ -71,8 +71,9 @@ const AuthInput = (
         },
       ]}
     >
-      <Animated.Text style={labelStyle}>{label}</Animated.Text>
+      <Animated.Text allowFontScaling={false} style={labelStyle}>{label}</Animated.Text>
       <TextInput
+        allowFontScaling={false}
         ref={ref}
         style={[styles.textInput, { color: textColor }]}
         onFocus={handleFocus}

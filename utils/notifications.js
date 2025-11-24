@@ -13,20 +13,31 @@ export async function registerForPushNotificationsAsync(forceUpdate = false) {
     return;
   }
 
+  // ✅ Always request permissions, but don't block token retrieval
   const { status: existingStatus } = await Notifications.getPermissionsAsync();
   let finalStatus = existingStatus;
   if (existingStatus !== "granted") {
     const { status } = await Notifications.requestPermissionsAsync();
     finalStatus = status;
   }
-  if (finalStatus !== "granted") {
-    console.warn("Notification permissions not granted");
-    return;
+
+  // ✅ Always get the token, even if permissions are denied
+  // The token is available regardless of permission status
+  let token = null;
+  try {
+    const tokenData = await Notifications.getExpoPushTokenAsync({
+      projectId: PROJECT_ID,
+    });
+    token = tokenData?.data;
+  } catch (error) {
+    console.error("❌ Failed to get Expo push token:", error);
+    return null;
   }
 
-  const { data: token } = await Notifications.getExpoPushTokenAsync({
-    projectId: PROJECT_ID,
-  });
+  if (!token) {
+    console.warn("⚠️ Could not retrieve push token");
+    return null;
+  }
 
   const cachedToken = await AsyncStorage.getItem("expoPushToken");
 
@@ -60,6 +71,7 @@ export async function registerForPushNotificationsAsync(forceUpdate = false) {
     platform: Platform.OS,
     userId,
     email,
+    notificationPermissionStatus: finalStatus, // ✅ Track permission status
     updatedAt: new Date().toISOString(),
   };
 
@@ -77,7 +89,8 @@ export async function registerForPushNotificationsAsync(forceUpdate = false) {
     console.error("❌ Failed to save push token:", error);
   }
 
-  if (Platform.OS === "android") {
+  // ✅ Set up Android notification channel only if permissions are granted
+  if (Platform.OS === "android" && finalStatus === "granted") {
     await Notifications.setNotificationChannelAsync("default", {
       name: "default",
       importance: Notifications.AndroidImportance.MAX,

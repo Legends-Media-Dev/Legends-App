@@ -31,23 +31,31 @@ export default function AddToCartModal({ visible, onClose, onGoToCart }) {
             />
 
             <View style={{ marginTop: "-13" }}>
-              <Text style={styles.title}>Cart locked and loaded</Text>
-              <Text style={styles.message}>
+              <Text allowFontScaling={false} style={styles.title}>Cart locked and loaded</Text>
+              <Text allowFontScaling={false} style={styles.message}>
                 Finish checking out to make them yours.
               </Text>
             </View>
 
             {/* CTA Button */}
-            <TouchableOpacity onPress={onGoToCart} style={styles.buttonPrimary}>
-              <ImageBackground
-                source={require("../assets/vip-dark-background.png")}
-                style={styles.buttonImageBackground}
-                imageStyle={{ borderRadius: 8 }}
-                contentFit="cover"
-              >
-                <Text style={styles.buttonText}>GO TO CART</Text>
-              </ImageBackground>
-            </TouchableOpacity>
+            <View style={ styles.lowerButtons}>
+              <TouchableOpacity onPress={onGoToCart} style={styles.buttonPrimary}>
+                <ImageBackground
+                  source={require("../assets/vip-dark-background.png")}
+                  style={styles.buttonImageBackground}
+                  imageStyle={{ borderRadius: 8 }}
+                  contentFit="cover"
+                  >
+                  <Text allowFontScaling={false} style={styles.buttonText}>GO TO CART</Text>
+                </ImageBackground>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={onClose} style={styles.buttonPrimary}>
+                <View style={styles.buttonSecondary}>
+                  <Text allowFontScaling={false} style={styles.buttonText}>CONTINUE SHOPPING</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -75,7 +83,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     position: "relative",
-    minHeight: 240,
+    minHeight: 300,
   },
   logo: {
     width: 140,
@@ -127,5 +135,20 @@ const styles = StyleSheet.create({
     fontFamily: "Futura-Bold",
     fontSize: 16,
     textAlign: "center",
+  },
+  lowerButtons: {
+    flexDirection: "column",
+    alignItems: "center",
+    width: "100%",
+    gap: 5,
+  },
+  buttonSecondary: {
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+    width: "100%",
+    borderRadius: 8,
+    overflow: "hidden",
+    backgroundColor: "#C8102F",
   },
 });

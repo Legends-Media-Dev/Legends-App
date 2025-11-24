@@ -172,7 +172,7 @@ const AccountScreen = () => {
         onBackdropPress={() => setModalVisible(false)}
       >
         <View style={styles.modalContent}>
-          <Text style={styles.modalText}>
+          <Text allowFontScaling={false} style={styles.modalText}>
             Are you sure you want to log out?
           </Text>
           <View style={styles.modalButtonContainer}>
@@ -214,7 +214,7 @@ const AccountScreen = () => {
         onBackdropPress={() => setDeleteAccountModalVisible(false)}
       >
         <View style={styles.modalContent}>
-          <Text style={styles.modalText}>
+          <Text allowFontScaling={false} style={styles.modalText}>
             Delete your account?
           </Text>
           <View style={styles.modalButtonContainer}>
@@ -252,17 +252,17 @@ const AccountScreen = () => {
       <ScrollView style={styles.screenContainer}>
         <View style={{ paddingHorizontal: 20 }}>
           {loading ? (
-            <Text style={[styles.loadingText, { opacity: 0 }]}>
+            <Text allowFontScaling={false} style={[styles.loadingText, { opacity: 0 }]}>
               Placeholder
             </Text>
           ) : customerData ? (
             <View style={styles.profileContainer}>
-              <Text style={styles.customerName}>
+              <Text allowFontScaling={false} style={styles.customerName}>
                 Hi, {customerData.firstName}.
               </Text>
             </View>
           ) : (
-            <Text>No customer data available.</Text>
+            <Text allowFontScaling={false}>No customer data available.</Text>
           )}
 
           {/* button Containers */}
@@ -293,7 +293,7 @@ const AccountScreen = () => {
                   color="#000"
                   style={{ marginRight: 0 }}
                 />
-                <Text style={styles.buttonText}>ORDERS</Text>
+                <Text allowFontScaling={false} style={styles.buttonText}>ORDERS</Text>
               </View>
               <View>
                 <Ionicons
@@ -321,7 +321,7 @@ const AccountScreen = () => {
             >
               <View style={styles.leftSide}>
                 <Ionicons name="diamond-outline" size={24} color="#000" />
-                <Text style={styles.buttonText}>
+                <Text allowFontScaling={false} style={styles.buttonText}>
                   {customerData?.tags?.includes("Active Subscriber") &&
                   customerData?.tags?.includes("VIP Gold")
                     ? "VIP PORTAL"
@@ -340,7 +340,7 @@ const AccountScreen = () => {
             >
               <View style={styles.leftSide}>
                 <Ionicons name="trash-outline" size={24} color="#000" />
-                <Text style={styles.buttonText}>DELETE ACCOUNT</Text>
+                <Text allowFontScaling={false} style={styles.buttonText}>DELETE ACCOUNT</Text>
               </View>
               <Ionicons name="chevron-forward-outline" size={24} color="#000" />
             </TouchableOpacity>
@@ -361,13 +361,13 @@ const AccountScreen = () => {
         <View>
           <View style={styles.lowerContainer}>
             <View style={{ paddingLeft: 20 }}>
-              <Text style={styles.lowerText}>Recently Viewed</Text>
+              <Text allowFontScaling={false} style={styles.lowerText}>Recently Viewed</Text>
             </View>
 
             {loadingRecentlyViewed ? (
-              <Text style={styles.noProductsText}>Loading...</Text>
+              <Text allowFontScaling={false} style={styles.noProductsText}>Loading...</Text>
             ) : recentlyViewed.length === 0 ? (
-              <Text style={styles.noProductsText}>
+              <Text allowFontScaling={false} style={styles.noProductsText}>
                 No recently viewed products.
               </Text>
             ) : (

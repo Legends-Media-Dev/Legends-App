@@ -20,25 +20,26 @@ const ProductCard = ({
         <Image transition={300} source={{ uri: image }} style={styles.image} />
         {!availableForSale && (
           <View style={styles.soldOutBadge}>
-            <Text style={styles.soldOutText}>SOLD OUT</Text>
+            <Text allowFontScaling={false} style={styles.soldOutText}>SOLD OUT</Text>
           </View>
         )}
       </View>
 
       <View style={styles.textContainer}>
-        <Text numberOfLines={2} style={styles.productName}>
+        <Text allowFontScaling={false} numberOfLines={2} style={styles.productName}>
           {name}
         </Text>
 
         <View style={styles.priceContainer}>
           <Text
+            allowFontScaling={false}
             style={[styles.productPrice, hasDiscount && styles.discountedPrice]}
           >
             ${parseFloat(price).toFixed(2)}
           </Text>
 
           {hasDiscount && (
-            <Text style={styles.compareAtPrice}>
+            <Text allowFontScaling={false} style={styles.compareAtPrice}>
               ${parseFloat(compareAtPrice).toFixed(2)}
             </Text>
           )}

@@ -129,6 +129,7 @@ const SearchScreen = () => {
         <View style={styles.searchInputWrapper}>
           <Ionicons name="search" size={20} color="#000" style={styles.icon} />
           <TextInput
+            allowFontScaling={false}
             style={styles.input}
             placeholder="Search Products"
             placeholderTextColor={"#000"}
@@ -147,7 +148,7 @@ const SearchScreen = () => {
         renderItem={renderProductItem}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={() => (
-          <Text style={styles.suggestedHeader}>Products</Text>
+          <Text allowFontScaling={false} style={styles.suggestedHeader}>Products</Text>
         )}
         contentContainerStyle={{ paddingBottom: 80 }}
       />
