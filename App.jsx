@@ -1,5 +1,6 @@
 // Import React and all dependencies
-import { Text, TextInput, Animated } from "react-native";
+import { Text, TextInput, Animated, StyleSheet } from "react-native";
+import { BlurView } from "expo-blur";
 
 if (!Text.defaultProps) Text.defaultProps = {};
 Text.defaultProps.allowFontScaling = false;
@@ -134,11 +135,7 @@ function MainStack() {
         name="MainScreen"
         component={MainScreen}
         options={({ navigation }) => ({
-          unmountOnBlur: true,
-          title: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
+          headerShown: false,
         })}
       />
       <Stack.Screen
@@ -764,26 +761,58 @@ export default function App() {
     init();
   }, []);
 
-  // useEffect(() => {
-  //   const subscription = Notifications.addNotificationReceivedListener(
-  //     (notification) => {
-  //       console.log("📬 Notification received in foreground:", notification);
-  //     }
-  //   );
-
-  //   return () => subscription.remove();
-  // }, []);
-
-  // if (!fontsLoaded) {
-  //   return <AppLoading />;
-  // }
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <CartProvider>
         <AppWithCartReminder />
       </CartProvider>
     </GestureHandlerRootView>
+  );
+}
+
+function GlassTabBar({ state, descriptors, navigation }) {
+  return (
+    <View style={styles.tabBarWrapper}>
+      <View style={styles.tabBarPill}>
+        {state.routes.map((route, index) => {
+          const { options } = descriptors[route.key];
+          const isFocused = state.index === index;
+
+          const onPress = () => {
+            navigation.navigate(route.name);
+          };
+
+          let iconName;
+          if (route.name === "HOME") iconName = "home";
+          if (route.name === "SHOP") iconName = "bag";
+          if (route.name === "VIP") iconName = "people";
+          if (route.name === "ACCOUNT") iconName = "person";
+
+          return (
+            <TouchableOpacity
+              key={route.key}
+              onPress={onPress}
+              style={styles.tabItem}
+              activeOpacity={0.8}
+            >
+              <Ionicons
+                name={isFocused ? iconName : `${iconName}-outline`}
+                size={22}
+                color={isFocused ? "#000" : "#777"}
+              />
+              <Text
+                style={[
+                  styles.tabLabel,
+                  isFocused && styles.tabLabelActive,
+                ]}
+              >
+                {options.title || route.name}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
   );
 }
 
@@ -817,36 +846,19 @@ function AppWithCartReminder() {
   return (
     <NavigationContainer ref={navRef}>
       <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
-            if (route.name === "HOME") {
-              iconName = focused ? "home" : "home-outline";
-            } else if (route.name === "SHOP") {
-              iconName = focused ? "bag" : "bag-outline";
-            } 
-            // else if (route.name === "SWEEPSTAKES") {
-            //   iconName = focused ? "pricetag" : "pricetag-outline";
-            else if (route.name === "VIP") {
-              iconName = focused ? "trophy" : "trophy-outline";
-            } else if (route.name === "ACCOUNT") {
-              iconName = focused ? "person" : "person-outline";
-            }
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: "#000",
-          tabBarInactiveTintColor: "gray",
-          headerShown: false,
-        })}
+        tabBar={(props) => <GlassTabBar {...props} />}
+        screenOptions={{ headerShown: false }}
       >
-        <Tab.Screen name="HOME" component={MainStack} />
-        <Tab.Screen name="SHOP" component={ShopStack} />
-        {/* <Tab.Screen name="SWEEPSTAKES" component={SweepstakesStack} /> */}
-        <Tab.Screen name="VIP" component={VipStack} />
-        <Tab.Screen name="ACCOUNT" component={AccountStack} />
+        <Tab.Screen name="HOME" component={MainStack} options={{ title: "For You" }} />
+        <Tab.Screen name="SHOP" component={ShopStack} options={{ title: "Shop" }} />
+        <Tab.Screen name="VIP" component={VipStack} options={{ title: "Members" }} />
+        <Tab.Screen
+          name="ACCOUNT"
+          component={AccountStack}
+          options={{ title: "Account" }}
+        />
       </Tab.Navigator>
 
-      {/* 🧠 Modal */}
       <CartReminderModal
         visible={showReminder}
         onClose={() => setShowReminder(false)}
@@ -859,3 +871,41 @@ function AppWithCartReminder() {
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBarWrapper: {
+    position: "absolute",
+    bottom: 24,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+  },
+
+  tabBarPill: {
+    flexDirection: "row",
+    backgroundColor: "rgba(245,245,245,0.98)",
+    paddingHorizontal: 35,
+    paddingVertical: 10,
+    borderRadius: 32,
+
+    borderWidth: 0.2,
+    borderColor: "rgba(0,0,0,0.12)",
+  },
+
+  tabItem: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 16,
+    gap: 4,
+  },
+
+  tabLabel: {
+    fontSize: 12,
+    color: "#777",
+    fontFamily: "Futura-Medium",
+  },
+
+  tabLabelActive: {
+    color: "#000",
+  },
+});
