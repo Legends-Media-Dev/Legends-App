@@ -24,7 +24,8 @@
     },
     "plugins": [
       "expo-asset",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-font"
     ],
     "android": {
       "package": "com.legendsmedia.legends"
