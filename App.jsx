@@ -71,12 +71,11 @@ import { useCart } from "./context/CartContext";
 import CartReminderModal from "./components/CartReminderModal";
 import UpdateRequiredModal from "./components/UpdateRequiredModal";
 import SearchIconBadge from "./components/SearchIconBadge";
+import { fetchAppInfo } from "./api/shopifyApi";
 import {
   getAppVersion,
   isVersionLessThan,
 } from "./utils/versionCheck";
-
-const MIN_APP_VERSION = "1.0.3";
 
 import { getCustomerInfo } from "./utils/storage"; // use your existing helper
 import VipPortalScreen from "./screens/vip/VIPPortalScreen";
@@ -829,14 +828,21 @@ function AppWithCartReminder() {
   const coldStart = useRef(true);
   const { cart, hasHydrated } = useCart();
 
-  // Version check: show "update required" when app is older than MIN_APP_VERSION (hardcoded 1.0.3)
+  // Version check: fetch minVersion from Firebase (fetchAppInfoHandler), show modal if app is older
   useEffect(() => {
-    const current = getAppVersion();
-    const needsUpdate = isVersionLessThan(current, MIN_APP_VERSION);
-    console.log("[App version] current:", current, "| required:", MIN_APP_VERSION, "| show update modal:", needsUpdate);
-    if (needsUpdate) {
-      setShowUpdateModal(true);
-    }
+    const check = async () => {
+      const config = await fetchAppInfo();
+      if (!config?.minVersion) return;
+      const current = getAppVersion();
+      const needsUpdate = isVersionLessThan(current, config.minVersion);
+      console.log("[App version] current:", current, "| required:", config.minVersion, "| show update modal:", needsUpdate);
+      if (needsUpdate) {
+        const url = Platform.OS === "ios" ? config.iosStoreUrl : config.androidStoreUrl;
+        setUpdateStoreUrl(url || null);
+        setShowUpdateModal(true);
+      }
+    };
+    check();
   }, []);
 
   // ✅ Cold start cart check

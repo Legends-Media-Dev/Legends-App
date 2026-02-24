@@ -75,22 +75,34 @@ const CLOUD_FUNCTION_URL_FETCH_GIVEAWAY_ENTRIES =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchGiveawayInfoHandler";
 
 const CLOUD_FUNCTION_URL_APP_VERSION =
-  "https://us-central1-premier-ikon.cloudfunctions.net/getAppVersionConfigHandler";
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchAppInfoHandler";
 
 /**
- * Fetch minimum required app version and optional store URLs.
- * Response: { minVersion: "1.0.3", iosStoreUrl?: "...", androidStoreUrl?: "..." }
- * When you release a new build, set minVersion to that version so older apps show the update modal.
+ * Fetch app version config from Firebase (fetchAppInfoHandler).
+ * Expects: { appInfo: [{ minVersion, iosStoreUrl?, androidStoreUrl? }], total }
+ * Uses the first appInfo entry. When you release a new build, set minVersion in Firebase.
  */
-export const fetchAppVersionConfig = async () => {
+export const fetchAppInfo = async () => {
   try {
     const response = await axios.get(CLOUD_FUNCTION_URL_APP_VERSION, {
       timeout: 8000,
     });
-    return response.data;
+    const data = response.data;
+    const first = data?.appInfo?.[0];
+    if (!first) return null;
+
+    const minVersion = first.minVersion ?? first.min_version ?? null;
+    const iosStoreUrl = (first.iosStoreUrl ?? first.ios_store_url ?? "").trim().replace(/"$/, "");
+    const androidStoreUrl = (first.androidStoreUrl ?? first.android_store_url ?? "").trim().replace(/"$/, "") || null;
+
+    return {
+      minVersion: minVersion || null,
+      iosStoreUrl: iosStoreUrl || null,
+      androidStoreUrl: androidStoreUrl || null,
+    };
   } catch (error) {
     console.warn(
-      "App version config fetch failed (optional):",
+      "App info (version) fetch failed:",
       error.response?.data || error.message
     );
     return null;
