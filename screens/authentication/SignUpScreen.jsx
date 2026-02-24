@@ -1,64 +1,97 @@
 import React, { useState, useRef } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
 import { customerSignUp, customerSignIn } from "../../api/shopifyApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 
+const MIN_PASSWORD_LENGTH = 5;
+
 const SignUpScreen = ({ route, navigation }) => {
-  // State for managing input values
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const lastNameRef = useRef(null);
   const emailRef = useRef(null);
   const passwordRef = useRef(null);
 
-  const handleSignUp = async () => {
-    try {
-      if (!email || !password || !firstName || !lastName) {
-        console.error("All fields are required");
-        return;
-      }
+  const getErrorMessage = (err) => {
+    const msg = err.response?.data?.error;
+    if (typeof msg === "string" && msg.trim()) return msg.trim();
+    return err.message || "Couldn't create account. Please try again.";
+  };
 
-      // Call the sign-up API
+  const handleSignUp = async () => {
+    setError("");
+
+    if (!firstName || !lastName || !email || !password) {
+      setError("First name, last name, email, and password are required.");
+      return;
+    }
+
+    const trimmedPassword = password.trim();
+    if (trimmedPassword.length < MIN_PASSWORD_LENGTH) {
+      setError(`Password must be at least ${MIN_PASSWORD_LENGTH} characters.`);
+      return;
+    }
+    if (password !== trimmedPassword) {
+      setError("Password cannot start or end with spaces.");
+      return;
+    }
+
+    setLoading(true);
+    try {
       const signUpResponse = await customerSignUp(
-        firstName,
-        lastName,
-        email,
-        password
+        firstName.trim(),
+        lastName.trim(),
+        email.trim(),
+        trimmedPassword
       );
-      console.log("customerSignUp response:", signUpResponse);
 
       if (signUpResponse?.id) {
-        console.log("Sign-up successful. Attempting to sign in...");
-
-        // Call the sign-in API
-        const signInResponse = await customerSignIn(email, password);
+        const signInResponse = await customerSignIn(email.trim(), trimmedPassword);
         const accessToken = signInResponse?.accessToken;
         const expiresAt = signInResponse?.expiresAt;
 
         if (accessToken && expiresAt) {
           await AsyncStorage.setItem("shopifyAccessToken", accessToken);
           await AsyncStorage.setItem("accessTokenExpiry", expiresAt);
-
-          console.log("Signed in successfully. Access Token:", accessToken);
-          navigation.replace("MainScreen"); // Navigate to MainScreen
+          // Reset to HOME tab so user lands on home feed, not Account
+          navigation.getParent()?.reset({
+            index: 0,
+            routes: [{ name: "HOME" }],
+          });
         } else {
-          console.error("Failed to retrieve access token during sign-in.");
+          setError("Account created but sign-in failed. Please sign in manually.");
         }
       } else {
-        console.error("Sign-up failed. No customer ID returned.");
+        setError("Account could not be created. Please try again.");
       }
-    } catch (error) {
-      console.error("Sign-up error:", error.message || error);
+    } catch (err) {
+      console.error("Sign-up error:", err.response?.data || err.message);
+      setError(getErrorMessage(err));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <View style={styles.outerContainer}>
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="small" color="#fff" />
+        </View>
+      )}
+
       <View>
         {/* Logo Section */}
         <View style={styles.imageContainer}>
@@ -84,7 +117,7 @@ const SignUpScreen = ({ route, navigation }) => {
               label="First Name"
               placeholder="First name"
               value={firstName}
-              onChangeText={setFirstName}
+              onChangeText={(t) => { setFirstName(t); if (error) setError(""); }}
               borderColor="#ccc"
               labelColor="#000"
               textColor="#000"
@@ -97,7 +130,7 @@ const SignUpScreen = ({ route, navigation }) => {
               label="Last Name"
               placeholder="Last name"
               value={lastName}
-              onChangeText={setLastName}
+              onChangeText={(t) => { setLastName(t); if (error) setError(""); }}
               borderColor="#ccc"
               labelColor="#000"
               textColor="#000"
@@ -113,7 +146,7 @@ const SignUpScreen = ({ route, navigation }) => {
             label="Email"
             placeholder="Enter your email"
             value={email}
-            onChangeText={setEmail}
+            onChangeText={(t) => { setEmail(t); if (error) setError(""); }}
             borderColor="#ccc"
             labelColor="#000"
             textColor="#000"
@@ -126,13 +159,22 @@ const SignUpScreen = ({ route, navigation }) => {
             label="Password"
             placeholder="Enter your password"
             value={password}
-            onChangeText={setPassword}
+            onChangeText={(t) => { setPassword(t); if (error) setError(""); }}
             borderColor="#ccc"
             labelColor="#000"
             textColor="#000"
             secureTextEntry={true}
             returnKeyType="done"
           />
+          <Text allowFontScaling={false} style={styles.passwordHint}>
+            At least {MIN_PASSWORD_LENGTH} characters. No spaces at start or end.
+          </Text>
+
+          {error ? (
+            <Text allowFontScaling={false} style={styles.errorText}>
+              {error}
+            </Text>
+          ) : null}
         </View>
         <View style={styles.buttonContainer}>
           <RoundedBox
@@ -146,7 +188,13 @@ const SignUpScreen = ({ route, navigation }) => {
             fontVariant="medium"
             textSize={18}
             onClick={handleSignUp}
-            isDisabled={!email || !password || !firstName || !lastName}
+            isDisabled={
+              !email ||
+              !password ||
+              !firstName ||
+              !lastName ||
+              loading
+            }
             style={{ width: "100%" }}
           />
         </View>
@@ -184,6 +232,17 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "space-between",
   },
+  loadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+  },
   imageContainer: {
     display: "flex",
     alignItems: "center",
@@ -211,8 +270,22 @@ const styles = StyleSheet.create({
   authContainer: {
     display: "flex",
     width: "90%",
-    alignSelf: "center", // Align inputs and text within the container
+    alignSelf: "center",
     marginTop: 30,
+  },
+  passwordHint: {
+    fontFamily: "Futura-Medium",
+    fontSize: 12,
+    color: "#666",
+    marginTop: 6,
+    marginHorizontal: 4,
+  },
+  errorText: {
+    fontFamily: "Futura-Medium",
+    fontSize: 14,
+    color: "#C8102F",
+    marginTop: 12,
+    marginHorizontal: 4,
   },
   forgotPasswordContainer: {
     marginTop: 10,

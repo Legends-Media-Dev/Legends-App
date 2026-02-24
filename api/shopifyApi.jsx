@@ -70,6 +70,49 @@ const CLOUD_FUNCTION_URL_FBBH =
 const CLOUD_FUNCTION_URL_SAVE_USER_NOTI =
   "https://us-central1-premier-ikon.cloudfunctions.net/saveUserNotiHandler";
 
+
+const CLOUD_FUNCTION_URL_FETCH_GIVEAWAY_ENTRIES =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchGiveawayInfoHandler";
+
+const CLOUD_FUNCTION_URL_APP_VERSION =
+  "https://us-central1-premier-ikon.cloudfunctions.net/getAppVersionConfigHandler";
+
+/**
+ * Fetch minimum required app version and optional store URLs.
+ * Response: { minVersion: "1.0.3", iosStoreUrl?: "...", androidStoreUrl?: "..." }
+ * When you release a new build, set minVersion to that version so older apps show the update modal.
+ */
+export const fetchAppVersionConfig = async () => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_APP_VERSION, {
+      timeout: 8000,
+    });
+    return response.data;
+  } catch (error) {
+    console.warn(
+      "App version config fetch failed (optional):",
+      error.response?.data || error.message
+    );
+    return null;
+  }
+};
+
+/**
+ * Fetch giveaway info (multiplier, start date, end date) from the backend
+ */
+export const fetchGiveawayInfo = async () => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_FETCH_GIVEAWAY_ENTRIES);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching giveaway info via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
 /**
  * Fetch Collections
  */

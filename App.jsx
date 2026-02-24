@@ -54,9 +54,11 @@ import JoinVIPScreen from "./screens/vip/JoinVIPScreen";
 
 import PrivacyPolicyScreen from "./screens/account/PrivacyPolicyScreen";
 import OrdersScreen from "./screens/account/OrdersScreen";
+import EntriesScreen from "./screens/account/EntriesScreen";
 import OrderConfirmationScreen from "./screens/shopflow/OrderConfirmationScreen";
 
 import { CartProvider } from "./context/CartContext";
+import { GiveawayProvider } from "./context/GiveawayContext";
 import * as Font from "expo-font";
 import { View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -67,7 +69,14 @@ import { isTokenValid } from "./utils/storage";
 import { AppState } from "react-native";
 import { useCart } from "./context/CartContext";
 import CartReminderModal from "./components/CartReminderModal";
+import UpdateRequiredModal from "./components/UpdateRequiredModal";
 import SearchIconBadge from "./components/SearchIconBadge";
+import {
+  getAppVersion,
+  isVersionLessThan,
+} from "./utils/versionCheck";
+
+const MIN_APP_VERSION = "1.0.3";
 
 import { getCustomerInfo } from "./utils/storage"; // use your existing helper
 import VipPortalScreen from "./screens/vip/VIPPortalScreen";
@@ -508,7 +517,7 @@ function SweepstakesStack() {
 }
 
 // Account Stack Navigator with Conditional Navigation
-function AccountStack() { 
+function AccountStack() {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
@@ -572,6 +581,17 @@ function AccountStack() {
         name="SignUpScreen"
         component={SignUpScreen}
         options={() => ({ unmountOnBlur: true, headerShown: false })}
+      />
+      <Stack.Screen
+        name="MainScreen"
+        component={MainScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          title: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
+        })}
       />
       <Stack.Screen
         name="ForgotPasswordScreen"
@@ -644,6 +664,16 @@ function AccountStack() {
       <Stack.Screen
         name="OrdersScreen"
         component={OrdersScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerLeft: () => <SearchIconBadge />,
+        })}
+      />
+      <Stack.Screen
+        name="EntriesScreen"
+        component={EntriesScreen}
         options={({ navigation }) => ({
           unmountOnBlur: true,
           headerBackTitle: "",
@@ -780,20 +810,34 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <CartProvider>
-        <AppWithCartReminder />
-      </CartProvider>
+      <GiveawayProvider>
+        <CartProvider>
+          <AppWithCartReminder />
+        </CartProvider>
+      </GiveawayProvider>
     </GestureHandlerRootView>
   );
 }
 
 function AppWithCartReminder() {
   const [showReminder, setShowReminder] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateStoreUrl, setUpdateStoreUrl] = useState(null);
   const appState = useRef(AppState.currentState);
   const hasShownReminder = useRef(false);
   const navRef = useNavigationContainerRef();
   const coldStart = useRef(true);
   const { cart, hasHydrated } = useCart();
+
+  // Version check: show "update required" when app is older than MIN_APP_VERSION (hardcoded 1.0.3)
+  useEffect(() => {
+    const current = getAppVersion();
+    const needsUpdate = isVersionLessThan(current, MIN_APP_VERSION);
+    console.log("[App version] current:", current, "| required:", MIN_APP_VERSION, "| show update modal:", needsUpdate);
+    if (needsUpdate) {
+      setShowUpdateModal(true);
+    }
+  }, []);
 
   // ✅ Cold start cart check
   useEffect(() => {
@@ -824,7 +868,7 @@ function AppWithCartReminder() {
               iconName = focused ? "home" : "home-outline";
             } else if (route.name === "SHOP") {
               iconName = focused ? "bag" : "bag-outline";
-            } 
+            }
             // else if (route.name === "SWEEPSTAKES") {
             //   iconName = focused ? "pricetag" : "pricetag-outline";
             else if (route.name === "VIP") {
@@ -845,6 +889,12 @@ function AppWithCartReminder() {
         <Tab.Screen name="VIP" component={VipStack} />
         <Tab.Screen name="ACCOUNT" component={AccountStack} />
       </Tab.Navigator>
+
+      {/* Update required modal (when app version < MIN_APP_VERSION) */}
+      <UpdateRequiredModal
+        visible={showUpdateModal}
+        storeUrl={updateStoreUrl}
+      />
 
       {/* 🧠 Modal */}
       <CartReminderModal

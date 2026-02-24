@@ -17,16 +17,30 @@ import { useCart } from "../../context/CartContext"; // Import CartContext
 const { width } = Dimensions.get("window");
 import AddToCartModal from "../../components/AddToCartModal";
 
-import { getRecentlyViewedProducts } from "../../utils/storage";
+import { getRecentlyViewedProducts, getCustomerInfo } from "../../utils/storage";
 import {
   fetchProductById,
   fetchAllProductsCollection,
 } from "../../api/shopifyApi";
 import { addRecentlyViewedProduct } from "../../utils/storage";
 import { Image } from "expo-image";
+import { useGiveaway } from "../../context/GiveawayContext";
+
+const TICKET_ICON_URI =
+  "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/admit_one_ticket.png?v=1683922022";
+
+function getVipMultiplier(tags) {
+  if (!Array.isArray(tags)) return 1;
+  if (tags.includes("VIP Platinum")) return 10;
+  if (tags.includes("VIP Gold")) return 5;
+  if (tags.includes("VIP Silver")) return 2;
+  if (tags.includes("Inactive Subscriber")) return 1;
+  return 1;
+}
 
 const ProductScreen = ({ route, navigation }) => {
   const { addItemToCart } = useCart();
+  const { multiplier: giveawayMultiplier } = useGiveaway();
   const { product } = route.params;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -39,10 +53,24 @@ const ProductScreen = ({ route, navigation }) => {
     product.variants.edges[0]?.node.price?.amount || 0
   );
   const [showReminder, setShowReminder] = useState(false);
+  const [customerTags, setCustomerTags] = useState(null);
 
   const compareAt = parseFloat(
     product.variants.edges[0]?.node.compareAtPrice?.amount || 0
   );
+
+  const showGiveaway =
+    giveawayMultiplier > 0 &&
+    !Number.isNaN(currentPrice) &&
+    currentPrice >= 0;
+  const giveawayEntries = showGiveaway
+    ? Math.floor(
+      currentPrice *
+      giveawayMultiplier *
+      getVipMultiplier(customerTags ?? []) *
+      quantity
+    )
+    : 0;
 
   const extractPhotos = (imagesEdges) => {
     return imagesEdges
@@ -81,6 +109,10 @@ const ProductScreen = ({ route, navigation }) => {
     if (product?.id) {
       addRecentlyViewedProduct(product.id);
     }
+
+    getCustomerInfo().then((info) => {
+      if (info?.tags) setCustomerTags(info.tags);
+    });
 
     const fetchRecentProducts = async () => {
       const ids = await getRecentlyViewedProducts();
@@ -310,15 +342,27 @@ const ProductScreen = ({ route, navigation }) => {
             ) : null}
 
             <Text allowFontScaling={false} style={styles.productTitle}>{product.title}</Text>
-            <View style={styles.priceContainer}>
-              <Text allowFontScaling={false} style={styles.currentPrice}>
-                ${currentPrice.toFixed(2)}
-              </Text>
-
-              {compareAt > currentPrice && (
-                <Text allowFontScaling={false} style={styles.originalPrice}>
-                  ${compareAt.toFixed(2)}
+            <View style={styles.priceRow}>
+              <View style={styles.priceBlock}>
+                <Text allowFontScaling={false} style={styles.currentPrice}>
+                  ${currentPrice.toFixed(2)}
                 </Text>
+                {compareAt > currentPrice && (
+                  <Text allowFontScaling={false} style={styles.originalPrice}>
+                    ${compareAt.toFixed(2)}
+                  </Text>
+                )}
+              </View>
+              {showGiveaway && giveawayEntries > 0 && (
+                <View style={styles.entriesBadge}>
+                  <Image
+                    source={{ uri: TICKET_ICON_URI }}
+                    style={styles.entriesTicketIcon}
+                  />
+                  <Text allowFontScaling={false} style={styles.entriesText}>
+                    {giveawayEntries} ENTRIES
+                  </Text>
+                </View>
               )}
             </View>
           </View>
@@ -380,7 +424,7 @@ const ProductScreen = ({ route, navigation }) => {
                         style={[
                           styles.sizeText,
                           selectedSize === item.label &&
-                            styles.selectedSizeText,
+                          styles.selectedSizeText,
                           !item.available && styles.unavailableSizeText,
                         ]}
                       >
@@ -488,7 +532,7 @@ const ProductScreen = ({ route, navigation }) => {
 
                 return (
                   <TouchableOpacity
-                    style={{ width: 160, marginRight: 12 }}
+                    style={{ width: 180, marginRight: 12 }}
                     onPress={() =>
                       navigation.push("Product", { product: item })
                     }
@@ -501,15 +545,15 @@ const ProductScreen = ({ route, navigation }) => {
                       price={
                         item.variants.edges[0]?.node.price?.amount
                           ? parseFloat(
-                              item.variants.edges[0].node.price.amount
-                            ).toFixed(2)
+                            item.variants.edges[0].node.price.amount
+                          ).toFixed(2)
                           : "N/A"
                       }
                       compareAtPrice={
                         item.variants.edges[0]?.node.compareAtPrice?.amount
                           ? parseFloat(
-                              item.variants.edges[0].node.compareAtPrice.amount
-                            ).toFixed(2)
+                            item.variants.edges[0].node.compareAtPrice.amount
+                          ).toFixed(2)
                           : null
                       }
                       availableForSale={
@@ -605,24 +649,46 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontFamily: "Futura-Bold",
   },
-  priceContainer: {
+  priceRow: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 15,
+  },
+  priceBlock: {
+    flexDirection: "row",
+    alignItems: "center",
     gap: 9,
   },
   currentPrice: {
     fontSize: 18,
     fontFamily: "Futura-Bold",
-
     color: "#C8102F",
-    marginRight: 10,
+    marginRight: 0,
   },
   originalPrice: {
     fontSize: 18,
     fontFamily: "Futura-Bold",
     color: "#A09E9E",
     textDecorationLine: "line-through",
+  },
+  entriesBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.95)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    gap: 4,
+  },
+  entriesTicketIcon: {
+    width: 24,
+    height: 24,
+  },
+  entriesText: {
+    fontFamily: "Futura-Bold",
+    fontSize: 14,
+    color: "#000",
   },
   sizeContainer: {
     marginBottom: 20,

@@ -1,8 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { Image } from "expo-image";
+import { getCustomerInfo } from "../utils/storage";
+import { useGiveaway } from "../context/GiveawayContext";
 
 const { height } = Dimensions.get("window");
+
+const TICKET_ICON_URI =
+  "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/admit_one_ticket.png?v=1683922022";
+
+function getVipMultiplier(tags) {
+  if (!Array.isArray(tags)) return 1;
+  if (tags.includes("VIP Platinum")) return 10;
+  if (tags.includes("VIP Gold")) return 5;
+  if (tags.includes("VIP Silver")) return 2;
+  if (tags.includes("Inactive Subscriber")) return 1;
+  return 1;
+}
 
 const ProductCard = ({
   image,
@@ -10,16 +24,59 @@ const ProductCard = ({
   price,
   compareAtPrice,
   availableForSale,
+  giveawayMultiplier: giveawayMultiplierProp,
+  customerTags: customerTagsProp,
 }) => {
+  const { multiplier: giveawayMultiplierFromContext } = useGiveaway();
+  const giveawayMultiplier = giveawayMultiplierProp ?? giveawayMultiplierFromContext ?? 0;
+  const [customerTags, setCustomerTags] = useState(customerTagsProp ?? null);
+
+  useEffect(() => {
+    if (customerTagsProp != null) {
+      setCustomerTags(customerTagsProp);
+      return;
+    }
+    let cancelled = false;
+    getCustomerInfo().then((info) => {
+      if (!cancelled && info?.tags) setCustomerTags(info.tags);
+    });
+    return () => { cancelled = true; };
+  }, [customerTagsProp]);
+
   const hasDiscount =
     compareAtPrice && parseFloat(compareAtPrice) > parseFloat(price);
+
+  const priceNum = parseFloat(price);
+  const showGiveaway =
+    giveawayMultiplier > 0 && !Number.isNaN(priceNum) && priceNum >= 0;
+  const vipMult = getVipMultiplier(customerTags ?? []);
+  const entries = showGiveaway
+    ? Math.floor(priceNum * giveawayMultiplier * vipMult * 1)
+    : 0;
 
   return (
     <View style={styles.card}>
       <View style={styles.imageContainer}>
         <Image transition={300} source={{ uri: image }} style={styles.image} />
+        {showGiveaway && entries > 0 && (
+          <View style={styles.entriesBadge}>
+            <Image
+              source={{ uri: TICKET_ICON_URI }}
+              style={styles.entriesTicketIcon}
+            />
+            <Text allowFontScaling={false} style={styles.entriesText}>
+              {entries} ENTRIES
+            </Text>
+          </View>
+        )}
         {!availableForSale && (
-          <View style={styles.soldOutBadge}>
+          <View
+            style={
+              showGiveaway
+                ? styles.soldOutBadgeBottomRight
+                : styles.soldOutBadge
+            }
+          >
             <Text allowFontScaling={false} style={styles.soldOutText}>SOLD OUT</Text>
           </View>
         )}
@@ -80,10 +137,42 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     zIndex: 10,
   },
+  soldOutBadgeBottomRight: {
+    position: "absolute",
+    right: 8,
+    bottom: 8,
+    backgroundColor: "#C8102F",
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    zIndex: 10,
+  },
   soldOutText: {
     color: "#fff",
     fontSize: 10,
     fontFamily: "Futura-Bold",
+  },
+  entriesBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.95)",
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    borderRadius: 6,
+    zIndex: 10,
+    gap: 4,
+  },
+  entriesTicketIcon: {
+    width: 24,
+    height: 24,
+  },
+  entriesText: {
+    fontFamily: "Futura-Bold",
+    fontSize: 11,
+    color: "#000",
   },
   textContainer: {
     width: "90%",

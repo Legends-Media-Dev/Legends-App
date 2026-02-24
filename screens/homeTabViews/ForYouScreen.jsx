@@ -135,7 +135,7 @@ const ForYouScreen = () => {
       </View>
 
       {customerData?.tags?.includes("VIP Gold") ||
-      customerData?.tags?.includes("Active Subscriber") ? (
+        customerData?.tags?.includes("Active Subscriber") ? (
         loadingVIPProducts ? (
           <ActivityIndicator style={{ marginTop: 20 }} size="small" />
         ) : vipProducts ? (
@@ -188,7 +188,7 @@ const ForYouScreen = () => {
       )}
 
       <View style={styles.sectionHeader}>
-        <Text allowFontScaling={false} style={styles.subheading}>Recently Viewed</Text>
+        <Text allowFontScaling={false} style={styles.subheading}>RECENTLY VIEWED</Text>
       </View>
 
       {loading ? (
@@ -213,7 +213,7 @@ const ForYouScreen = () => {
 
             return (
               <TouchableOpacity
-                style={{ width: 160, marginRight: 12 }}
+                style={{ width: 180, marginRight: 12 }}
                 activeOpacity={1}
                 onPress={async () => {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -228,15 +228,15 @@ const ForYouScreen = () => {
                   price={
                     item.variants.edges[0]?.node.price?.amount
                       ? parseFloat(
-                          item.variants.edges[0].node.price.amount
-                        ).toFixed(2)
+                        item.variants.edges[0].node.price.amount
+                      ).toFixed(2)
                       : "N/A"
                   }
                   compareAtPrice={
                     item.variants.edges[0]?.node.compareAtPrice?.amount
                       ? parseFloat(
-                          item.variants.edges[0].node.compareAtPrice.amount
-                        ).toFixed(2)
+                        item.variants.edges[0].node.compareAtPrice.amount
+                      ).toFixed(2)
                       : null
                   }
                   availableForSale={
@@ -275,7 +275,7 @@ const ForYouScreen = () => {
 
             return (
               <TouchableOpacity
-                style={{ width: 160, marginRight: 12 }}
+                style={{ width: 180, marginRight: 12 }}
                 activeOpacity={1}
                 onPress={async () => {
                   await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -290,15 +290,15 @@ const ForYouScreen = () => {
                   price={
                     item.variants.edges[0]?.node.price?.amount
                       ? parseFloat(
-                          item.variants.edges[0].node.price.amount
-                        ).toFixed(2)
+                        item.variants.edges[0].node.price.amount
+                      ).toFixed(2)
                       : "N/A"
                   }
                   compareAtPrice={
                     item.variants.edges[0]?.node.compareAtPrice?.amount
                       ? parseFloat(
-                          item.variants.edges[0].node.compareAtPrice.amount
-                        ).toFixed(2)
+                        item.variants.edges[0].node.compareAtPrice.amount
+                      ).toFixed(2)
                       : null
                   }
                   availableForSale={
