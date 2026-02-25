@@ -94,7 +94,6 @@ const styles = StyleSheet.create({
     fontFamily: "Futura-Bold",
     paddingHorizontal: 8,
     color: "#000000",
-    textTransform: "uppercase",
     lineHeight: 16,
   },
   priceContainer: {

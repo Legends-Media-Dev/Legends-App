@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: "Futura-Bold",
     color: "#444",
-    textTransform: "uppercase",
   },
   priceRow: {
     flexDirection: "row",

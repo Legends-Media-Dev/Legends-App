@@ -6,14 +6,10 @@ import {
   TouchableOpacity,
   Linking,
 } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
-import { ImageBackground } from "expo-image";
 
-const YoutubeContentBox = ({
-  topTitle,
-  thumbnail,
-  videoId, // 👈 NEW prop
-}) => {
+const YoutubeContentBox = ({ topTitle, thumbnail, videoId }) => {
   const handlePress = () => {
     const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
     Linking.openURL(youtubeUrl).catch((err) =>
@@ -22,59 +18,90 @@ const YoutubeContentBox = ({
   };
 
   return (
-    <TouchableOpacity
-      style={styles.container}
-      onPress={handlePress}
-      activeOpacity={0.95}
-    >
-      <ImageBackground
-        source={{ uri: thumbnail }}
-        style={styles.box}
-        imageStyle={styles.image}
-        transition={300}
+    <View style={styles.section}>
+      <View style={styles.sectionHeader}>
+      <Ionicons name="logo-youtube" size={30} color="#000" />
+      <Text style={styles.sectionTitle}>YouTube</Text>
+    </View>
+
+      <TouchableOpacity
+        style={styles.card}
+        onPress={handlePress}
+        activeOpacity={0.9}
       >
-        <View style={styles.overlay}>
-          <Ionicons
-            name="logo-youtube"
-            style={{ position: "absolute", top: 15, left: 15 }}
-            size={35}
-            color="red"
+        <View style={styles.thumbnailWrapper}>
+          <Image
+            source={{ uri: thumbnail }}
+            style={styles.thumbnail}
+            contentFit="cover"
           />
-          <Text allowFontScaling={false} style={styles.title}>{topTitle}</Text>
+
+          {/* Soft Play Button */}
+          <View style={styles.playButton}>
+            <Ionicons name="play" size={22} color="#000" />
+          </View>
         </View>
-      </ImageBackground>
-    </TouchableOpacity>
+
+        <Text
+          allowFontScaling={false}
+          numberOfLines={2}
+          style={styles.title}
+        >
+          {topTitle}
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    width: "100%",
+  section: {
+    marginVertical: 40,
+    paddingHorizontal: 20,
+  },
+
+  sectionHeader: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    marginBottom: 16,
   },
-  box: {
-    width: "100%",
-    height: 180,
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  image: {
-    contentFit: "cover",
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
-    justifyContent: "flex-end",
-    paddingBottom: 20,
-    paddingLeft: 16,
-    paddingRight: 16,
-  },
-  title: {
-    fontSize: 16,
+
+  sectionTitle: {
+    fontSize: 28,
     fontFamily: "Futura-Bold",
-    color: "#fff",
-    textTransform: "uppercase",
+    marginLeft: 8,
+  },
+
+  card: {
+    width: "100%",
+  },
+
+  thumbnailWrapper: {
+    aspectRatio: 16 / 9,
+    borderRadius: 20,
+    overflow: "hidden",
+    backgroundColor: "#F2F2F2",
+    position: "relative",
+  },
+
+  thumbnail: {
+    width: "100%",
+    height: "100%",
+  },
+
+  playButton: {
+    position: "absolute",
+    alignSelf: "center",
+    top: "45%",
+    backgroundColor: "rgba(255,255,255,0.9)",
+    padding: 14,
+    borderRadius: 100,
+  },
+
+  title: {
+    marginTop: 14,
+    fontSize: 16,
+    fontFamily: "Futura-Medium",
   },
 });
 

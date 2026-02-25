@@ -120,119 +120,19 @@ function MainStack() {
     <Stack.Navigator
       initialRouteName="MainScreen"
       screenOptions={{
-        headerStyle: {
-          backgroundColor: "#fff",
-          elevation: 0,
-          shadowColor: "transparent",
-        },
-        headerTintColor: "#000",
-        headerTitleStyle: { fontWeight: "bold" },
-        headerBackTitleVisible: false,
-        headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
+        headerShown: false,
       }}
     >
-      <Stack.Screen
-        name="MainScreen"
-        component={MainScreen}
-        options={({ navigation }) => ({
-          headerShown: false,
-        })}
-      />
-      <Stack.Screen
-        name="WebViewScreen"
-        component={WebViewScreen}
-        options={{
-          unmountOnBlur: true,
-          headerBackTitle: false,
-          headerTitle: "",
-        }}
-      />
-      <Stack.Screen
-        name="Collection"
-        component={CollectionScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="Product"
-        component={ProductScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          unmountOnBlur: true,
-          headerTitle: () => <AnimatedHeader />,
-          headerBackTitle: false,
-          headerLeft: () => <SearchIconBadge />,
-        }}
-      />
-      <Stack.Screen
-        name="JoinVIPScreen"
-        component={JoinVIPScreen}
-        options={() => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="VIPPortalScreen"
-        component={VIPPortalScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="Sweepstakes"
-        component={SweepstakesScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="SearchResults"
-        component={SearchResultsScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
+      <Stack.Screen name="MainScreen" component={MainScreen} />
+      <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
+      <Stack.Screen name="Collection" component={CollectionScreen} />
+      <Stack.Screen name="Product" component={ProductScreen} />
+      <Stack.Screen name="Cart" component={CartScreen} />
+      <Stack.Screen name="JoinVIPScreen" component={JoinVIPScreen} />
+      <Stack.Screen name="VIPPortalScreen" component={VIPPortalScreen} />
+      <Stack.Screen name="Sweepstakes" component={SweepstakesScreen} />
+      <Stack.Screen name="Search" component={SearchScreen} />
+      <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
     </Stack.Navigator>
   );
 }
@@ -242,90 +142,16 @@ function ShopStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: {
-          backgroundColor: "#fff",
-          elevation: 0,
-          shadowColor: "transparent",
-        },
-        headerTintColor: "#000",
-        headerTitleStyle: { fontWeight: "bold" },
-        headerBackTitleVisible: false,
-        headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
+        headerShown: false,
       }}
     >
-      <Stack.Screen
-        name="Shop"
-        component={ShopScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
-        })}
-      />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          unmountOnBlur: true,
-          headerBackTitle: false,
-          headerTitle: () => <AnimatedHeader />,
-          headerLeft: () => <SearchIconBadge />,
-        }}
-      />
-      <Stack.Screen
-        name="WebViewScreen"
-        component={WebViewScreen}
-        options={{
-          unmountOnBlur: true,
-          headerBackTitle: false,
-          headerTitle: "",
-        }}
-      />
-      <Stack.Screen
-        name="Collection"
-        component={CollectionScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="SearchResults"
-        component={SearchResultsScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="Product"
-        component={ProductScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
+      <Stack.Screen name="Shop" component={ShopScreen} />
+      <Stack.Screen name="Cart" component={CartScreen} />
+      <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
+      <Stack.Screen name="Collection" component={CollectionScreen} />
+      <Stack.Screen name="Search" component={SearchScreen} />
+      <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
+      <Stack.Screen name="Product" component={ProductScreen} />
     </Stack.Navigator>
   );
 }
@@ -333,102 +159,18 @@ function ShopStack() {
 function VipStack() {
   return (
     <Stack.Navigator
-      initialRouteName="VipPortalScreen"
       screenOptions={{
-        headerStyle: {
-          backgroundColor: "#fff",
-          elevation: 0,
-          shadowColor: "transparent",
-        },
-        headerTintColor: "#000",
-        headerTitleStyle: { fontWeight: "bold" },
-        headerBackTitleVisible: false,
-        headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
+        headerShown: false,
       }}
     >
-      <Stack.Screen
-        name="VipPortalScreen"
-        component={VipPortalScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
-        })}
-      />
-      <Stack.Screen
-        name="JoinVIPScreen"
-        component={JoinVIPScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
-        })}
-      />
-      <Stack.Screen
-        name="Collection"
-        component={CollectionScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="Product"
-        component={ProductScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          unmountOnBlur: true,
-          headerTitle: () => <AnimatedHeader />,
-          headerBackTitle: false,
-          headerLeft: () => <SearchIconBadge />,
-        }}
-      />
-      <Stack.Screen
-        name="WebViewScreen"
-        component={WebViewScreen}
-        options={{
-          unmountOnBlur: true,
-          headerBackTitle: false,
-          headerTitle: "",
-        }}
-      />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="SearchResults"
-        component={SearchResultsScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
+      <Stack.Screen name="VipPortalScreen" component={VIPPortalScreen} />
+      <Stack.Screen name="JoinVIPScreen" component={JoinVIPScreen} />
+      <Stack.Screen name="Collection" component={CollectionScreen} />
+      <Stack.Screen name="Product" component={ProductScreen} />
+      <Stack.Screen name="Cart" component={CartScreen} />
+      <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
+      <Stack.Screen name="Search" component={SearchScreen} />
+      <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
     </Stack.Navigator>
   );
 }
@@ -438,68 +180,14 @@ function SweepstakesStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: {
-          backgroundColor: "#fff",
-          elevation: 0,
-          shadowColor: "transparent",
-        },
-        headerTintColor: "#000",
-        headerTitleStyle: { fontWeight: "bold" },
-        headerBackTitleVisible: false,
-        headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
+        headerShown: false,
       }}
     >
-      <Stack.Screen
-        name="Sweepstakes"
-        component={SweepstakesScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
-        })}
-      />
-      <Stack.Screen
-        name="WebViewScreen"
-        component={WebViewScreen}
-        options={{
-          unmountOnBlur: true,
-          headerBackTitle: false,
-          headerTitle: "",
-        }}
-      />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          headerBackTitle: false,
-          headerTitle: () => <AnimatedHeader />,
-          headerBackTitleVisible: false,
-          headerLeft: () => <SearchIconBadge />,
-        }}
-      />
-      <Stack.Screen
-        name="Search"
-        component={SearchScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
-      <Stack.Screen
-        name="SearchResults"
-        component={SearchResultsScreen}
-        options={({ navigation }) => ({
-          unmountOnBlur: true,
-          headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
-        })}
-      />
+      <Stack.Screen name="Sweepstakes" component={SweepstakesScreen} />
+      <Stack.Screen name="WebViewScreen" component={WebViewScreen} />
+      <Stack.Screen name="Cart" component={CartScreen} />
+      <Stack.Screen name="Search" component={SearchScreen} />
+      <Stack.Screen name="SearchResults" component={SearchResultsScreen} />
     </Stack.Navigator>
   );
 }
@@ -535,9 +223,7 @@ function AccountStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: { backgroundColor: "#fff" },
-        headerTintColor: "#000",
-        headerTitleStyle: { fontWeight: "bold" },
+        headerShown: false,
         headerBackTitleVisible: false,
         headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
       }}
@@ -549,9 +235,6 @@ function AccountStack() {
           options={{
             unmountOnBlur: true,
             title: "",
-            headerTitle: () => <AnimatedHeader />,
-            headerRight: () => <CartIconWithBadge />,
-            headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
           }}
         />
       ) : (
@@ -581,9 +264,6 @@ function AccountStack() {
         options={() => ({
           unmountOnBlur: true,
           headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -592,9 +272,6 @@ function AccountStack() {
         options={({ navigation }) => ({
           unmountOnBlur: true,
           headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -603,9 +280,6 @@ function AccountStack() {
         options={({ navigation }) => ({
           unmountOnBlur: true,
           headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -623,9 +297,6 @@ function AccountStack() {
         options={{
           unmountOnBlur: true,
           headerBackTitle: false,
-          headerTitle: () => <AnimatedHeader />,
-          headerBackTitleVisible: false,
-          headerLeft: () => <SearchIconBadge />,
         }}
       />
       <Stack.Screen
@@ -633,9 +304,6 @@ function AccountStack() {
         component={SweepstakesScreen}
         options={({ navigation }) => ({
           unmountOnBlur: true,
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -644,8 +312,6 @@ function AccountStack() {
         options={({ navigation }) => ({
           unmountOnBlur: true,
           headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -664,8 +330,6 @@ function AccountStack() {
           unmountOnBlur: true,
           headerTitle: "",
           headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerLeft: () => <SearchIconBadge />,
         }}
       />
       <Stack.Screen
@@ -674,9 +338,6 @@ function AccountStack() {
         options={({ navigation }) => ({
           unmountOnBlur: true,
           headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -685,9 +346,6 @@ function AccountStack() {
         options={({ navigation }) => ({
           unmountOnBlur: true,
           headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -696,9 +354,6 @@ function AccountStack() {
         options={({ navigation }) => ({
           unmountOnBlur: true,
           headerBackTitle: "",
-          headerTitle: () => <AnimatedHeader />,
-          headerRight: () => <CartIconWithBadge />,
-          headerLeft: () => <SearchIconBadge />,
         })}
       />
     </Stack.Navigator>
@@ -797,8 +452,8 @@ function GlassTabBar({ state, descriptors, navigation }) {
             >
               <Ionicons
                 name={isFocused ? iconName : `${iconName}-outline`}
-                size={22}
-                color={isFocused ? "#000" : "#777"}
+                size={19}
+                color={isFocused ? "#111" : "#9A9A9A"}
               />
               <Text
                 style={[
@@ -849,7 +504,7 @@ function AppWithCartReminder() {
         tabBar={(props) => <GlassTabBar {...props} />}
         screenOptions={{ headerShown: false }}
       >
-        <Tab.Screen name="HOME" component={MainStack} options={{ title: "For You" }} />
+        <Tab.Screen name="HOME" component={MainStack} options={{ title: "Home" }} />
         <Tab.Screen name="SHOP" component={ShopStack} options={{ title: "Shop" }} />
         <Tab.Screen name="VIP" component={VipStack} options={{ title: "Members" }} />
         <Tab.Screen
@@ -875,7 +530,7 @@ function AppWithCartReminder() {
 const styles = StyleSheet.create({
   tabBarWrapper: {
     position: "absolute",
-    bottom: 24,
+    bottom: 18,
     left: 0,
     right: 0,
     alignItems: "center",
@@ -883,29 +538,29 @@ const styles = StyleSheet.create({
 
   tabBarPill: {
     flexDirection: "row",
-    backgroundColor: "rgba(245,245,245,0.98)",
-    paddingHorizontal: 35,
-    paddingVertical: 10,
-    borderRadius: 32,
-
-    borderWidth: 0.2,
-    borderColor: "rgba(0,0,0,0.12)",
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E6E6E6",
+    paddingHorizontal: 40,
+    paddingVertical: 6,
+    borderRadius: 22,
+    borderWidth: 1,
   },
 
   tabItem: {
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 16,
+    paddingHorizontal: 13,
     gap: 4,
   },
 
   tabLabel: {
-    fontSize: 12,
-    color: "#777",
+    fontSize: 11,
+    letterSpacing: 0.3,
+    color: "#8A8A8A",
     fontFamily: "Futura-Medium",
   },
 
   tabLabelActive: {
-    color: "#000",
+    color: "#111",
   },
 });

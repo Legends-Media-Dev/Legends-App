@@ -117,7 +117,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontFamily: "Futura-Bold",
     color: "#fff",
-    textTransform: "uppercase",
   },
   vipButton: {
     backgroundColor: "red", // dark gray
@@ -133,7 +132,6 @@ const styles = StyleSheet.create({
     fontFamily: "Futura-Bold",
     fontSize: 18,
     textAlign: "center",
-    textTransform: "uppercase",
   },
 });
 

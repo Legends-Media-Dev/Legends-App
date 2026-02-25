@@ -1,6 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
 import React, { useState, useEffect } from "react";
+import GlassHeader from "../../components/GlassHeader";
 import {
   View,
   Text,
@@ -107,24 +108,16 @@ const ShopScreen = () => {
   };
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
+      <GlassHeader />
+  
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" />
         </View>
       )}
+  
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.searchButton}
-          activeOpacity={1}
-          onPress={async () => {
-            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            navigation.navigate("Search");
-          }}
-        >
-          <Text allowFontScaling={false} style={styles.searchButtonText}>Search Products</Text>
-        </TouchableOpacity>
-
         <FlatList
           data={collections}
           keyExtractor={(item) => item.id}
@@ -133,7 +126,7 @@ const ShopScreen = () => {
           contentContainerStyle={styles.flatListContent}
         />
       </View>
-    </>
+    </View>
   );
 };
 
@@ -141,8 +134,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FFFFFF",
-    // paddingHorizontal: 16,
-    paddingTop: 16,
   },
   loadingContainer: {
     flex: 1,
@@ -150,13 +141,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   flatListContent: {
+    paddingTop: 120,
     paddingBottom: 32,
-    paddingTop: 8,
-    paddingHorizontal: 16, // NEW
+    paddingHorizontal: 20,
   },
   collectionItem: {
     backgroundColor: "#F8F8F8",
-    borderRadius: 8,
+    borderRadius: 4,
     paddingVertical: 16,
     paddingHorizontal: 24,
     marginVertical: 8, // was 8
@@ -176,17 +167,19 @@ const styles = StyleSheet.create({
   },
   searchButton: {
     backgroundColor: "#C8102F",
-    paddingVertical: 10,
-    borderRadius: 8,
+    paddingVertical: 14,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 10,
-    marginHorizontal: 16,
+    marginHorizontal: 20,
+    marginTop: 12,
+    marginBottom: 20,
   },
   searchButtonText: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: "Futura-Bold",
+    letterSpacing: 0.5,
     textTransform: "uppercase",
   },
   loadingOverlay: {

@@ -1,44 +1,44 @@
 import React, { useEffect, useState, useRef } from "react";
 import {
   View,
+  Text,
   StyleSheet,
   ScrollView,
+  TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  ImageBackground,
+  Animated
 } from "react-native";
 import HeroImage from "../../components/HeroImage";
-import ContentBox from "../../components/ContentBox";
 import YoutubeContentBox from "../../components/YoutubeContentBox";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import CategoryGrid from "../../components/CategoryGrid";
+import { useNavigation } from "@react-navigation/native";
 
 import {
   fetchLatestYouTubeVideo,
   fetchCollectionByHandle,
-  fetchBlogArticles,
+  fetchCollections,
+  fetchAllProductsCollection,
 } from "../../api/shopifyApi";
 
 import { getCustomerInfo } from "../../utils/storage";
+import HorizontalProductRow from "../../components/HorizontalProductRow";
+import HomeGiveawayPreview from "../core/HomeGiveawayPreview";
 
 const NewsScreen = () => {
   const [latestVideo, setLatestVideo] = useState(null);
   const [heroImage, setHeroImage] = useState(null);
-  const [heroImageTs, setHeroImageTs] = useState(null);
-  const [heroImageAs, setHeroImageAs] = useState(null);
-  const [videoLoading, setVideoLoading] = useState(true);
   const [heroImageLoading, setHeroImageLoading] = useState(true);
-  const [heroImageLoadingTs, setHeroImageLoadingTs] = useState(true);
-  const [heroImageLoadingAs, setHeroImageLoadingAs] = useState(true);
-  const [sweepstakesImage, setSweepstakesImage] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
-  const [customerVIPStatus, setCustomerVIPStatus] = useState("");
+  const [newArrivalProducts, setNewArrivalProducts] = useState([]);
+  const [customerVIPStatus, setCustomerVIPStatus] = useState(false);
+  const [categoryCollections, setCategoryCollections] = useState([]);
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation();
 
   const hasFetchedVideo = useRef(false);
-  const loading = heroImageLoading || heroImageLoadingTs || heroImageLoadingAs;
-
-  const extractFirstImageFromHtml = (html) => {
-    const match = html?.match(/<img[^>]+src="([^">]+)"/);
-    return match ? match[1] : null;
-  };
+  const loading = heroImageLoading;
 
   const loadVideo = async () => {
     if (hasFetchedVideo.current) return; // prevent rerun
@@ -65,45 +65,38 @@ const NewsScreen = () => {
     }
   };
 
-  const fetchHeroTs = async () => {
+  const fetchNewArrivals = async () => {
     try {
-      const collection = await fetchCollectionByHandle("tshirts");
-      setHeroImageTs(collection.image?.src);
+      const data = await fetchAllProductsCollection("new-release");
+      console.log("NEW ARRIVALS:", data);
+      const products = 
+        data?.products?.edges?.map((edge) => edge.node) || [];
+      setNewArrivalProducts(products);
     } catch (err) {
-      console.error("Failed to load hero image:", err);
-    } finally {
-      setHeroImageLoadingTs(false);
+      console.error("Failed to load new arrivals:", err);
     }
   };
 
-  const fetchHeroAs = async () => {
+  const fetchCategories = async () => {
     try {
-      const collection = await fetchCollectionByHandle("hats");
-      setHeroImageAs(collection.image?.src);
+      const data = await fetchCollections();
+  
+      const collections = data || [];
+  
+      const allowedHandles = [
+        "tshirts",
+        "hats",
+        "new-release",
+        "stickers"
+      ];
+  
+      const filtered = collections.filter((collection) =>
+        allowedHandles.includes(collection.handle)
+      );
+  
+      setCategoryCollections(filtered);
     } catch (err) {
-      console.error("Failed to load hero image:", err);
-    } finally {
-      setHeroImageLoadingAs(false);
-    }
-  };
-
-  const fetchSweepstakesImage = async () => {
-    try {
-      const blog = await fetchBlogArticles("sweepstakes");
-      const articles = blog.articles?.edges || [];
-
-      const currentSweepstakes = articles
-        .map((edge) => edge.node)
-        .find((article) => article.tags.includes("current"));
-
-      if (currentSweepstakes) {
-        const firstImage = extractFirstImageFromHtml(
-          currentSweepstakes.contentHtml
-        );
-        setSweepstakesImage(firstImage);
-      }
-    } catch (error) {
-      console.error("Failed to fetch sweepstakes image:", error);
+      console.error("Failed to fetch categories:", err);
     }
   };
 
@@ -112,10 +105,8 @@ const NewsScreen = () => {
     try {
       await Promise.all([
         fetchHero(),
-        fetchHeroTs(),
-        fetchHeroAs(),
+        fetchNewArrivals(),
         loadVideo(),
-        fetchSweepstakesImage(),
       ]);
     } catch (error) {
       console.error("Refresh error:", error);
@@ -140,16 +131,11 @@ const NewsScreen = () => {
   };
 
   useEffect(() => {
-    // TEMP: remove cart ID manually for debug/testing
-    // AsyncStorage.removeItem("shopifyCartId")
-    //   .then(() => console.log("🗑️ Manually cleared cart ID from AsyncStorage"))
-    //   .catch((err) => console.error("Failed to clear cart ID:", err));
     loadCustomerInfo();
     fetchHero();
-    fetchHeroTs();
-    fetchHeroAs();
+    fetchNewArrivals();
     loadVideo();
-    fetchSweepstakesImage();
+    fetchCategories();
   }, []);
 
   return (
@@ -161,103 +147,72 @@ const NewsScreen = () => {
       )}
       <ScrollView
         style={styles.container}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
-        {/* 🔹 Hero Banner */}
+        {/* Hero Banner */}
         <View style={styles.topHero}>
           <HeroImage
-            title="THE NEW RELEASE IS LIVE!"
-            subtitle="YOUR NEXT FAVORITE PIECES JUST DROPPED. GET IT BEFORE IT'S GONE!"
+            title="The new release is live"
+            subtitle="Your next favorite pieces just dropped. Get it before it's gone."
             backgroundColor="#D32F2F"
             collectionHandle="new-release"
             image={heroImage}
           />
         </View>
-
-        {/* 🔹 Latest YouTube Video Box */}
-        <View style={styles.contentContainer}>
-          <View style={styles.contentWrapper}>
-            {latestVideo && (
-              <YoutubeContentBox
-                topTitle={latestVideo.title}
-                thumbnail={latestVideo.thumbnail}
-                videoId={latestVideo.videoId}
-              />
-            )}
-          </View>
-
-          <View style={styles.contentWrapper}>
-            <ContentBox
-              centerTitle={customerVIPStatus ? "VIP PORTAL" : "JOIN VIP"}
-              image={require("../../assets/vip-dark-background.png")}
-              screenName={
-                customerVIPStatus ? "VIPPortalScreen" : "JoinVIPScreen"
-                // customerVIPStatus ? "JoinVIPScreen" : "JoinVIPScreen"
-              }
-            />
-          </View>
-        </View>
-
-        <View style={styles.lowerHero}>
-          <HeroImage
-            title="SHOP ALL TEES!"
-            subtitle="FROM EVERYDAY STAPLES TO STANDOUT GRAPHICS, YOUR NEW FAVORITE TEE IS WAITING."
-            backgroundColor="#D32F2F"
-            collectionHandle="tshirts"
-            image={heroImageTs}
+        {/* Product shower */}
+        <HorizontalProductRow
+          title="Just Dropped"
+          subtitle="These sell out quickly"
+          products={newArrivalProducts}
+          onPressItem={(product) =>
+            navigation.navigate("Product", { product })
+          }
+        />
+        {/* Youtube video */}
+        {/* {latestVideo && (
+          <YoutubeContentBox
+            topTitle={latestVideo.title}
+            thumbnail={latestVideo.thumbnail}
+            videoId={latestVideo.videoId}
           />
-        </View>
+        )} */}
+        {/* Content Grid */}
+        <CategoryGrid collections={categoryCollections}/>
+        
+        {!customerVIPStatus && (
+          <View style={styles.vipWrapper}>
+            <ImageBackground
+              source={require("../../assets/vip-dark-background.png")}
+              style={styles.vipBackground}
+              imageStyle={{ borderRadius: 28 }}
+            >
+              {/* Dark overlay */}
+              <View style={styles.vipOverlay} />
 
-        {/* 🔹 Latest YouTube Video Box */}
-        <View style={{ marginTop: 8 }}>
-          <View style={styles.contentWrapper}>
-            <ContentBox
-              topTitle="CURIOUS ABOUT OUR GIVEAWAYS?"
-              image={
-                sweepstakesImage
-                  ? { uri: sweepstakesImage }
-                  : require("../../assets/vip-background.png")
-              }
-              screenName="Sweepstakes"
-            />
+              <View style={styles.vipContent}>
+                <Text style={styles.vipTitle}>VIP Access</Text>
+
+                <Text style={styles.vipSubtitle}>
+                  Early drops. Exclusive releases. Members-only perks.
+                </Text>
+
+                <TouchableOpacity
+                  style={styles.vipButton}
+                  onPress={() => navigation.navigate("JoinVIPScreen")}
+                  activeOpacity={0.9}
+                >
+                  <Text style={styles.vipButtonText}>Join VIP</Text>
+                </TouchableOpacity>
+              </View>
+            </ImageBackground>
           </View>
-        </View>
+        )}
+        <HomeGiveawayPreview />
 
-        <View style={[styles.lowerHero, { marginBottom: 8 }]}>
-          <HeroImage
-            title="SHOP ALL ACCESSORIES!"
-            subtitle="FROM ESSENTIALS TO STATEMENT PIECES, THE PERFECT ACCESSORY AWAITS."
-            backgroundColor="#D32F2F"
-            collectionHandle="hats"
-            image={heroImageAs}
-          />
-        </View>
-
-        {/* <View style={styles.contentContainer}>
-          <View style={styles.contentWrapper}>
-            <ContentBox
-              topTitle="CURIOUS ABOUT OUR SWEEPSTAKES?"
-              image={
-                sweepstakesImage
-                  ? { uri: sweepstakesImage }
-                  : require("../../assets/vip-background.png")
-              }
-              screenName="Sweepstakes"
-            />
-          </View>
-
-          <View style={styles.contentWrapper}>
-            <ContentBox
-              topTitle="MORE PERKS? SAY LESS. JOIN VIP."
-              image={require("../../assets/vip-background.png")}
-              screenName="JoinVIPScreen"
-              handle="vip"
-            />
-          </View>
-        </View> */}
       </ScrollView>
     </>
   );
@@ -269,17 +224,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFAFA",
   },
   topHero: {
-    marginBottom: 10,
+    marginBottom: 15,
   },
   contentContainer: {
-    gap: 5,
+    gap: 16,
+    marginVertical: 20,
+  },
+  scrollContent: {
+    paddingBottom: 140,
   },
   contentWrapper: {
     paddingLeft: 5,
     paddingRight: 5,
   },
   lowerHero: {
-    marginTop: 10,
+    marginTop: 15,
   },
   fullscreenLoader: {
     flex: 1,
@@ -297,6 +256,53 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAFAFA",
     justifyContent: "center",
     alignItems: "center",
+  },
+  vipWrapper: {
+    marginTop: 30,
+    marginHorizontal: 20,
+  },
+  
+  vipBackground: {
+    borderRadius: 28,
+    overflow: "hidden",
+    padding: 32,
+    justifyContent: "center",
+  },
+  
+  vipOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.55)", // adjust darkness here
+  },
+  
+  vipContent: {
+    zIndex: 2,
+  },
+  
+  vipTitle: {
+    fontSize: 24,
+    fontFamily: "Futura-Bold",
+    color: "#fff",
+  },
+  
+  vipSubtitle: {
+    marginTop: 12,
+    marginBottom: 24,
+    fontSize: 15,
+    fontFamily: "Futura-Medium",
+    color: "#ddd",
+  },
+  
+  vipButton: {
+    backgroundColor: "#fff",
+    paddingVertical: 14,
+    borderRadius: 100,
+    alignItems: "center",
+  },
+  
+  vipButtonText: {
+    fontFamily: "Futura-Bold",
+    fontSize: 14,
+    textTransform: "uppercase",
   },
 });
 

@@ -51,27 +51,24 @@ const HeroImage = ({
 const styles = StyleSheet.create({
   heroContainer: {
     width: "100%",
-    height: 680,
-    justifyContent: "flex-end",
-  },
-
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0, 0, 0, 0.3)", // This now covers the whole image
-    justifyContent: "flex-end",
-    paddingBottom: 40,
-    paddingLeft: 20,
-    paddingRight: 20,
+    height: height,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal:30,
   },
   heroTitle: {
-    fontSize: 26,
-    fontFamily: "Futura-Bold",
+    fontSize: 50,
+    fontFamily: "Futura-Medium",
     color: "#fff",
+    textAlign: "center",
+    marginBottom: 12
   },
   heroSubtitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#fff",
     fontFamily: "Futura-Medium",
+    textAlign: "center",
+    lineHeight: 22,
   },
 });
 

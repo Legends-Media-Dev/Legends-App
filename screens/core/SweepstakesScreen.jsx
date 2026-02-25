@@ -172,7 +172,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     color: "#000",
     fontWeight: "900",
-    textTransform: "uppercase",
     letterSpacing: 1,
     fontFamily: "Futura-Bold",
     marginBottom: 10,
