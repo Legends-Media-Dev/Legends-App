@@ -61,8 +61,8 @@ const CLOUD_FUNCTION_URL_FPBIA =
 const CLOUD_FUNCTION_URL_FACO =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllCustomerOrdersHandler";
 
-const CLOUD_FUNCTION_URL_FMRY =
-  "https://us-central1-premier-ikon.cloudfunctions.net/fetchLatestYouTubeVideoHandler";
+const CLOUD_FUNCTION_URL_YOUTUBE_DB =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchYoutubeDataFromDBHandler";
 
 const CLOUD_FUNCTION_URL_FBBH =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchBlogByHandle";
@@ -154,14 +154,31 @@ export const fetchCollectionByHandle = async (handle) => {
 };
 
 /**
- * Fetch the latest full-length YouTube video
+ * Fetch the current YouTube video from Firebase (fetchYoutubeDataFromDBHandler).
+ * Backend returns the single "current" doc: { id, videoId, title, thumbnail, publishedAt, date, updatedAt }.
+ * Returns that shape for NewsScreen / YoutubeContentBox. Returns null on 404 or empty data.
  */
 export const fetchLatestYouTubeVideo = async () => {
   try {
-    const response = await axios.get(CLOUD_FUNCTION_URL_FMRY);
-    return response.data; // { videoId, title, thumbnail, publishedAt }
+    const response = await axios.get(CLOUD_FUNCTION_URL_YOUTUBE_DB, {
+      timeout: 10000,
+    });
+    const data = response.data;
+    if (!data || !data.videoId) return null;
+    return {
+      id: data.id ?? null,
+      videoId: data.videoId,
+      title: data.title ?? "",
+      thumbnail: data.thumbnail ?? null,
+      publishedAt: data.publishedAt ?? null,
+      date: data.date ?? null,
+      updatedAt: data.updatedAt ?? null,
+    };
   } catch (error) {
-    console.error("Error fetching YouTube video from Cloud Function:", error);
+    if (error.response?.status === 404) {
+      return null;
+    }
+    console.error("Error fetching YouTube data from DB:", error.response?.data || error.message);
     throw error;
   }
 };
