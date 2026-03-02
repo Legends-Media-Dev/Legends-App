@@ -229,7 +229,7 @@ function EntriesScreen({ route }) {
                   </View>
                   <View>
                     <Text allowFontScaling={false} style={styles.orderInfoTextBig}>
-                      ${parseFloat(item.totalPrice.amount).toFixed(2)}
+                      ${getOrderSubtotalDollars(item).toFixed(2)}
                     </Text>
                   </View>
                 </View>
