@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import {
   StyleSheet,
   View,
@@ -44,7 +44,6 @@ const ProductScreen = ({ route, navigation }) => {
   const { product } = route.params;
   const [currentIndex, setCurrentIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
   const [suggestedProducts, setSuggestedProducts] = useState([]);
   const [recentProducts, setRecentProducts] = useState([]);
   const suggestedCacheRef = useRef([]);
@@ -81,31 +80,11 @@ const ProductScreen = ({ route, navigation }) => {
       .filter(Boolean); // Remove any null entries
   };
 
-  const photos = extractPhotos(product.images.edges);
+  const photos = useMemo(() => extractPhotos(product.images.edges || []), [
+    product.id,
+  ]);
 
   useEffect(() => {
-    const minLoadingTime = 500;
-    const startTime = Date.now();
-
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, minLoadingTime);
-
-    const imagePromises = photos.map((photo) => {
-      return new Promise((resolve) => {
-        Image.prefetch(photo.uri).then(resolve).catch(resolve);
-      });
-    });
-
-    Promise.all(imagePromises).then(() => {
-      const elapsedTime = Date.now() - startTime;
-      const remainingTime = Math.max(0, minLoadingTime - elapsedTime);
-
-      setTimeout(() => {
-        setIsLoading(false);
-      }, remainingTime);
-    });
-
     if (product?.id) {
       addRecentlyViewedProduct(product.id);
     }
@@ -152,9 +131,7 @@ const ProductScreen = ({ route, navigation }) => {
 
     fetchSuggestedProducts();
     fetchRecentProducts();
-
-    return () => clearTimeout(timer);
-  }, [photos, product]);
+  }, [product.id]);
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
   const handleDecrement = () => {
@@ -288,11 +265,6 @@ const ProductScreen = ({ route, navigation }) => {
 
   return (
     <>
-      {isLoading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="small" />
-        </View>
-      )}
       <AddToCartModal
         visible={showReminder}
         onClose={() => setShowReminder(false)}
