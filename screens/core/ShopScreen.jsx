@@ -2,6 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
 import React, { useState, useEffect } from "react";
 import GlassHeader from "../../components/GlassHeader";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   View,
   Text,
@@ -19,6 +20,7 @@ import { FlatList } from "react-native-gesture-handler";
 const { width, height } = Dimensions.get("window");
 
 const ShopScreen = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -123,7 +125,10 @@ const ShopScreen = () => {
           keyExtractor={(item) => item.id}
           renderItem={renderCollectionItem}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.flatListContent}
+          contentContainerStyle={[
+            styles.flatListContent,
+            { paddingTop: insets.top + 80 }
+          ]}
         />
       </View>
     </View>
@@ -141,7 +146,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   flatListContent: {
-    paddingTop: 120,
     paddingBottom: 32,
     paddingHorizontal: 20,
   },

@@ -33,16 +33,23 @@ const HeroImage = ({
     <TouchableOpacity onPress={handlePress} activeOpacity={0.99}>
       {image && (
         <ImageBackground
-          source={{ uri: image }}
-          style={styles.heroContainer}
-          imageStyle={{ contentFit: "cover" }}
-          transition={300}
-        >
-          <View style={styles.overlay}>
-            <Text allowFontScaling={false} style={styles.heroTitle}>{title}</Text>
-            {subtitle && <Text allowFontScaling={false} style={styles.heroSubtitle}>{subtitle}</Text>}
-          </View>
-        </ImageBackground>
+        source={{ uri: image }}
+        style={styles.heroContainer}
+        imageStyle={{ contentFit: "cover" }}
+        transition={300}
+      >
+        <View style={styles.imageOverlay} />
+        <View style={styles.overlay}>
+          <Text allowFontScaling={false} style={styles.heroTitle}>
+            {title}
+          </Text>
+          {subtitle && (
+            <Text allowFontScaling={false} style={styles.heroSubtitle}>
+              {subtitle}
+            </Text>
+          )}
+        </View>
+      </ImageBackground>
       )}
     </TouchableOpacity>
   );
@@ -55,6 +62,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal:30,
+    backgroundOverlay: 30,
   },
   heroTitle: {
     fontSize: 50,
@@ -70,6 +78,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 22,
   },
+  imageOverlay: {
+  ...StyleSheet.absoluteFillObject,
+  backgroundColor: "rgba(0,0,0,0.3)", // adjust darkness here
+},
 });
 
 export default HeroImage;

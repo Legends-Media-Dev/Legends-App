@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { fetchBlogArticles } from "../../api/shopifyApi";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "expo-image";
+import GlassHeader from "../../components/GlassHeader";
 
 const extractSweepstakesData = (article) => {
   console.log(article);
@@ -92,6 +94,7 @@ const SweepstakesItem = ({ item }) => {
 };
 
 const SweepstakesScreen = () => {
+  const insets = useSafeAreaInsets();
   const [currentArticles, setCurrentArticles] = useState([]);
   const [previousArticles, setPreviousArticles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -132,32 +135,51 @@ const SweepstakesScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="small" color="#333" />
+      <View style={styles.root}>
+        <GlassHeader />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="small" color="#333" />
+        </View>
       </View>
     );
   }
-
+  
   return (
-    <ScrollView style={styles.container}>
-      {currentArticles.length > 0 && (
-        <>
-          <Text allowFontScaling={false} style={styles.outlineTitle}>CURRENT GIVEAWAYS</Text>
-          {currentArticles.map((item) => (
-            <SweepstakesItem key={item.id} item={item} />
-          ))}
-        </>
-      )}
-
-      {previousArticles.length > 0 && (
-        <>
-          <Text allowFontScaling={false} style={styles.outlineTitle}>PREVIOUS GIVEAWAYS</Text>
-          {previousArticles.map((item) => (
-            <SweepstakesItem key={item.id} item={item} />
-          ))}
-        </>
-      )}
-    </ScrollView>
+    <View style={styles.root}>
+      <GlassHeader showBack/>
+  
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={{
+          paddingTop: insets.top + 80, 
+          paddingBottom: 40,
+          paddingHorizontal: 20,
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        {currentArticles.length > 0 && (
+          <>
+            <Text allowFontScaling={false} style={styles.outlineTitle}>
+              CURRENT GIVEAWAYS
+            </Text>
+            {currentArticles.map((item) => (
+              <SweepstakesItem key={item.id} item={item} />
+            ))}
+          </>
+        )}
+  
+        {previousArticles.length > 0 && (
+          <>
+            <Text allowFontScaling={false} style={styles.outlineTitle}>
+              PREVIOUS GIVEAWAYS
+            </Text>
+            {previousArticles.map((item) => (
+              <SweepstakesItem key={item.id} item={item} />
+            ))}
+          </>
+        )}
+      </ScrollView>
+    </View>
   );
 };
 
@@ -165,8 +187,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingTop: 20,
-    paddingHorizontal: 16,
+  },
+  root: {
+    flex: 1,
+    backgroundColor: "#fff",
   },
   outlineTitle: {
     fontSize: 24,

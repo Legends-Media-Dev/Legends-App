@@ -42,7 +42,6 @@ const ProductCardDiscovery = ({ product, onPress }) => {
 const styles = StyleSheet.create({
   card: {
     width: 170,
-    marginRight: 18,
   },
 
   imageWrapper: {

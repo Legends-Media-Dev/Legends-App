@@ -14,6 +14,7 @@ import HeroImage from "../../components/HeroImage";
 import YoutubeContentBox from "../../components/YoutubeContentBox";
 import CategoryGrid from "../../components/CategoryGrid";
 import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   fetchLatestYouTubeVideo,
@@ -27,6 +28,7 @@ import HorizontalProductRow from "../../components/HorizontalProductRow";
 import HomeGiveawayPreview from "../core/HomeGiveawayPreview";
 
 const NewsScreen = () => {
+  const insets = useSafeAreaInsets();
   const [latestVideo, setLatestVideo] = useState(null);
   const [heroImage, setHeroImage] = useState(null);
   const [heroImageLoading, setHeroImageLoading] = useState(true);
@@ -147,7 +149,9 @@ const NewsScreen = () => {
       )}
       <ScrollView
         style={styles.container}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

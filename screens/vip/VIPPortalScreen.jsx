@@ -17,6 +17,8 @@ import { Image, ImageBackground } from "expo-image";
 import vipBackground from "../../assets/vip-background.png";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
+import GlassHeader from "../../components/GlassHeader";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import {
   fetchCollections,
@@ -30,6 +32,7 @@ import JoinVIPScreen from "./JoinVIPScreen";
 const { width, height } = Dimensions.get("window");
 
 const VipPortalScreen = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [screenData, setScreenData] = useState([]);
@@ -309,15 +312,22 @@ const VipPortalScreen = () => {
 
   // If VIP, show VIP Portal content
   return (
-    <>
+    <View style={styles.root}>
+      <GlassHeader />
+  
       <FlatList
         data={screenData}
         renderItem={renderItem}
         keyExtractor={(item, index) => `${item.type}-${index}`}
-        contentContainerStyle={styles.container}
+        contentContainerStyle={[
+          styles.container,
+          {
+            paddingTop: insets.top + 60,
+          },
+        ]}
         showsVerticalScrollIndicator={false}
       />
-
+  
       <Modal
         visible={!!selectedArticle}
         transparent={true}
@@ -332,28 +342,26 @@ const VipPortalScreen = () => {
             >
               <Ionicons name="close" size={20} color="#000" />
             </TouchableOpacity>
-
+  
             {selectedArticle && (
-              <>
-                <ScrollView showsVerticalScrollIndicator={false}>
-                  <Text allowFontScaling={false} style={styles.articleTitle}>
-                    {selectedArticle.title}
-                  </Text>
-                  <Image
-                    transition={300}
-                    source={{ uri: selectedArticle.image }}
-                    style={styles.articleImage}
-                  />
-                  <Text allowFontScaling={false} style={styles.articleDescription}>
-                    {renderParsedText(selectedArticle.description)}
-                  </Text>
-                </ScrollView>
-              </>
+              <ScrollView showsVerticalScrollIndicator={false}>
+                <Text allowFontScaling={false} style={styles.articleTitle}>
+                  {selectedArticle.title}
+                </Text>
+                <Image
+                  transition={300}
+                  source={{ uri: selectedArticle.image }}
+                  style={styles.articleImage}
+                />
+                <Text allowFontScaling={false} style={styles.articleDescription}>
+                  {renderParsedText(selectedArticle.description)}
+                </Text>
+              </ScrollView>
             )}
           </View>
         </View>
       </Modal>
-    </>
+    </View>
   );
 };
 
@@ -361,7 +369,10 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     paddingHorizontal: 16,
-    paddingTop: 16,
+    backgroundColor: "#FFFFFF",
+  },
+  root: {
+    flex: 1,
     backgroundColor: "#FFFFFF",
   },
   sectionTitle: {

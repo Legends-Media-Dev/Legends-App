@@ -14,13 +14,17 @@ const HorizontalProductRow = ({ title, subtitle, products, onPressItem }) => {
         contentContainerStyle={{ paddingLeft: 20 }}
       >
         {Array.isArray(products) &&
-          products.map((product) => (
-            <ProductCardDiscovery
+          products.map((product, index) => (
+            <View
               key={product.id}
-              product={product}
-              onPress={() => onPressItem(product)}
-            />
-          ))}
+              style={{ marginRight: 18 }}
+            >
+              <ProductCardDiscovery
+                product={product}
+                onPress={() => onPressItem(product)}
+              />
+            </View>
+        ))}
       </ScrollView>
     </View>
   );
@@ -33,7 +37,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 28,
-    fontFamily: "Futura-Medium",
+    fontFamily: "Futura-Bold",
     marginLeft: 20,
   },
 

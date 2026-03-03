@@ -12,6 +12,7 @@ import {
 import ProductCard from "../../components/ProductCard";
 import { fetchAllProductsCollection } from "../../api/shopifyApi";
 import * as Haptics from "expo-haptics";
+import ProductCardDiscovery from "../../components/ProductCardDiscovery";
 
 const { width, height } = Dimensions.get("window");
 
@@ -40,35 +41,22 @@ const CollectionScreen = ({ route, navigation }) => {
   // console.log(products[1].variants.edges[0].node.availableForSale);
   const renderProductItem = ({ item }) => {
     const allVariants = item.variants.edges.map((edge) => edge.node);
-    const isSoldOut = allVariants.every((variant) => !variant.availableForSale);
-
+    const isSoldOut = allVariants.every(
+      (variant) => !variant.availableForSale
+    );
+  
     return (
-      <TouchableOpacity
-        style={styles.productWrapper}
-        activeOpacity={1}
-        onPress={async () => {
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          navigation.navigate("Product", { product: item });
-        }}
-      >
-        <ProductCard
-          image={item.images.edges[0]?.node.src || "..assets/Legends.png"}
-          name={item.title || "No Name"}
-          price={
-            item.variants.edges[0]?.node.price?.amount
-              ? parseFloat(item.variants.edges[0].node.price.amount).toFixed(2)
-              : "N/A"
-          }
-          compareAtPrice={
-            item.variants.edges[0]?.node.compareAtPrice?.amount
-              ? parseFloat(
-                  item.variants.edges[0].node.compareAtPrice.amount
-                ).toFixed(2)
-              : null
-          }
-          availableForSale={!isSoldOut}
+      <View style={styles.productWrapper}>
+        <ProductCardDiscovery
+          product={item}
+          onPress={async () => {
+            await Haptics.impactAsync(
+              Haptics.ImpactFeedbackStyle.Medium
+            );
+            navigation.navigate("Product", { product: item });
+          }}
         />
-      </TouchableOpacity>
+      </View>
     );
   };
 
@@ -98,10 +86,8 @@ const CollectionScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#F2F2F2",
-    width: "100%",
-    justifyContent: "center",
-    alignItems: "center",
+    flex: 1,
+    backgroundColor: "#FAFAFA",
   },
   loadingContainer: {
     flex: 1,
@@ -120,9 +106,8 @@ const styles = StyleSheet.create({
   },
   productWrapper: {
     width: width / 2,
-    height: height / 3.3,
-    padding: 8,
-    alignItems: "flex-start",
+    paddingHorizontal: 15,
+    marginBottom: 24,
   },
   loadingOverlay: {
     position: "absolute",

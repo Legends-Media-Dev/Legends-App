@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
 
   sectionTitle: {
     fontSize: 28,
-    fontFamily: "Futura-Bold",
+    fontFamily: "Futura-Medium",
     marginBottom: 30,
   },
 

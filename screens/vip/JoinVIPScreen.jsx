@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import { Image, ImageBackground } from "expo-image";
 
+import GlassHeader, { HEADER_HEIGHT } from "../../components/GlassHeader";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 const { width } = Dimensions.get("window");
 
 const perks = [
@@ -28,7 +30,7 @@ const perks = [
 
 function JoinVIPScreen() {
   const [loading, setLoading] = React.useState(true);
-
+  const insets = useSafeAreaInsets();
   const handlePress = () => {
     Linking.openURL('https://legends.media/pages/vip-page');
   }
@@ -49,38 +51,62 @@ function JoinVIPScreen() {
   }
 
   return (
-    <ImageBackground
-      transition={300}
-      source={require("../../assets/vip-dark-background.png")}
-      style={styles.background}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.card}>
-          <Text allowFontScaling={false} style={styles.tierLabel}>GOLD</Text>
-          <Text style={styles.priceText}>
-            $25<Text style={styles.moText}>/mo</Text>
-          </Text>
-
-          <View style={styles.perkSection}>
-            {perks.map((perk, index) => (
-              <View key={index} style={styles.perkRow}>
-                <Text allowFontScaling={false} style={styles.dot}>●</Text>
-                <Text allowFontScaling={false} style={styles.perkText}>{perk}</Text>
-              </View>
-            ))}
+    <View style={styles.root}>
+      <GlassHeader />
+  
+      <ImageBackground
+        transition={300}
+        source={require("../../assets/vip-dark-background.png")}
+        style={styles.background}
+      >
+        <ScrollView
+          contentContainerStyle={[
+            styles.container,
+            {
+              paddingTop: insets.top + HEADER_HEIGHT + 20,
+            },
+          ]}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.card}>
+            <Text allowFontScaling={false} style={styles.tierLabel}>
+              GOLD
+            </Text>
+  
+            <Text style={styles.priceText}>
+              $25<Text style={styles.moText}>/mo</Text>
+            </Text>
+  
+            <View style={styles.perkSection}>
+              {perks.map((perk, index) => (
+                <View key={index} style={styles.perkRow}>
+                  <Text allowFontScaling={false} style={styles.dot}>●</Text>
+                  <Text allowFontScaling={false} style={styles.perkText}>
+                    {perk}
+                  </Text>
+                </View>
+              ))}
+            </View>
+  
+            <TouchableOpacity
+              style={styles.joinButton}
+              activeOpacity={1}
+              onPress={handlePress}
+            >
+              <Text allowFontScaling={false} style={styles.joinButtonText}>
+                JOIN ONLINE TODAY
+              </Text>
+            </TouchableOpacity>
           </View>
-
-          <TouchableOpacity style={styles.joinButton} activeOpacity={1} onPress={handlePress}>
-            <Text allowFontScaling={false} style={styles.joinButtonText}>JOIN ONLINE TODAY</Text>
-          </TouchableOpacity>
-        </View>
-        <Image
-          transition={300}
-          source={require("../../assets/How_VIP_Works.png")} 
-          style={styles.productImage}
-        />
-      </ScrollView>
-    </ImageBackground>
+  
+          <Image
+            transition={300}
+            source={require("../../assets/How_VIP_Works.png")}
+            style={styles.productImage}
+          />
+        </ScrollView>
+      </ImageBackground>
+    </View>
   );
 }
 
@@ -91,6 +117,9 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     alignItems: "center",
+  },
+  root: {
+    flex: 1,
   },
   card: {
     backgroundColor: "#fff",
