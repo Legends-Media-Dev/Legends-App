@@ -83,6 +83,7 @@ function EntriesScreen({ route }) {
         });
 
         setOrders(sortedOrders);
+        console.log("Fetche Orders", fetchedOrders);
       } catch (error) {
         console.error("Failed to fetch customer orders:", error.message);
       } finally {
@@ -140,13 +141,18 @@ function EntriesScreen({ route }) {
     return 0;
   };
 
+  const isOrderCancelled = (order) => {
+    const canceledAt = order.canceledAt ?? order.cancelledAt ?? null;
+    return canceledAt != null && canceledAt !== "";
+  };
+
   const vipMult = getVipMultiplier(customerTags ?? []);
   const totalEntries = useMemo(() => {
     if (giveawayMultiplier <= 0 || !orders.length) return 0;
-    const orderData = orders.reduce(
-      (sum, order) => sum + getOrderSubtotalDollars(order),
-      0
-    );
+    const orderData = orders.reduce((sum, order) => {
+      if (isOrderCancelled(order)) return sum;
+      return sum + getOrderSubtotalDollars(order);
+    }, 0);
     return Math.floor(orderData * giveawayMultiplier * vipMult);
   }, [orders, customerTags, giveawayMultiplier]);
 
@@ -187,9 +193,12 @@ function EntriesScreen({ route }) {
           data={orders}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => {
-            const orderEntries = Math.floor(
-              getOrderSubtotalDollars(item) * giveawayMultiplier * vipMult
-            );
+            const cancelled = isOrderCancelled(item);
+            const orderEntries = cancelled
+              ? 0
+              : Math.floor(
+                  getOrderSubtotalDollars(item) * giveawayMultiplier * vipMult
+                );
             return (
               <TouchableOpacity
                 style={styles.orderItem}
@@ -219,13 +228,29 @@ function EntriesScreen({ route }) {
                 </View>
                 <View style={styles.bottomContainer}>
                   <View style={styles.orderEntriesRow}>
-                    <Image
-                      source={{ uri: TICKET_ICON_URI }}
-                      style={styles.orderEntriesIcon}
-                    />
-                    <Text allowFontScaling={false} style={styles.orderInfoTextBig}>
-                      {orderEntries} ENTRIES
-                    </Text>
+                    {cancelled ? (
+                      <View style={styles.orderStatusCancelledPill}>
+                        <Text
+                          allowFontScaling={false}
+                          style={styles.orderStatusCancelledText}
+                        >
+                          CANCELLED
+                        </Text>
+                      </View>
+                    ) : (
+                      <>
+                        <Image
+                          source={{ uri: TICKET_ICON_URI }}
+                          style={styles.orderEntriesIcon}
+                        />
+                        <Text
+                          allowFontScaling={false}
+                          style={styles.orderInfoTextBig}
+                        >
+                          {orderEntries} ENTRIES
+                        </Text>
+                      </>
+                    )}
                   </View>
                   <View>
                     <Text allowFontScaling={false} style={styles.orderInfoTextBig}>
@@ -337,6 +362,18 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: "#000000",
     fontFamily: "Futura-Medium",
+  },
+  orderStatusCancelledPill: {
+    backgroundColor: "#FFE5E5",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  orderStatusCancelledText: {
+    fontSize: 14,
+    color: "#B71C1C",
+    fontFamily: "Futura-Bold",
+    letterSpacing: 0.5,
   },
   noOrders: {
     fontSize: 16,
