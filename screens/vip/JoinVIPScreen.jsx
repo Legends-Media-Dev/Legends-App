@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import {
   View,
   Text,
@@ -7,8 +7,10 @@ import {
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
-  Linking
+  Linking,
+  Animated,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import { Image, ImageBackground } from "expo-image";
 
 import GlassHeader, { HEADER_HEIGHT } from "../../components/GlassHeader";
@@ -29,6 +31,8 @@ const perks = [
 ];
 
 function JoinVIPScreen() {
+  const navigation = useNavigation();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = React.useState(true);
   const insets = useSafeAreaInsets();
   const handlePress = () => {
@@ -52,20 +56,25 @@ function JoinVIPScreen() {
 
   return (
     <View style={styles.root}>
-      <GlassHeader />
+      <GlassHeader variant="light" showSearchOnLeft={navigation.getState().index === 0} scrollY={scrollY} />
   
       <ImageBackground
         transition={300}
         source={require("../../assets/vip-dark-background.png")}
         style={styles.background}
       >
-        <ScrollView
+        <Animated.ScrollView
           contentContainerStyle={[
             styles.container,
             {
               paddingTop: insets.top + HEADER_HEIGHT + 20,
             },
           ]}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: true }
+          )}
+          scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.card}>
@@ -104,7 +113,7 @@ function JoinVIPScreen() {
             source={require("../../assets/How_VIP_Works.png")}
             style={styles.productImage}
           />
-        </ScrollView>
+        </Animated.ScrollView>
       </ImageBackground>
     </View>
   );

@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
+import GlassHeader from "../../components/GlassHeader";
+import { getScreenContentWrapperStyle } from "../../constants/layout";
 import { forgotPassword } from "../../api/shopifyApi";
 import { Image } from "expo-image";
 
 const ForgotPasswordScreen = ({ route, navigation }) => {
-  // State for managing input values
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -42,7 +45,8 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.outerContainer}>
-      <View>
+      <GlassHeader />
+      <View style={getScreenContentWrapperStyle(insets)}>
         {/* Logo Section */}
         <View style={styles.imageContainer}>
           <Image

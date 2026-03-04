@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   Text,
@@ -6,11 +6,13 @@ import {
   ScrollView,
   ActivityIndicator,
   TouchableOpacity,
+  Animated,
 } from "react-native";
 import { fetchBlogArticles } from "../../api/shopifyApi";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import GlassHeader from "../../components/GlassHeader";
+import { getScreenContentPadding } from "../../constants/layout";
 
 const extractSweepstakesData = (article) => {
   console.log(article);
@@ -95,6 +97,7 @@ const SweepstakesItem = ({ item }) => {
 
 const SweepstakesScreen = () => {
   const insets = useSafeAreaInsets();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const [currentArticles, setCurrentArticles] = useState([]);
   const [previousArticles, setPreviousArticles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -136,7 +139,7 @@ const SweepstakesScreen = () => {
   if (loading) {
     return (
       <View style={styles.root}>
-        <GlassHeader />
+        <GlassHeader scrollY={scrollY} />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color="#333" />
         </View>
@@ -146,15 +149,19 @@ const SweepstakesScreen = () => {
   
   return (
     <View style={styles.root}>
-      <GlassHeader showBack/>
+      <GlassHeader scrollY={scrollY} />
   
-      <ScrollView
+      <Animated.ScrollView
         style={styles.container}
         contentContainerStyle={{
-          paddingTop: insets.top + 80, 
+          ...getScreenContentPadding(insets),
           paddingBottom: 40,
-          paddingHorizontal: 20,
         }}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
       >
         {currentArticles.length > 0 && (
@@ -178,7 +185,7 @@ const SweepstakesScreen = () => {
             ))}
           </>
         )}
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   );
 };

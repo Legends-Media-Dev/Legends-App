@@ -7,7 +7,11 @@ import {
   Dimensions,
   FlatList,
   ActivityIndicator,
+  Animated,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import GlassHeader from "../../components/GlassHeader";
+import { getScreenContentPadding, SCREEN_PADDING_HORIZONTAL } from "../../constants/layout";
 import ProductCard from "../../components/ProductCard";
 import * as Haptics from "expo-haptics";
 
@@ -15,6 +19,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ScrollView } from "react-native-gesture-handler";
 import { useCart } from "../../context/CartContext"; // Import CartContext
 const { width } = Dimensions.get("window");
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 import AddToCartModal from "../../components/AddToCartModal";
 
 import { getRecentlyViewedProducts, getCustomerInfo } from "../../utils/storage";
@@ -39,6 +44,8 @@ function getVipMultiplier(tags) {
 }
 
 const ProductScreen = ({ route, navigation }) => {
+  const insets = useSafeAreaInsets();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const { addItemToCart } = useCart();
   const { multiplier: giveawayMultiplier } = useGiveaway();
   const { product } = route.params;
@@ -274,7 +281,19 @@ const ProductScreen = ({ route, navigation }) => {
         }}
       />
 
-      <ScrollView style={styles.container}>
+      <GlassHeader variant="dark" scrollY={scrollY} />
+      <AnimatedScrollView
+        style={styles.container}
+        contentContainerStyle={[
+          getScreenContentPadding(insets),
+          { paddingHorizontal: 0 },
+        ]}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
+      >
         <View style={styles.imageContainer}>
           <FlatList
             data={photos}
@@ -306,9 +325,9 @@ const ProductScreen = ({ route, navigation }) => {
           ) : null}
         </View>
 
-        {/* Product Details */}
-        <View style={styles.detailsContainer}>
-          <View style={{ padding: 20, paddingBottom: 5 }}>
+        {/* Product Details - single horizontal padding for full-width layout */}
+        <View style={[styles.detailsContainer, { paddingHorizontal: SCREEN_PADDING_HORIZONTAL }]}>
+          <View style={{ paddingBottom: 5 }}>
             {!product.variants.edges.some((v) => v.node.availableForSale) ? (
               <Text allowFontScaling={false} style={styles.productSoldOutTitle}>SOLD OUT</Text>
             ) : null}
@@ -340,14 +359,13 @@ const ProductScreen = ({ route, navigation }) => {
           </View>
           <View
             style={{
-              height: "1",
+              height: 1,
               backgroundColor: "#D9D9D9",
-              marginLeft: 20,
-              marginRight: 20,
+              marginHorizontal: -SCREEN_PADDING_HORIZONTAL,
               marginBottom: 20,
             }}
           />
-          <View style={{ paddingLeft: 20, paddingRight: 20, marginBottom: 40 }}>
+          <View style={{ marginBottom: 40 }}>
             <Text allowFontScaling={false} style={styles.productDescription}>{product.description}</Text>
           </View>
 
@@ -361,14 +379,6 @@ const ProductScreen = ({ route, navigation }) => {
                     {getSizeIndicator(selectedSize)}
                   </Text>
                 </Text>
-                {/* <TouchableOpacity style={styles.sizeGuideContainer}>
-                  <Text allowFontScaling={false} style={styles.sizeGuide}>Size Guide </Text>
-                  <Ionicons
-                    name="chevron-forward-outline"
-                    size={20}
-                    color="#000"
-                  />
-                </TouchableOpacity> */}
               </View>
               <View style={{ paddingLeft: 10 }}>
                 <View style={styles.gridContainer}>
@@ -443,36 +453,34 @@ const ProductScreen = ({ route, navigation }) => {
           </View>
 
           {/* Buttons */}
-          <View>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.addToBagButton,
-                  {
-                    backgroundColor: product.variants.edges.some(
-                      (v) => v.node.availableForSale
-                    )
-                      ? "black"
-                      : "grey",
-                  },
-                ]}
-                disabled={
-                  !product.variants.edges.some(
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[
+                styles.addToBagButton,
+                {
+                  backgroundColor: product.variants.edges.some(
                     (v) => v.node.availableForSale
-                  ) || isAddingToCart // disable during loading
-                }
-                onPress={async () => {
-                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  await handleAddToCart();
-                }}
-              >
-                {isAddingToCart ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Text allowFontScaling={false} style={styles.addToBagText}>Add to cart</Text>
-                )}
-              </TouchableOpacity>
-            </View>
+                  )
+                    ? "black"
+                    : "grey",
+                },
+              ]}
+              disabled={
+                !product.variants.edges.some(
+                  (v) => v.node.availableForSale
+                ) || isAddingToCart // disable during loading
+              }
+              onPress={async () => {
+                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                await handleAddToCart();
+              }}
+            >
+              {isAddingToCart ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text allowFontScaling={false} style={styles.addToBagText}>Add to cart</Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
         <View>
@@ -492,7 +500,7 @@ const ProductScreen = ({ route, navigation }) => {
               keyExtractor={(item) => item.id}
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingLeft: 20, paddingBottom: 20 }}
+              contentContainerStyle={{ paddingLeft: SCREEN_PADDING_HORIZONTAL, paddingBottom: 20 }}
               renderItem={({ item }) => {
                 const variant = item.variants.edges[0]?.node;
                 const price = parseFloat(variant?.price?.amount || "0").toFixed(
@@ -540,7 +548,7 @@ const ProductScreen = ({ route, navigation }) => {
             />
           )}
         </View>
-      </ScrollView>
+      </AnimatedScrollView>
     </>
   );
 };
@@ -601,6 +609,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#000",
     marginBottom: 10,
+    marginTop: 15,
     fontFamily: "Futura-Bold",
   },
   lowerCTAButton: {
@@ -618,7 +627,7 @@ const styles = StyleSheet.create({
   productSoldOutTitle: {
     fontSize: 20,
     color: "C8102F",
-    marginBottom: 10,
+    marginTop: 15,
     fontFamily: "Futura-Bold",
   },
   priceRow: {
@@ -713,8 +722,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingLeft: 20,
-    paddingRight: 20,
   },
   applePayButton: {
     backgroundColor: "#000",
@@ -745,8 +752,6 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingLeft: 20,
-    paddingRight: 20,
   },
   sizeGuideContainer: {
     display: "flex",
@@ -756,8 +761,6 @@ const styles = StyleSheet.create({
   },
 
   quantityContainer: {
-    paddingLeft: 20,
-    paddingRight: 20,
     marginBottom: 20,
   },
   label: {

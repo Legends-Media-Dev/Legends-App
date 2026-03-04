@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import GlassHeader from "../../components/GlassHeader";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
@@ -10,6 +10,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
+  Animated,
 } from "react-native";
 import {
   fetchCollections,
@@ -18,10 +19,12 @@ import {
 import { FlatList } from "react-native-gesture-handler";
 
 const { width, height } = Dimensions.get("window");
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const ShopScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const collectionLabelMap = {
@@ -111,23 +114,28 @@ const ShopScreen = () => {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlassHeader />
-  
+      <GlassHeader variant="dark" showSearchOnLeft scrollY={scrollY} />
+
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" />
         </View>
       )}
-  
+
       <View style={styles.container}>
-        <FlatList
+        <AnimatedFlatList
           data={collections}
           keyExtractor={(item) => item.id}
           renderItem={renderCollectionItem}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: true }
+          )}
+          scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={[
             styles.flatListContent,
-            { paddingTop: insets.top + 80 }
+            { paddingTop: insets.top + 50 }
           ]}
         />
       </View>

@@ -1,13 +1,14 @@
-import React from "react";
-import { View, StyleSheet } from "react-native";
+import React, { useRef } from "react";
+import { View, StyleSheet, Animated } from "react-native";
 import NewsScreen from "../homeTabViews/NewsScreen";
 import GlassHeader from "../../components/GlassHeader";
 
 export default function HomeScreen() {
+  const scrollY = useRef(new Animated.Value(0)).current;
   return (
     <View style={styles.container}>
-      <GlassHeader />
-      <NewsScreen />
+      <GlassHeader variant="light" showSearchOnLeft scrollY={scrollY} />
+      <NewsScreen scrollY={scrollY} />
     </View>
   );
 }

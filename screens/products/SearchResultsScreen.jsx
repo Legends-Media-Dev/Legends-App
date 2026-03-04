@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   View,
   FlatList,
@@ -7,20 +7,27 @@ import {
   StyleSheet,
   Dimensions,
   ActivityIndicator,
+  Animated,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Fuse from "fuse.js";
 import { fetchAllProductsCollection } from "../../api/shopifyApi";
+import GlassHeader from "../../components/GlassHeader";
+import { getScreenContentPadding, getScreenContentWrapperStyle } from "../../constants/layout";
 import ProductCard from "../../components/ProductCard";
 import * as Haptics from "expo-haptics";
 
 const { width, height } = Dimensions.get("window");
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const SearchResultsScreen = ({ route, navigation }) => {
+  const insets = useSafeAreaInsets();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const { query } = route.params;
   const [results, setResults] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isReady, setIsReady] = useState(false); // 🆕 ensures products loaded before showing anything
+  const [isReady, setIsReady] = useState(false);
 
   // 🧠 Load all products for fuzzy search
   useEffect(() => {
@@ -115,11 +122,13 @@ const SearchResultsScreen = ({ route, navigation }) => {
     );
   };
 
-  // 🧩 unified render logic (no flicker)
   if (!isReady || loading) {
     return (
-      <View style={styles.loadingOverlay}>
-        <ActivityIndicator size="small" />
+      <View style={styles.container}>
+        <GlassHeader scrollY={scrollY} />
+        <View style={[styles.loadingOverlay, getScreenContentPadding(insets)]}>
+          <ActivityIndicator size="small" />
+        </View>
       </View>
     );
   }
@@ -127,19 +136,28 @@ const SearchResultsScreen = ({ route, navigation }) => {
   if (results.length === 0) {
     return (
       <View style={styles.container}>
-        <Text allowFontScaling={false} style={styles.noResultsText}>No products found.</Text>
+        <GlassHeader scrollY={scrollY} />
+        <View style={[getScreenContentWrapperStyle(insets), { justifyContent: "center" }]}>
+          <Text allowFontScaling={false} style={styles.noResultsText}>No products found.</Text>
+        </View>
       </View>
     );
   }
 
   return (
     <View style={styles.container}>
-      <FlatList
+      <GlassHeader scrollY={scrollY} />
+      <AnimatedFlatList
         data={results}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         numColumns={2}
-        contentContainerStyle={styles.flatListContent}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
+        contentContainerStyle={[styles.flatListContent, getScreenContentPadding(insets)]}
         showsVerticalScrollIndicator={false}
       />
     </View>

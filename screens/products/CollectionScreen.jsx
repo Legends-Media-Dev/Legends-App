@@ -1,5 +1,5 @@
 // Collection Screen
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   StyleSheet,
   View,
@@ -8,7 +8,11 @@ import {
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
+  Animated,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import GlassHeader from "../../components/GlassHeader";
+import { getScreenContentPadding } from "../../constants/layout";
 import ProductCard from "../../components/ProductCard";
 import { fetchAllProductsCollection } from "../../api/shopifyApi";
 import * as Haptics from "expo-haptics";
@@ -16,10 +20,14 @@ import ProductCardDiscovery from "../../components/ProductCardDiscovery";
 
 const { width, height } = Dimensions.get("window");
 
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+
 const CollectionScreen = ({ route, navigation }) => {
+  const insets = useSafeAreaInsets();
   const { handle, title } = route.params;
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const scrollY = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const getProducts = async () => {
@@ -44,7 +52,7 @@ const CollectionScreen = ({ route, navigation }) => {
     const isSoldOut = allVariants.every(
       (variant) => !variant.availableForSale
     );
-  
+
     return (
       <View style={styles.productWrapper}>
         <ProductCardDiscovery
@@ -68,14 +76,23 @@ const CollectionScreen = ({ route, navigation }) => {
         </View>
       )}
       <View style={styles.container}>
-        <FlatList
+        <GlassHeader variant="dark" scrollY={scrollY} />
+        <AnimatedFlatList
           data={products}
           keyExtractor={(item) => item.id}
           renderItem={renderProductItem}
           numColumns={2}
+          ListHeaderComponent={<View style={styles.listTopSpacer} />}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: true }
+          )}
+          scrollEventThrottle={16}
           contentContainerStyle={[
             styles.flatListContent,
+            getScreenContentPadding(insets),
             products.length === 1 && { alignItems: "flex-start" },
+            { paddingBottom: (insets?.bottom ?? 0) + 90 },
           ]}
           showsVerticalScrollIndicator={false}
         />
@@ -101,8 +118,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   flatListContent: {
-    paddingBottom: 16,
     paddingTop: 0,
+  },
+  listTopSpacer: {
+    height: 12,
   },
   productWrapper: {
     width: width / 2,

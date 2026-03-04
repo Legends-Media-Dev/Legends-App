@@ -6,17 +6,19 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
+import GlassHeader from "../../components/GlassHeader";
+import { getScreenContentWrapperStyle } from "../../constants/layout";
 import { customerSignIn, fetchCustomerDetails } from "../../api/shopifyApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { registerForPushNotificationsAsync } from "../../utils/notifications";
-
-// 🔹 import helpers for push token linking
 import { setCustomerInfo } from "../../utils/storage";
 
 const LoginScreen = ({ route, navigation }) => {
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const passwordInputRef = useRef(null);
@@ -97,13 +99,14 @@ const LoginScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.outerContainer}>
+      <GlassHeader />
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" />
         </View>
       )}
 
-      <View>
+      <View style={getScreenContentWrapperStyle(insets)}>
         {/* Logo */}
         <View style={styles.imageContainer}>
           <Image

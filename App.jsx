@@ -15,7 +15,6 @@ Animated.Text.defaultProps.allowFontScaling = false;
 import React, { useEffect, useState, useRef } from "react";
 import {
   NavigationContainer,
-  Modal,
   useNavigationContainerRef,
 } from "@react-navigation/native";
 
@@ -27,9 +26,12 @@ import { registerForPushNotificationsAsync } from "./utils/notifications";
 
 const PROJECT_ID = "53372938-06cb-43b4-8f47-24a1359a4711";
 
-import { HeaderStyleInterpolators } from "@react-navigation/stack";
+import {
+  HeaderStyleInterpolators,
+  CardStyleInterpolators,
+  createStackNavigator,
+} from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { createStackNavigator } from "@react-navigation/stack";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import CartIconWithBadge from "./components/CartIconBadge";
 
@@ -129,6 +131,7 @@ function MainStack() {
       initialRouteName="MainScreen"
       screenOptions={{
         headerShown: false,
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
       }}
     >
       <Stack.Screen name="MainScreen" component={MainScreen} />
@@ -151,6 +154,7 @@ function ShopStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
       }}
     >
       <Stack.Screen name="Shop" component={ShopScreen} />
@@ -169,6 +173,7 @@ function VipStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
       }}
     >
       <Stack.Screen name="VipPortalScreen" component={VIPPortalScreen} />
@@ -189,6 +194,7 @@ function SweepstakesStack() {
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
       }}
     >
       <Stack.Screen name="Sweepstakes" component={SweepstakesScreen} />
@@ -234,6 +240,7 @@ function AccountStack() {
         headerShown: false,
         headerBackTitleVisible: false,
         headerStyleInterpolator: HeaderStyleInterpolators.forNoAnimation,
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
       }}
     >
       {isAuthenticated ? (
@@ -456,6 +463,14 @@ export default function App() {
   );
 }
 
+// Root screen for each tab — tapping the active tab goes back here (navigate so no POP_TO_TOP error)
+const TAB_ROOT_SCREENS = {
+  HOME: "MainScreen",
+  SHOP: "Shop",
+  VIP: "VipPortalScreen",
+  ACCOUNT: "Account",
+};
+
 function GlassTabBar({ state, descriptors, navigation }) {
   return (
     <View style={styles.tabBarWrapper}>
@@ -465,6 +480,13 @@ function GlassTabBar({ state, descriptors, navigation }) {
           const isFocused = state.index === index;
 
           const onPress = () => {
+            if (isFocused) {
+              const rootScreen = TAB_ROOT_SCREENS[route.name];
+              if (rootScreen) {
+                navigation.navigate(route.name, { screen: rootScreen });
+                return;
+              }
+            }
             navigation.navigate(route.name);
           };
 

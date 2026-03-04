@@ -27,8 +27,10 @@ import { getCustomerInfo } from "../../utils/storage";
 import HorizontalProductRow from "../../components/HorizontalProductRow";
 import HomeGiveawayPreview from "../core/HomeGiveawayPreview";
 
-const NewsScreen = () => {
+const NewsScreen = ({ scrollY: scrollYProp }) => {
   const insets = useSafeAreaInsets();
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const scrollYToUse = scrollYProp ?? scrollY;
   const [latestVideo, setLatestVideo] = useState(null);
   const [heroImage, setHeroImage] = useState(null);
   const [heroImageLoading, setHeroImageLoading] = useState(true);
@@ -36,14 +38,13 @@ const NewsScreen = () => {
   const [newArrivalProducts, setNewArrivalProducts] = useState([]);
   const [customerVIPStatus, setCustomerVIPStatus] = useState(false);
   const [categoryCollections, setCategoryCollections] = useState([]);
-  const scrollY = useRef(new Animated.Value(0)).current;
   const navigation = useNavigation();
 
   const hasFetchedVideo = useRef(false);
   const loading = heroImageLoading;
 
   const loadVideo = async () => {
-    if (hasFetchedVideo.current) return; // prevent rerun
+    if (hasFetchedVideo.current) return; // prevent rerun on initial mount
     hasFetchedVideo.current = true;
 
     try {
@@ -51,8 +52,7 @@ const NewsScreen = () => {
       setLatestVideo(data);
     } catch (err) {
       console.error("Failed to load video:", err);
-    } finally {
-      setVideoLoading(false);
+      setLatestVideo(null);
     }
   };
 
@@ -104,6 +104,7 @@ const NewsScreen = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
+    hasFetchedVideo.current = false; // allow loadVideo to refetch on refresh
     try {
       await Promise.all([
         fetchHero(),
@@ -147,11 +148,16 @@ const NewsScreen = () => {
           <ActivityIndicator size="small" />
         </View>
       )}
-      <ScrollView
+      <Animated.ScrollView
         style={styles.container}
         contentContainerStyle={[
           styles.scrollContent,
         ]}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollYToUse } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
@@ -176,14 +182,14 @@ const NewsScreen = () => {
             navigation.navigate("Product", { product })
           }
         />
-        {/* Youtube video */}
-        {/* {latestVideo && (
+        {/* YouTube video from Firebase (fetchLatestYouTubeVideo) */}
+        {latestVideo?.videoId && (
           <YoutubeContentBox
-            topTitle={latestVideo.title}
-            thumbnail={latestVideo.thumbnail}
+            topTitle={latestVideo.title ?? ""}
+            thumbnail={latestVideo.thumbnail ?? ""}
             videoId={latestVideo.videoId}
           />
-        )} */}
+        )}
         {/* Content Grid */}
         <CategoryGrid collections={categoryCollections}/>
         
@@ -217,7 +223,7 @@ const NewsScreen = () => {
         )}
         <HomeGiveawayPreview />
 
-      </ScrollView>
+      </Animated.ScrollView>
     </>
   );
 };

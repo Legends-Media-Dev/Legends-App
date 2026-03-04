@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,16 @@ import {
   ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
+  Animated,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "expo-image";
+import GlassHeader from "../../components/GlassHeader";
+import { getScreenContentWrapperStyle, SCREEN_PADDING_HORIZONTAL } from "../../constants/layout";
 import { fetchAllCustomerOrders } from "../../api/shopifyApi";
+
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 import { getCustomerInfo } from "../../utils/storage";
 import { useGiveaway } from "../../context/GiveawayContext";
 
@@ -26,6 +32,8 @@ function getVipMultiplier(tags) {
 }
 
 function EntriesScreen({ route }) {
+  const insets = useSafeAreaInsets();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const { accessToken } = route.params || {};
   const { multiplier: giveawayMultiplier, startDate, endDate } = useGiveaway();
   const [orders, setOrders] = useState([]);
@@ -166,107 +174,118 @@ function EntriesScreen({ route }) {
 
   return (
     <View style={styles.container}>
-      <Text allowFontScaling={false} style={styles.header}>
-        Giveaway Orders
-      </Text>
-      <View style={styles.totalEntriesRow}>
-        <Text allowFontScaling={false} style={styles.totalEntriesLabel}>
-          Total Entries:
+      <GlassHeader variant="dark" scrollY={scrollY} />
+      <View style={getScreenContentWrapperStyle(insets)}>
+        <Text allowFontScaling={false} style={styles.header}>
+          Giveaway Orders
         </Text>
-        <View style={styles.totalEntriesValueRow}>
-          <Image
-            source={{ uri: TICKET_ICON_URI }}
-            style={styles.totalEntriesIcon}
-          />
-          <Text allowFontScaling={false} style={styles.totalEntriesValue}>
-            {totalEntries}
+        <View style={styles.totalEntriesRow}>
+          <Text allowFontScaling={false} style={styles.totalEntriesLabel}>
+            Total Entries:
           </Text>
+          <View style={styles.totalEntriesValueRow}>
+            <Image
+              source={{ uri: TICKET_ICON_URI }}
+              style={styles.totalEntriesIcon}
+            />
+            <Text allowFontScaling={false} style={styles.totalEntriesValue}>
+              {totalEntries}
+            </Text>
+          </View>
         </View>
-      </View>
-      {loading ? (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="small" />
-        </View>
-      ) : orders.length > 0 ? (
-        <FlatList
-          style={{ paddingTop: 10 }}
-          data={orders}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => {
-            const cancelled = isOrderCancelled(item);
-            const orderEntries = cancelled
-              ? 0
-              : Math.floor(
-                  getOrderSubtotalDollars(item) * giveawayMultiplier * vipMult
-                );
-            return (
-              <TouchableOpacity
-                style={styles.orderItem}
-                onPress={() => handleOrderPress(item.statusUrl)}
-              >
-                <View style={styles.topContainer}>
-                  <View style={styles.topLeftContainer}>
-                    <Text allowFontScaling={false} style={styles.orderText}>
-                      Order Number
-                    </Text>
-                    <Text allowFontScaling={false} style={styles.orderInfoText}>
-                      {item.orderNumber}
-                    </Text>
-                  </View>
-                  <View style={styles.topRightContainer}>
-                    <Text allowFontScaling={false} style={styles.orderText}>
-                      Order Date
-                    </Text>
-                    <Text allowFontScaling={false} style={styles.orderInfoText}>
-                      {new Date(item.processedAt).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                      })}
-                    </Text>
-                  </View>
-                </View>
-                <View style={styles.bottomContainer}>
-                  <View style={styles.orderEntriesRow}>
-                    {cancelled ? (
-                      <View style={styles.orderStatusCancelledPill}>
-                        <Text
-                          allowFontScaling={false}
-                          style={styles.orderStatusCancelledText}
-                        >
-                          CANCELLED
+        {loading ? (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="small" />
+          </View>
+        ) : orders.length > 0 ? (
+          <View style={styles.listContainer}>
+            <AnimatedFlatList
+              style={{ paddingTop: 10 }}
+              contentContainerStyle={styles.listContent}
+              data={orders}
+              keyExtractor={(item, index) => index.toString()}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                { useNativeDriver: true }
+              )}
+              scrollEventThrottle={16}
+              renderItem={({ item }) => {
+                const cancelled = isOrderCancelled(item);
+                const orderEntries = cancelled
+                  ? 0
+                  : Math.floor(
+                    getOrderSubtotalDollars(item) * giveawayMultiplier * vipMult
+                  );
+                return (
+                  <TouchableOpacity
+                    style={styles.orderItem}
+                    onPress={() => handleOrderPress(item.statusUrl)}
+                  >
+                    <View style={styles.topContainer}>
+                      <View style={styles.topLeftContainer}>
+                        <Text allowFontScaling={false} style={styles.orderText}>
+                          Order Number
+                        </Text>
+                        <Text allowFontScaling={false} style={styles.orderInfoText}>
+                          {item.orderNumber}
                         </Text>
                       </View>
-                    ) : (
-                      <>
-                        <Image
-                          source={{ uri: TICKET_ICON_URI }}
-                          style={styles.orderEntriesIcon}
-                        />
-                        <Text
-                          allowFontScaling={false}
-                          style={styles.orderInfoTextBig}
-                        >
-                          {orderEntries} ENTRIES
+                      <View style={styles.topRightContainer}>
+                        <Text allowFontScaling={false} style={styles.orderText}>
+                          Order Date
                         </Text>
-                      </>
-                    )}
-                  </View>
-                  <View>
-                    <Text allowFontScaling={false} style={styles.orderInfoTextBig}>
-                      ${parseFloat(item.totalPrice?.amount ?? 0).toFixed(2)}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          }}
-        />
-      ) : (
-        <Text allowFontScaling={false} style={styles.noOrders}>
-          No orders found during the giveaway period.
-        </Text>
-      )}
+                        <Text allowFontScaling={false} style={styles.orderInfoText}>
+                          {new Date(item.processedAt).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </Text>
+                      </View>
+                    </View>
+                    <View style={styles.bottomContainer}>
+                      <View style={styles.orderEntriesRow}>
+                        {cancelled ? (
+                          <View style={styles.orderStatusCancelledPill}>
+                            <Text
+                              allowFontScaling={false}
+                              style={styles.orderStatusCancelledText}
+                            >
+                              CANCELLED
+                            </Text>
+                          </View>
+                        ) : (
+                          <>
+                            <Image
+                              source={{ uri: TICKET_ICON_URI }}
+                              style={styles.orderEntriesIcon}
+                            />
+                            <Text
+                              allowFontScaling={false}
+                              style={styles.orderInfoTextBig}
+                            >
+                              {orderEntries} ENTRIES
+                            </Text>
+                          </>
+                        )}
+                      </View>
+                      <View>
+                        <Text allowFontScaling={false} style={styles.orderInfoTextBig}>
+                          ${parseFloat(item.totalPrice?.amount ?? 0).toFixed(2)}
+                        </Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                );
+              }}
+            />
+          </View>
+        ) : (
+          <Text allowFontScaling={false} style={styles.noOrders}>
+            No orders found during the giveaway period.
+          </Text>
+        )}
+      </View>
     </View>
   );
 }
@@ -274,22 +293,27 @@ function EntriesScreen({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ffffff",
-    paddingTop: 15,
+    backgroundColor: "#ffffff"
   },
   header: {
+    marginTop: 15,
     fontSize: 20,
     textAlign: "left",
-    paddingLeft: 16,
     fontFamily: "Futura-Bold",
   },
   totalEntriesRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 12,
+  },
+  listContainer: {
+    marginHorizontal: -SCREEN_PADDING_HORIZONTAL,
+  },
+  listContent: {
+    paddingHorizontal: 20,
+    paddingBottom: 24,
   },
   totalEntriesLabel: {
     fontSize: 18,
@@ -311,8 +335,6 @@ const styles = StyleSheet.create({
     height: 22,
   },
   orderItem: {
-    marginLeft: 16,
-    marginRight: 16,
     marginBottom: 10,
     padding: 12,
     backgroundColor: "#ffffff",

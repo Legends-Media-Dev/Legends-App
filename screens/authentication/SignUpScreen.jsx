@@ -5,8 +5,11 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
+import GlassHeader from "../../components/GlassHeader";
+import { getScreenContentWrapperStyle } from "../../constants/layout";
 import { customerSignUp, customerSignIn } from "../../api/shopifyApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
@@ -14,6 +17,7 @@ import { Image } from "expo-image";
 const MIN_PASSWORD_LENGTH = 5;
 
 const SignUpScreen = ({ route, navigation }) => {
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -86,13 +90,14 @@ const SignUpScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.outerContainer}>
+      <GlassHeader />
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" color="#fff" />
         </View>
       )}
 
-      <View>
+      <View style={getScreenContentWrapperStyle(insets)}>
         {/* Logo Section */}
         <View style={styles.imageContainer}>
           <Image

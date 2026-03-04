@@ -7,8 +7,14 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
+  Animated,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import GlassHeader from "../../components/GlassHeader";
+import { HEADER_OFFSET_BELOW_GLASS } from "../../constants/layout";
 import { useCart } from "../../context/CartContext";
+
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 import { createCheckout, createCheckoutUpdated } from "../../api/shopifyApi";
 import { Image } from "expo-image";
 import { getCustomerInfo } from "../../utils/storage";
@@ -27,6 +33,8 @@ function getVipMultiplier(tags) {
 }
 
 const CartScreen = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const { cart, getCartDetails, updateCartDetails, deleteItemFromCart } =
     useCart(); // Ensure updateCartDetails is implemented
   const { multiplier: giveawayMultiplier } = useGiveaway();
@@ -403,17 +411,24 @@ const CartScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <GlassHeader variant="dark" scrollY={scrollY} />
       {/* Top Cart Indicator */}
-      <View style={styles.topContainer}>
+      <View style={[styles.topContainer, { paddingTop: insets.top + HEADER_OFFSET_BELOW_GLASS + 12 }]}>
         <Text allowFontScaling={false} style={styles.cartIndicator}>My Bag ({getTotalItems()})</Text>
       </View>
 
       {/* Cart Items */}
       {cart?.lines?.edges?.length > 0 ? (
-        <FlatList
+        <AnimatedFlatList
           data={cart.lines.edges}
           keyExtractor={(item) => item.node.id}
           renderItem={renderItem}
+          onScroll={Animated.event(
+            [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+            { useNativeDriver: true }
+          )}
+          scrollEventThrottle={16}
+          contentContainerStyle={{ paddingBottom: 24 }}
         />
       ) : (
         <View style={styles.emptyCartContainer}>
@@ -421,7 +436,12 @@ const CartScreen = ({ navigation }) => {
         </View>
       )}
 
-      <View style={styles.lowerCheckoutContainer}>
+      <View
+        style={[
+          styles.lowerCheckoutContainer,
+          { paddingBottom: (insets?.bottom ?? 0) + 60 },
+        ]}
+      >
         {/* Total Section */}
         <View style={styles.costContainer}>
           <Text allowFontScaling={false} style={styles.total}>Estimated Total:</Text>
@@ -623,8 +643,7 @@ const styles = StyleSheet.create({
   },
   lowerCheckoutContainer: {
     borderTopColor: "black",
-    borderTopWidth: "0.5",
-    marginBottom: "10%",
+    borderTopWidth: 0.5,
   },
   costContainer: {
     display: "flex",

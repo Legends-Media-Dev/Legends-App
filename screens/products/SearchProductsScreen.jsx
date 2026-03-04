@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,12 +7,18 @@ import {
   TouchableOpacity,
   Keyboard,
   StyleSheet,
+  Animated,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import Fuse from "fuse.js"; // 🆕 add this import
+import Fuse from "fuse.js";
+import GlassHeader from "../../components/GlassHeader";
+import { HEADER_OFFSET_BELOW_GLASS } from "../../constants/layout";
 import ProductCardMini from "../../components/ProductCardMini";
+
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 import {
   fetchAllProductsCollection,
@@ -20,9 +26,11 @@ import {
 } from "../../api/shopifyApi";
 
 const SearchScreen = () => {
+  const insets = useSafeAreaInsets();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState([]);
-  const [allProducts, setAllProducts] = useState([]); // 🆕 store all products for fuzzy search
+  const [allProducts, setAllProducts] = useState([]);
   const navigation = useNavigation();
 
   // 🆕 Load all products once for local fuzzy searching
@@ -124,8 +132,9 @@ const SearchScreen = () => {
 
   return (
     <View style={styles.container}>
+      <GlassHeader variant="dark" scrollY={scrollY} />
       {/* Search Bar */}
-      <View style={styles.searchBarContainer}>
+      <View style={[styles.searchBarContainer, { marginTop: insets.top + HEADER_OFFSET_BELOW_GLASS }]}>
         <View style={styles.searchInputWrapper}>
           <Ionicons name="search" size={20} color="#000" style={styles.icon} />
           <TextInput
@@ -142,10 +151,15 @@ const SearchScreen = () => {
       </View>
 
       {/* Suggested Section */}
-      <FlatList
+      <AnimatedFlatList
         data={products}
         keyExtractor={(item) => item.id}
         renderItem={renderProductItem}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={() => (
           <Text allowFontScaling={false} style={styles.suggestedHeader}>Products</Text>

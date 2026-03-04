@@ -1,61 +1,22 @@
-// import React from "react";
-// import { WebView } from "react-native-webview";
-
-// const WebViewScreen = ({ route }) => {
-//   const { checkoutUrl } = route.params;
-
-//   return <WebView source={{ uri: checkoutUrl }} />;
-// };
-
-// export default WebViewScreen;
 import React, { useLayoutEffect, useState } from "react";
-import { TouchableOpacity, Text } from "react-native";
+import { View } from "react-native";
 import { WebView } from "react-native-webview";
 import { useNavigation } from "@react-navigation/native";
 import { useCart } from "../../context/CartContext";
-import { Ionicons } from "@expo/vector-icons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import GlassHeader from "../../components/GlassHeader";
+import { HEADER_OFFSET_BELOW_GLASS } from "../../constants/layout";
 
 const WebViewScreen = ({ route }) => {
   const { checkoutUrl } = route.params;
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const { resetCart } = useCart();
   const [checkoutComplete, setCheckoutComplete] = useState(false);
 
   useLayoutEffect(() => {
-    if (checkoutComplete) {
-      navigation.setOptions({
-        headerLeft: () => (
-          <TouchableOpacity
-            style={{ marginLeft: 15, marginBottom: 10 }}
-            onPress={() => {
-              navigation.reset({
-                index: 0,
-                routes: [
-                  {
-                    name: "HOME",
-                    state: {
-                      routes: [{ name: "MainScreen" }],
-                    },
-                  },
-                ],
-              });
-            }}
-          >
-            <Ionicons
-              name="close"
-              size={28}
-              color="#000"
-              style={{ marginRight: 0 }}
-            />
-          </TouchableOpacity>
-        ),
-      });
-    } else {
-      navigation.setOptions({
-        headerLeft: undefined, // fallback to default back arrow
-      });
-    }
-  }, [checkoutComplete]);
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
 
   const handleNavigationChange = (navState) => {
     const { url } = navState;
@@ -67,11 +28,15 @@ const WebViewScreen = ({ route }) => {
   };
 
   return (
-    <WebView
-      source={{ uri: checkoutUrl }}
-      onNavigationStateChange={handleNavigationChange}
-      startInLoadingState={true}
-    />
+    <View style={{ flex: 1 }}>
+      <GlassHeader />
+      <WebView
+        source={{ uri: checkoutUrl }}
+        onNavigationStateChange={handleNavigationChange}
+        startInLoadingState={true}
+        style={{ flex: 1, marginTop: insets.top + HEADER_OFFSET_BELOW_GLASS }}
+      />
+    </View>
   );
 };
 

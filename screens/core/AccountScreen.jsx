@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
 import {
@@ -9,7 +9,11 @@ import {
   ScrollView,
   ActivityIndicator,
   FlatList,
+  Animated,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import GlassHeader from "../../components/GlassHeader";
+import { getScreenContentPadding } from "../../constants/layout";
 import ProductCard from "../../components/ProductCard";
 import Modal from "react-native-modal";
 import { Ionicons } from "@expo/vector-icons";
@@ -24,6 +28,8 @@ import {
 import { useGiveaway } from "../../context/GiveawayContext";
 
 const AccountScreen = () => {
+  const insets = useSafeAreaInsets();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const { multiplier: giveawayMultiplier } = useGiveaway();
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteAccountModalVisible, setDeleteAccountModalVisible] = useState(false);
@@ -57,27 +63,6 @@ const AccountScreen = () => {
 
     getCustomerData();
   }, []);
-
-  // Update header with logout button
-  useEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          onPress={async () => {
-            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-            setModalVisible(true);
-          }}
-        >
-          <Ionicons
-            name="log-out-outline"
-            size={26}
-            color="#000"
-            style={{ marginRight: 25 }}
-          />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
 
   useFocusEffect(
     useCallback(() => {
@@ -161,6 +146,13 @@ const AccountScreen = () => {
 
   return (
     <View style={styles.container}>
+      <GlassHeader
+        variant="dark"
+        showSearchOnLeft
+        scrollY={scrollY}
+        showLogoutOnRight
+        onLogoutPress={() => setModalVisible(true)}
+      />
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" />
@@ -251,8 +243,16 @@ const AccountScreen = () => {
       </Modal>
 
       {/* Display Customer Data */}
-      <ScrollView style={styles.screenContainer}>
-        <View style={{ paddingHorizontal: 20 }}>
+      <Animated.ScrollView
+        style={styles.screenContainer}
+        contentContainerStyle={getScreenContentPadding(insets)}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
+      >
+        <View>
           {loading ? (
             <Text allowFontScaling={false} style={[styles.loadingText, { opacity: 0 }]}>
               Placeholder
@@ -456,7 +456,7 @@ const AccountScreen = () => {
             )}
           </View>
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
     </View>
   );
 };

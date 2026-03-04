@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   FlatList,
   Modal,
   ScrollView,
+  Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Image, ImageBackground } from "expo-image";
@@ -19,6 +20,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import GlassHeader from "../../components/GlassHeader";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getScreenContentPadding } from "../../constants/layout";
 
 import {
   fetchCollections,
@@ -30,10 +32,12 @@ import ContentBox from "../../components/ContentBox";
 import JoinVIPScreen from "./JoinVIPScreen";
 
 const { width, height } = Dimensions.get("window");
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const VipPortalScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = useState(true);
   const [screenData, setScreenData] = useState([]);
   const [showWheel, setShowWheel] = useState(false);
@@ -313,16 +317,21 @@ const VipPortalScreen = () => {
   // If VIP, show VIP Portal content
   return (
     <View style={styles.root}>
-      <GlassHeader />
+      <GlassHeader variant="dark" showSearchOnLeft={navigation.getState().index === 0} scrollY={scrollY} />
   
-      <FlatList
+      <AnimatedFlatList
         data={screenData}
         renderItem={renderItem}
         keyExtractor={(item, index) => `${item.type}-${index}`}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: true }
+        )}
+        scrollEventThrottle={16}
         contentContainerStyle={[
           styles.container,
           {
-            paddingTop: insets.top + 60,
+            ...getScreenContentPadding(insets),
           },
         ]}
         showsVerticalScrollIndicator={false}
