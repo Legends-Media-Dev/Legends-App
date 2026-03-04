@@ -55,9 +55,11 @@ import JoinVIPScreen from "./screens/vip/JoinVIPScreen";
 
 import PrivacyPolicyScreen from "./screens/account/PrivacyPolicyScreen";
 import OrdersScreen from "./screens/account/OrdersScreen";
+import EntriesScreen from "./screens/account/EntriesScreen";
 import OrderConfirmationScreen from "./screens/shopflow/OrderConfirmationScreen";
 
 import { CartProvider } from "./context/CartContext";
+import { GiveawayProvider } from "./context/GiveawayContext";
 import * as Font from "expo-font";
 import { View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -68,7 +70,13 @@ import { isTokenValid } from "./utils/storage";
 import { AppState } from "react-native";
 import { useCart } from "./context/CartContext";
 import CartReminderModal from "./components/CartReminderModal";
+import UpdateRequiredModal from "./components/UpdateRequiredModal";
 import SearchIconBadge from "./components/SearchIconBadge";
+import { fetchAppInfo } from "./api/shopifyApi";
+import {
+  getAppVersion,
+  isVersionLessThan,
+} from "./utils/versionCheck";
 
 import { getCustomerInfo } from "./utils/storage"; // use your existing helper
 import VipPortalScreen from "./screens/vip/VIPPortalScreen";
@@ -193,7 +201,7 @@ function SweepstakesStack() {
 }
 
 // Account Stack Navigator with Conditional Navigation
-function AccountStack() { 
+function AccountStack() {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
@@ -254,6 +262,17 @@ function AccountStack() {
         options={() => ({ unmountOnBlur: true, headerShown: false })}
       />
       <Stack.Screen
+        name="MainScreen"
+        component={MainScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          title: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerRight: () => <CartIconWithBadge />,
+          headerLeft: () => <SearchIconBadge backStatus={"Search"} />,
+        })}
+      />
+      <Stack.Screen
         name="ForgotPasswordScreen"
         component={ForgotPasswordScreen}
         options={() => ({ unmountOnBlur: true, headerShown: false })}
@@ -312,6 +331,16 @@ function AccountStack() {
         options={({ navigation }) => ({
           unmountOnBlur: true,
           headerBackTitle: "",
+        })}
+      />
+      <Stack.Screen
+        name="EntriesScreen"
+        component={EntriesScreen}
+        options={({ navigation }) => ({
+          unmountOnBlur: true,
+          headerBackTitle: "",
+          headerTitle: () => <AnimatedHeader />,
+          headerLeft: () => <SearchIconBadge />,
         })}
       />
       <Stack.Screen
@@ -418,9 +447,11 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <CartProvider>
-        <AppWithCartReminder />
-      </CartProvider>
+      <GiveawayProvider>
+        <CartProvider>
+          <AppWithCartReminder />
+        </CartProvider>
+      </GiveawayProvider>
     </GestureHandlerRootView>
   );
 }
@@ -473,11 +504,30 @@ function GlassTabBar({ state, descriptors, navigation }) {
 
 function AppWithCartReminder() {
   const [showReminder, setShowReminder] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updateStoreUrl, setUpdateStoreUrl] = useState(null);
   const appState = useRef(AppState.currentState);
   const hasShownReminder = useRef(false);
   const navRef = useNavigationContainerRef();
   const coldStart = useRef(true);
   const { cart, hasHydrated } = useCart();
+
+  // Version check: fetch minVersion from Firebase (fetchAppInfoHandler), show modal if app is older
+  useEffect(() => {
+    const check = async () => {
+      const config = await fetchAppInfo();
+      if (!config?.minVersion) return;
+      const current = getAppVersion();
+      const needsUpdate = isVersionLessThan(current, config.minVersion);
+      console.log("[App version] current:", current, "| required:", config.minVersion, "| show update modal:", needsUpdate);
+      if (needsUpdate) {
+        const url = Platform.OS === "ios" ? config.iosStoreUrl : config.androidStoreUrl;
+        setUpdateStoreUrl(url || null);
+        setShowUpdateModal(true);
+      }
+    };
+    check();
+  }, []);
 
   // ✅ Cold start cart check
   useEffect(() => {
@@ -513,6 +563,12 @@ function AppWithCartReminder() {
           options={{ title: "Account" }}
         />
       </Tab.Navigator>
+
+      {/* Update required modal (when app version < MIN_APP_VERSION) */}
+      <UpdateRequiredModal
+        visible={showUpdateModal}
+        storeUrl={updateStoreUrl}
+      />
 
       <CartReminderModal
         visible={showReminder}

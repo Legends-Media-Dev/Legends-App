@@ -1,11 +1,11 @@
 PODS:
-  - EXApplication (7.0.7):
+  - EXApplication (7.0.8):
     - ExpoModulesCore
-  - EXConstants (18.0.10):
+  - EXConstants (18.0.13):
     - ExpoModulesCore
-  - EXNotifications (0.32.12):
+  - EXNotifications (0.32.16):
     - ExpoModulesCore
-  - Expo (54.0.21):
+  - Expo (54.0.33):
     - ExpoModulesCore
     - hermes-engine
     - RCTRequired
@@ -30,26 +30,26 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - ExpoAsset (12.0.9):
+  - ExpoAsset (12.0.12):
     - ExpoModulesCore
-  - ExpoDevice (8.0.9):
+  - ExpoDevice (8.0.10):
     - ExpoModulesCore
-  - ExpoFileSystem (19.0.17):
+  - ExpoFileSystem (19.0.21):
     - ExpoModulesCore
-  - ExpoFont (14.0.9):
+  - ExpoFont (14.0.11):
     - ExpoModulesCore
-  - ExpoHaptics (15.0.7):
+  - ExpoHaptics (15.0.8):
     - ExpoModulesCore
-  - ExpoImage (3.0.10):
+  - ExpoImage (3.0.11):
     - ExpoModulesCore
     - libavif/libdav1d
     - SDWebImage (~> 5.21.0)
     - SDWebImageAVIFCoder (~> 0.11.0)
     - SDWebImageSVGCoder (~> 1.7.0)
     - SDWebImageWebPCoder (~> 0.14.6)
-  - ExpoKeepAwake (15.0.7):
+  - ExpoKeepAwake (15.0.8):
     - ExpoModulesCore
-  - ExpoModulesCore (3.0.23):
+  - ExpoModulesCore (3.0.29):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2473,18 +2473,18 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  EXApplication: a9d1c46d473d36f61302a9a81db2379441f3f094
-  EXConstants: e6e50cdfcb4524f40121d1fdcff24e97b7dcd2fd
-  EXNotifications: 7aab54f0e5f3023122bc95699eaff7c52bacb559
-  Expo: 795e9f87aca407bf92895d54ae5f7777fc1f3fbc
-  ExpoAsset: 3c3b7dd9b1318846a02ef05ce420e63d542aeb9f
-  ExpoDevice: d85d332b903b658a596f166b01fee12ca1e443ff
-  ExpoFileSystem: 56f081328f5b48a6dcc8302eee51d4f2d9d0049b
-  ExpoFont: b881d43057dceb7b31ff767b24f612609e80f60f
-  ExpoHaptics: b48d913e7e5f23816c6f130e525c9a6501b160b5
-  ExpoImage: 6eb842cd07817402640545c41884dd7f5fbfbca5
-  ExpoKeepAwake: 3f5e3ac53627849174f3603271df8e08f174ed4a
-  ExpoModulesCore: ed46799cfdf75784ee3ca37dac982c5298683e83
+  EXApplication: 13420f8139864183f8a04fd6099077bdf8cfb186
+  EXConstants: 3feb66fd1d94202fc1f0946d74e029d8b224b60e
+  EXNotifications: 2a3feb7af6194828d9aafda72f63a9a03866230a
+  Expo: 7f5e64b5d18096dcec86814764b526b0cb97811c
+  ExpoAsset: d999f3bbd998a750f3b74cb913229848901b926b
+  ExpoDevice: 0773c782b055558ca9b40b74aa4a8133a66cd0d2
+  ExpoFileSystem: aefcd337b94b874f88752ebefc52813b84992fad
+  ExpoFont: c625dbd97ed57e9089b172b2a7bb99003d074664
+  ExpoHaptics: 7240781406f4563c3f4eb1e72864302a8c643fd0
+  ExpoImage: f6bcd30bb98d4c484869668fbc32834bb3ee5bfb
+  ExpoKeepAwake: 44bf6715bc1d2ddb17afe19d927cd039cda123f0
+  ExpoModulesCore: 77496909fd3c800f97f7f2007dd26aeac4bb3798
   FBLazyVector: e95a291ad2dadb88e42b06e0c5fb8262de53ec12
   hermes-engine: 9f4dfe93326146a1c99eb535b1cb0b857a3cd172
   libavif: 84bbb62fb232c3018d6f1bab79beea87e35de7b7
@@ -2574,6 +2574,6 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   Yoga: 3fd22c2cae22d7a2b0f0b538f55f7c2a17dc94d5
 
-PODFILE CHECKSUM: 3e5f44f5a4face756f77e388f3dbcbea2e1f34c2
+PODFILE CHECKSUM: 75fb929bd9539684231adbeb2c4efe344ffcc38a
 
 COCOAPODS: 1.16.2

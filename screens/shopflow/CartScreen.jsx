@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import {
   View,
   Text,
@@ -11,14 +11,30 @@ import {
 import { useCart } from "../../context/CartContext";
 import { createCheckout, createCheckoutUpdated } from "../../api/shopifyApi";
 import { Image } from "expo-image";
+import { getCustomerInfo } from "../../utils/storage";
+import { useGiveaway } from "../../context/GiveawayContext";
+
+const TICKET_ICON_URI =
+  "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/admit_one_ticket.png?v=1683922022";
+
+function getVipMultiplier(tags) {
+  if (!Array.isArray(tags)) return 1;
+  if (tags.includes("VIP Platinum")) return 10;
+  if (tags.includes("VIP Gold")) return 5;
+  if (tags.includes("VIP Silver")) return 2;
+  if (tags.includes("Inactive Subscriber")) return 1;
+  return 1;
+}
 
 const CartScreen = ({ navigation }) => {
   const { cart, getCartDetails, updateCartDetails, deleteItemFromCart } =
     useCart(); // Ensure updateCartDetails is implemented
+  const { multiplier: giveawayMultiplier } = useGiveaway();
   const [quantities, setQuantities] = useState({}); // State to track quantities by item ID
   const [totalPrice, setTotalPrice] = useState(0); // State to track total price
   const isInitialized = useRef(false); // To track initialization
   const [removingItemId, setRemovingItemId] = useState(null);
+  const [customerTags, setCustomerTags] = useState(null);
 
   useEffect(() => {
     // Fetch cart details only once
@@ -40,6 +56,12 @@ const CartScreen = ({ navigation }) => {
       calculateTotalPrice(initialQuantities);
     }
   }, [cart, getCartDetails]);
+
+  useEffect(() => {
+    getCustomerInfo().then((info) => {
+      if (info?.tags) setCustomerTags(info.tags);
+    });
+  }, []);
 
   const calculateTotalPrice = (updatedQuantities) => {
     if (!cart?.lines?.edges || cart.lines.edges.length === 0) {
@@ -245,6 +267,18 @@ const CartScreen = ({ navigation }) => {
     return parsedPrice * quantity; // Calculate total price for the item
   };
 
+  const vipMult = getVipMultiplier(customerTags ?? []);
+  const totalEntries = useMemo(() => {
+    if (giveawayMultiplier <= 0 || !cart?.lines?.edges?.length) return 0;
+    return cart.lines.edges.reduce((sum, item) => {
+      const product = item?.node?.merchandise;
+      const price = parseFloat(product?.price?.amount) || 0;
+      const itemId = item.node.id;
+      const quantity = quantities[itemId] ?? item.node.quantity ?? 0;
+      return sum + Math.floor(price * giveawayMultiplier * vipMult * quantity);
+    }, 0);
+  }, [cart?.lines?.edges, quantities, customerTags, giveawayMultiplier]);
+
   // Render each cart item
   const renderItem = ({ item }) => {
     const product = item?.node?.merchandise;
@@ -255,6 +289,14 @@ const CartScreen = ({ navigation }) => {
 
     const totalItemPrice = calculateItemPrice(price, quantity); // Calculate total price for this item
     const totalComparePrice = calculateItemPrice(compareAtPrice, quantity); // Calculate total price for this item
+
+    const priceNum = parseFloat(price) || 0;
+    const showGiveaway =
+      giveawayMultiplier > 0 && !Number.isNaN(priceNum) && priceNum >= 0;
+    const vipMult = getVipMultiplier(customerTags ?? []);
+    const entries = showGiveaway
+      ? Math.floor(priceNum * giveawayMultiplier * vipMult * quantity)
+      : 0;
 
     // Fetch product image safely
     const productImage =
@@ -276,6 +318,17 @@ const CartScreen = ({ navigation }) => {
         {/* Product Details */}
         <View style={styles.detailsContainer}>
           <View style={{ gap: 7 }}>
+            {showGiveaway && entries > 0 && (
+              <View style={styles.entriesBadge}>
+                <Image
+                  source={{ uri: TICKET_ICON_URI }}
+                  style={styles.entriesTicketIcon}
+                />
+                <Text allowFontScaling={false} style={styles.entriesText}>
+                  {entries} ENTRIES
+                </Text>
+              </View>
+            )}
             <Text allowFontScaling={false} style={styles.productTitle}>{product?.product?.title}</Text>
 
             {/* Price Section */}
@@ -377,6 +430,21 @@ const CartScreen = ({ navigation }) => {
           </Text>
         </View>
 
+        {totalEntries > 0 && (
+          <View style={styles.costContainer}>
+            <Text allowFontScaling={false} style={styles.totalEntriesLabel}>Estimated Entries:</Text>
+            <View style={styles.totalEntriesValueRow}>
+              <Image
+                source={{ uri: TICKET_ICON_URI }}
+                style={styles.totalEntriesIcon}
+              />
+              <Text allowFontScaling={false} style={styles.totalEntriesValue}>
+                {totalEntries}
+              </Text>
+            </View>
+          </View>
+        )}
+
         {/* Checkout Button */}
         <TouchableOpacity
           style={[
@@ -457,6 +525,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#A09E9E",
     textDecorationLine: "line-through",
+  },
+  entriesBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.95)",
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+    borderRadius: 6,
+    alignSelf: "flex-start",
+    marginTop: 6,
+    gap: 4
+  },
+  entriesTicketIcon: {
+    width: 22,
+    height: 22,
+  },
+  entriesText: {
+    fontFamily: "Futura-Bold",
+    fontSize: 12.5,
+    color: "#000",
   },
   total: {
     fontSize: 18,
@@ -543,6 +631,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     marginRight: 20,
+  },
+  totalEntriesLabel: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginTop: 8,
+    marginLeft: 20,
+  },
+  totalEntriesValueRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 8,
+  },
+  totalEntriesValue: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  totalEntriesIcon: {
+    width: 22,
+    height: 22,
   },
 });
 

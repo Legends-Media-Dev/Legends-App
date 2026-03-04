@@ -2,10 +2,14 @@
   "expo": {
     "name": "Legends",
     "slug": "legends-media",
-    "version": "1.0.1",
+    "version": "1.0.5",
     "icon": "./assets/icon.png",
     "orientation": "portrait",
     "newArchEnabled": true,
+    "updates": {
+      "checkAutomatically": "ON_LOAD",
+      "fallbackToCacheTimeout": 0
+    },
     "ios": {
       "bundleIdentifier": "com.legendsmedia.legends",
       "supportsTablet": false,
@@ -24,7 +28,8 @@
     },
     "plugins": [
       "expo-asset",
-      "expo-notifications"
+      "expo-notifications",
+      "expo-font"
     ],
     "android": {
       "package": "com.legendsmedia.legends"

@@ -61,14 +61,69 @@ const CLOUD_FUNCTION_URL_FPBIA =
 const CLOUD_FUNCTION_URL_FACO =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAllCustomerOrdersHandler";
 
-const CLOUD_FUNCTION_URL_FMRY =
-  "https://us-central1-premier-ikon.cloudfunctions.net/fetchLatestYouTubeVideoHandler";
+const CLOUD_FUNCTION_URL_YOUTUBE_DB =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchYoutubeDataFromDBHandler";
 
 const CLOUD_FUNCTION_URL_FBBH =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchBlogByHandle";
 
 const CLOUD_FUNCTION_URL_SAVE_USER_NOTI =
   "https://us-central1-premier-ikon.cloudfunctions.net/saveUserNotiHandler";
+
+
+const CLOUD_FUNCTION_URL_FETCH_GIVEAWAY_ENTRIES =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchGiveawayInfoHandler";
+
+const CLOUD_FUNCTION_URL_APP_VERSION =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchAppInfoHandler";
+
+/**
+ * Fetch app version config from Firebase (fetchAppInfoHandler).
+ * Expects: { appInfo: [{ minVersion, iosStoreUrl?, androidStoreUrl? }], total }
+ * Uses the first appInfo entry. When you release a new build, set minVersion in Firebase.
+ */
+export const fetchAppInfo = async () => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_APP_VERSION, {
+      timeout: 8000,
+    });
+    const data = response.data;
+    const first = data?.appInfo?.[0];
+    if (!first) return null;
+
+    const minVersion = first.minVersion ?? first.min_version ?? null;
+    const iosStoreUrl = (first.iosStoreUrl ?? first.ios_store_url ?? "").trim().replace(/"$/, "");
+    const androidStoreUrl = (first.androidStoreUrl ?? first.android_store_url ?? "").trim().replace(/"$/, "") || null;
+
+    return {
+      minVersion: minVersion || null,
+      iosStoreUrl: iosStoreUrl || null,
+      androidStoreUrl: androidStoreUrl || null,
+    };
+  } catch (error) {
+    console.warn(
+      "App info (version) fetch failed:",
+      error.response?.data || error.message
+    );
+    return null;
+  }
+};
+
+/**
+ * Fetch giveaway info (multiplier, start date, end date) from the backend
+ */
+export const fetchGiveawayInfo = async () => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_FETCH_GIVEAWAY_ENTRIES);
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching giveaway info via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
 
 /**
  * Fetch Collections
@@ -99,14 +154,31 @@ export const fetchCollectionByHandle = async (handle) => {
 };
 
 /**
- * Fetch the latest full-length YouTube video
+ * Fetch the current YouTube video from Firebase (fetchYoutubeDataFromDBHandler).
+ * Backend returns the single "current" doc: { id, videoId, title, thumbnail, publishedAt, date, updatedAt }.
+ * Returns that shape for NewsScreen / YoutubeContentBox. Returns null on 404 or empty data.
  */
 export const fetchLatestYouTubeVideo = async () => {
   try {
-    const response = await axios.get(CLOUD_FUNCTION_URL_FMRY);
-    return response.data; // { videoId, title, thumbnail, publishedAt }
+    const response = await axios.get(CLOUD_FUNCTION_URL_YOUTUBE_DB, {
+      timeout: 10000,
+    });
+    const data = response.data;
+    if (!data || !data.videoId) return null;
+    return {
+      id: data.id ?? null,
+      videoId: data.videoId,
+      title: data.title ?? "",
+      thumbnail: data.thumbnail ?? null,
+      publishedAt: data.publishedAt ?? null,
+      date: data.date ?? null,
+      updatedAt: data.updatedAt ?? null,
+    };
   } catch (error) {
-    console.error("Error fetching YouTube video from Cloud Function:", error);
+    if (error.response?.status === 404) {
+      return null;
+    }
+    console.error("Error fetching YouTube data from DB:", error.response?.data || error.message);
     throw error;
   }
 };

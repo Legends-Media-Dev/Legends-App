@@ -1,0 +1,14 @@
+=== App Store Connect — What’s New (paste into “Release Notes”) ===
+
+• You’ll be prompted to update when a new version of the app is available.
+• Improved sign-up: clearer error messages and password requirements.
+• Giveaway entries now only appear during the active promotion period.
+• Product cards: “Sold out” badge no longer overlaps the entries badge during giveaways.
+• General improvements and bug fixes.
+
+=== Short version (if character limit is tight) ===
+
+• Update prompt when a new version is available
+• Clearer sign-up errors and password requirements
+• Giveaway entries only show during the active period
+• UI improvements and bug fixes

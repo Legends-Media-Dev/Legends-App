@@ -21,8 +21,10 @@ import {
   getRecentlyViewedProducts,
   setCustomerInfo,
 } from "../../utils/storage";
+import { useGiveaway } from "../../context/GiveawayContext";
 
 const AccountScreen = () => {
+  const { multiplier: giveawayMultiplier } = useGiveaway();
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteAccountModalVisible, setDeleteAccountModalVisible] = useState(false);
   const [customerData, setCustomerData] = useState(null);
@@ -304,6 +306,29 @@ const AccountScreen = () => {
                 />
               </View>
             </TouchableOpacity>
+            {giveawayMultiplier > 0 && (
+              <TouchableOpacity
+                style={styles.innerButtonContainer}
+                activeOpacity={1}
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  const accessToken = await AsyncStorage.getItem(
+                    "shopifyAccessToken"
+                  );
+                  if (accessToken) {
+                    navigation.navigate("EntriesScreen", { accessToken });
+                  }
+                }}
+              >
+                <View style={styles.leftSide}>
+                  <Ionicons name="ticket-outline" size={24} color="#000" style={{ marginRight: 0 }} />
+                  <Text allowFontScaling={false} style={styles.buttonText}>ENTRIES</Text>
+                </View>
+                <View>
+                  <Ionicons name="chevron-forward-outline" size={24} color="#000" style={{ marginRight: 0 }} />
+                </View>
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               style={styles.innerButtonContainer}
               activeOpacity={1}
@@ -323,7 +348,7 @@ const AccountScreen = () => {
                 <Ionicons name="diamond-outline" size={24} color="#000" />
                 <Text allowFontScaling={false} style={styles.buttonText}>
                   {customerData?.tags?.includes("Active Subscriber") &&
-                  customerData?.tags?.includes("VIP Gold")
+                    customerData?.tags?.includes("VIP Gold")
                     ? "VIP PORTAL"
                     : "JOIN VIP"}
                 </Text>
@@ -388,7 +413,7 @@ const AccountScreen = () => {
 
                   return (
                     <TouchableOpacity
-                      style={{ width: 150, marginRight: 10 }}
+                      style={{ width: 180, marginRight: 10 }}
                       activeOpacity={1}
                       onPress={async () => {
                         await Haptics.impactAsync(
@@ -406,16 +431,16 @@ const AccountScreen = () => {
                         price={
                           item.variants.edges[0]?.node.price?.amount
                             ? parseFloat(
-                                item.variants.edges[0].node.price.amount
-                              ).toFixed(2)
+                              item.variants.edges[0].node.price.amount
+                            ).toFixed(2)
                             : "N/A"
                         }
                         compareAtPrice={
                           item.variants.edges[0]?.node.compareAtPrice?.amount
                             ? parseFloat(
-                                item.variants.edges[0].node.compareAtPrice
-                                  .amount
-                              ).toFixed(2)
+                              item.variants.edges[0].node.compareAtPrice
+                                .amount
+                            ).toFixed(2)
                             : null
                         }
                         availableForSale={
