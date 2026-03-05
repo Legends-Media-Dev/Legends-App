@@ -287,6 +287,7 @@ const ProductScreen = ({ route, navigation }) => {
         contentContainerStyle={[
           getScreenContentPadding(insets),
           { paddingHorizontal: 0 },
+          { paddingBottom: (insets?.bottom ?? 0) + 90 },
         ]}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],

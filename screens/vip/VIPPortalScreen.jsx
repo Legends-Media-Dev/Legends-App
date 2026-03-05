@@ -332,6 +332,7 @@ const VipPortalScreen = () => {
           styles.container,
           {
             ...getScreenContentPadding(insets),
+            paddingBottom: (insets?.bottom ?? 0) + 90,
           },
         ]}
         showsVerticalScrollIndicator={false}
@@ -468,16 +469,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   partnerGridContainer: {
+    width: width - 32,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    paddingVertical: 10,
+    paddingVertical: 4,
+    marginTop: 4,
   },
   partnerLogoBox: {
-    width: (width - 48) / 3,
-    height: 100,
+    width: (width - 32 - 16) / 3,
+    height: 96,
     backgroundColor: "#f5f5f5",
-    marginBottom: 12,
+    marginBottom: 10,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 8,

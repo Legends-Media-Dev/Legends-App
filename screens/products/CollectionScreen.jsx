@@ -13,6 +13,9 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import GlassHeader from "../../components/GlassHeader";
 import { getScreenContentPadding } from "../../constants/layout";
+
+/** Tighter side padding on collection so grid has more room and clearer gap between columns */
+const COLLECTION_PADDING_HORIZONTAL = 12;
 import ProductCard from "../../components/ProductCard";
 import { fetchAllProductsCollection } from "../../api/shopifyApi";
 import * as Haptics from "expo-haptics";
@@ -82,6 +85,7 @@ const CollectionScreen = ({ route, navigation }) => {
           keyExtractor={(item) => item.id}
           renderItem={renderProductItem}
           numColumns={2}
+          columnWrapperStyle={styles.columnWrapper}
           ListHeaderComponent={<View style={styles.listTopSpacer} />}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -91,6 +95,7 @@ const CollectionScreen = ({ route, navigation }) => {
           contentContainerStyle={[
             styles.flatListContent,
             getScreenContentPadding(insets),
+            { paddingHorizontal: COLLECTION_PADDING_HORIZONTAL },
             products.length === 1 && { alignItems: "flex-start" },
             { paddingBottom: (insets?.bottom ?? 0) + 90 },
           ]}
@@ -119,13 +124,19 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     paddingTop: 0,
+    alignItems: "center",
+  },
+  columnWrapper: {
+    flexDirection: "row",
+    width: width - 2 * COLLECTION_PADDING_HORIZONTAL,
+    justifyContent: "flex-start",
   },
   listTopSpacer: {
     height: 12,
   },
   productWrapper: {
-    width: width / 2,
-    paddingHorizontal: 15,
+    width: (width - 2 * COLLECTION_PADDING_HORIZONTAL) / 2,
+    paddingHorizontal: 18,
     marginBottom: 24,
   },
   loadingOverlay: {
