@@ -36,8 +36,6 @@
     "android": {
       "package": "com.legendsmedia.legends"
     },
-    "runtimeVersion": {
-      "policy": "appVersion"
-    }
+    "runtimeVersion": "1.0.6"
   }
 }

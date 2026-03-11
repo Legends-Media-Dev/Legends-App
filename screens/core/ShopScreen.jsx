@@ -125,7 +125,7 @@ const ShopScreen = () => {
             navigation.navigate("Search");
           }}
         >
-          <Text allowFontScaling={false} style={styles.searchButtonText}>Search Products</Text>
+          <Text allowFontScaling={false} style={styles.searchButtonText}>Search All Products</Text>
         </TouchableOpacity>
 
         <FlatList
