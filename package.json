@@ -1,6 +1,6 @@
 {
   "name": "legends-media",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "index.js",
   "scripts": {
     "start": "expo start -c",
@@ -27,6 +27,7 @@
     "expo-image": "~3.0.11",
     "expo-notifications": "~0.32.16",
     "expo-status-bar": "~3.0.9",
+    "expo-updates": "~29.0.16",
     "fuse.js": "^7.1.0",
     "hermes-engine": "^0.11.0",
     "lottie-react-native": "~7.3.1",

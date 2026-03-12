@@ -37,12 +37,14 @@ const ShopScreen = () => {
     stickers: "STICKERS",
     "digital-downloads": "DOWNLOADS",
     "last-chance-offers": "LAST CHANCE OFFERS",
+    "easy-entries": "EASY ENTRIES",
     "learn-more-vip": "JOIN VIP",
   };
 
   useEffect(() => {
     const desiredOrder = [
       "ALL PRODUCT",
+      "EASY ENTRIES",
       "MYSTERY DEALS",
       "NEW RELEASE",
       "TSHIRTS",
@@ -57,6 +59,7 @@ const ShopScreen = () => {
     const getCollections = async () => {
       try {
         const data = await fetchCollections();
+        console.log(data);
         const mapped = [];
 
         // Match Shopify collection titles to their desired position
@@ -121,7 +124,6 @@ const ShopScreen = () => {
           <ActivityIndicator size="small" />
         </View>
       )}
-
       <View style={styles.container}>
         <AnimatedFlatList
           data={collections}
