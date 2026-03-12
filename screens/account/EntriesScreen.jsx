@@ -94,12 +94,13 @@ function EntriesScreen({ route }) {
     getOrders();
   }, [accessToken, periodStart, periodEnd]);
 
-  // Parse a price value that might be dollars ("45.00") or cents (4500)
+  // Parse a price value that might be dollars ("45.00" or 103) or cents (4500)
+  // Only treat as cents when value is large (>= 1000) so 103 dollars isn't mistaken for cents
   const parsePriceToDollars = (raw) => {
     if (raw == null || raw === "") return 0;
     const num = typeof raw === "number" ? raw : parseFloat(String(raw).replace(/[^0-9.-]/g, ""));
     if (Number.isNaN(num)) return 0;
-    if (Number.isInteger(num) && num >= 100) return num / 100;
+    if (Number.isInteger(num) && num >= 1000) return num / 100;
     return num;
   };
 
@@ -197,8 +198,8 @@ function EntriesScreen({ route }) {
             const orderEntries = cancelled
               ? 0
               : Math.floor(
-                  getOrderSubtotalDollars(item) * giveawayMultiplier * vipMult
-                );
+                getOrderSubtotalDollars(item) * giveawayMultiplier * vipMult
+              );
             return (
               <TouchableOpacity
                 style={styles.orderItem}
