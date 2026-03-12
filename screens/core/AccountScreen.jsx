@@ -413,7 +413,7 @@ const AccountScreen = () => {
 
                   return (
                     <TouchableOpacity
-                      style={{ width: 180, marginRight: 10 }}
+                    style={{ width: 170, marginRight: 15 }}
                       activeOpacity={1}
                       onPress={async () => {
                         await Haptics.impactAsync(
@@ -464,7 +464,7 @@ const AccountScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#FAFAFA",
   },
   screenContainer: {
     flex: 1,
@@ -476,8 +476,9 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   customerName: {
-    fontSize: 24,
+    fontSize: 26,
     fontFamily: "Futura-Bold",
+    letterSpacing: 0.2,
   },
   modalContent: {
     backgroundColor: "white",
@@ -496,13 +497,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   buttonContainer: {
-    marginTop: 20,
-    backgroundColor: "#fff", // Ensure background is set for shadow visibility
-    borderRadius: 10, // Rounded corners
-    shadowColor: "#000", // Shadow color
-    shadowOffset: { width: 0, height: 2 }, // Shadow position
-    shadowOpacity: 0.15, // Shadow transparency
-    shadowRadius: 5, // Shadow blur
+    marginTop: 24,
+    backgroundColor: "#fff",
+    borderRadius: 18, // was 10
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
   },
 
   buttonText: {
@@ -553,8 +555,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   lowerContainer: {
-    marginTop: 30,
-    height: "100%",
+    marginTop: 40,
+    paddingTop: 20,
   },
   lowerText: {
     fontFamily: "Futura-Medium",

@@ -46,7 +46,7 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
   return (
     <View style={styles.outerContainer}>
       <GlassHeader />
-      <View style={getScreenContentWrapperStyle(insets)}>
+      <View style={[getScreenContentWrapperStyle(insets), { flex: 1 }]}>
         {/* Logo Section */}
         <View style={styles.imageContainer}>
           <Image
@@ -73,6 +73,7 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
             value={email}
             onChangeText={setEmail}
             borderColor="#ccc"
+            height={45}
             labelColor="#000"
             textColor="#000"
           />
@@ -95,33 +96,35 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
             text="Reset Password"
             textColor="white"
             fontVariant="medium"
-            textSize={18}
+            textSize={16}
+            height={40}
             onClick={handleForgotPassword}
             isDisabled={!email}
+            style={{ width: "90%", alignSelf: "center" }}
           />
         </View>
-      </View>
 
-      <View style={styles.lowerContainer}>
-        <View
-          style={{
-            height: 1,
-            width: "90%",
-            backgroundColor: "#CBCBCB",
-            marginBottom: 20,
-          }}
-        />
-        <View style={styles.signUpContainer}>
-          <Text allowFontScaling={false} style={styles.textButton}>
-            Remember your password?{" "}
-            <Text
-              allowFontScaling={false}
-              style={styles.signUpButton}
-              onPress={() => navigation.goBack()}
-            >
-              Sign In.
-            </Text>
-          </Text>
+        <View style={styles.orContainer}>
+          <View style={styles.orLine} />
+          <Text style={styles.orText}>OR</Text>
+          <View style={styles.orLine} />
+        </View>
+
+        <View style={{ width: "90%", alignSelf: "center" }}>
+          <RoundedBox
+            isFilled={false}
+            fillColor="transparent"
+            borderColor="#C8102F"
+            borderWidth={2}
+            borderRadius={10}
+            text="Back to Sign In"
+            textColor="#000"
+            fontVariant="medium"
+            textSize={16}
+            height={40}
+            onClick={() => navigation.goBack()}
+            style={{ width: "100%", marginTop: 15 }}
+          />
         </View>
       </View>
     </View>
@@ -130,10 +133,8 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   outerContainer: {
-    backgroundColor: "white",
-    height: "100%",
-    display: "flex",
-    justifyContent: "space-between",
+    flex: 1,
+    backgroundColor: "#fff",
   },
   imageContainer: {
     display: "flex",
@@ -197,6 +198,27 @@ const styles = StyleSheet.create({
     color: "red",
     textAlign: "center",
     marginTop: 10,
+  },
+  orContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 25,
+    marginBottom: 5,
+    width: "90%",
+    alignSelf: "center",
+  },
+  
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#E0E0E0",
+  },
+  
+  orText: {
+    marginHorizontal: 12,
+    fontSize: 12,
+    color: "#999",
+    fontFamily: "Futura-Medium",
   },
 });
 

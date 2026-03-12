@@ -106,7 +106,7 @@ const LoginScreen = ({ route, navigation }) => {
         </View>
       )}
 
-      <View style={getScreenContentWrapperStyle(insets)}>
+      <View style={[getScreenContentWrapperStyle(insets), { flex: 1 }]}>
         {/* Logo */}
         <View style={styles.imageContainer}>
           <Image
@@ -132,6 +132,7 @@ const LoginScreen = ({ route, navigation }) => {
             value={email}
             onChangeText={setEmail}
             borderColor="#ccc"
+            height={45}
             labelColor="#000"
             textColor="#000"
             onSubmitEditing={() => passwordInputRef.current?.focus()}
@@ -145,6 +146,7 @@ const LoginScreen = ({ route, navigation }) => {
             value={password}
             onChangeText={setPassword}
             borderColor="#ccc"
+            height={45}
             labelColor="#000"
             textColor="#000"
             secureTextEntry={true}
@@ -178,35 +180,35 @@ const LoginScreen = ({ route, navigation }) => {
             text="Sign In"
             textColor="white"
             fontVariant="medium"
-            textSize={18}
+            textSize={16}
+            height={40}
             onClick={handleSignIn}
             isDisabled={!email || !password}
             style={{ width: "100%" }}
           />
         </View>
-      </View>
 
-      {/* Footer */}
-      <View style={styles.lowerContainer}>
-        <View
-          style={{
-            height: 1,
-            width: "90%",
-            backgroundColor: "#CBCBCB",
-            marginBottom: 20,
-          }}
+        <View style={styles.orContainer}>
+          <View style={styles.orLine} />
+          <Text style={styles.orText}>OR</Text>
+          <View style={styles.orLine} />
+        </View>
+
+        <View style={{ width: "90%", alignSelf: "center" }}>
+        <RoundedBox
+          isFilled={false}
+          fillColor="transparent"
+          borderColor="#C8102F"
+          borderWidth={2}
+          borderRadius={10}
+          text="Create Account"
+          textColor="#000"
+          fontVariant="medium"
+          textSize={16}
+          height={40}
+          onClick={() => navigation.navigate("SignUpScreen")}
+          style={{ width: "100%", marginTop: 15 }}
         />
-        <View style={styles.signUpContainer}>
-          <Text allowFontScaling={false} style={styles.textButton}>
-            Don’t have an account?{" "}
-            <Text
-              allowFontScaling={false}
-              style={styles.signUpButton}
-              onPress={() => navigation.navigate("SignUpScreen")}
-            >
-              Sign Up.
-            </Text>
-          </Text>
         </View>
       </View>
     </View>
@@ -215,15 +217,12 @@ const LoginScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   outerContainer: {
-    backgroundColor: "white",
-    height: "100%",
-    display: "flex",
-    justifyContent: "space-between",
+    flex: 1,
+    backgroundColor: "#fff",
   },
   imageContainer: {
-    display: "flex",
     alignItems: "center",
-    marginTop: "40%",
+    marginTop: 80, // clean fixed spacing
   },
   headerImage: {
     width: 230,
@@ -292,6 +291,27 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 999,
+  },
+  orContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 25,
+    marginBottom: 5,
+    width: "90%",
+    alignSelf: "center",
+  },
+  
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#E0E0E0",
+  },
+  
+  orText: {
+    marginHorizontal: 12,
+    fontSize: 12,
+    color: "#999",
+    fontFamily: "Futura-Medium",
   },
 });
 

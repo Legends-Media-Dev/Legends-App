@@ -97,7 +97,7 @@ const SignUpScreen = ({ route, navigation }) => {
         </View>
       )}
 
-      <View style={getScreenContentWrapperStyle(insets)}>
+      <View style={[getScreenContentWrapperStyle(insets), { flex: 1 }]}>
         {/* Logo Section */}
         <View style={styles.imageContainer}>
           <Image
@@ -124,6 +124,7 @@ const SignUpScreen = ({ route, navigation }) => {
               value={firstName}
               onChangeText={(t) => { setFirstName(t); if (error) setError(""); }}
               borderColor="#ccc"
+              height={45}
               labelColor="#000"
               textColor="#000"
               width={"49%"}
@@ -137,6 +138,7 @@ const SignUpScreen = ({ route, navigation }) => {
               value={lastName}
               onChangeText={(t) => { setLastName(t); if (error) setError(""); }}
               borderColor="#ccc"
+              height={45}
               labelColor="#000"
               textColor="#000"
               width={"49%"}
@@ -153,6 +155,7 @@ const SignUpScreen = ({ route, navigation }) => {
             value={email}
             onChangeText={(t) => { setEmail(t); if (error) setError(""); }}
             borderColor="#ccc"
+            height={45}
             labelColor="#000"
             textColor="#000"
             returnKeyType="next"
@@ -166,6 +169,7 @@ const SignUpScreen = ({ route, navigation }) => {
             value={password}
             onChangeText={(t) => { setPassword(t); if (error) setError(""); }}
             borderColor="#ccc"
+            height={45}
             labelColor="#000"
             textColor="#000"
             secureTextEntry={true}
@@ -191,7 +195,8 @@ const SignUpScreen = ({ route, navigation }) => {
             text="Create Account"
             textColor="white"
             fontVariant="medium"
-            textSize={18}
+            textSize={16}
+            height={40}
             onClick={handleSignUp}
             isDisabled={
               !email ||
@@ -203,28 +208,30 @@ const SignUpScreen = ({ route, navigation }) => {
             style={{ width: "100%" }}
           />
         </View>
-      </View>
-      <View style={styles.lowerContainer}>
-        <View
-          style={{
-            height: 1,
-            width: "90%",
-            backgroundColor: "#CBCBCB",
-            marginBottom: 20,
-          }}
-        />
-        <View style={styles.signUpContainer}>
-          <Text allowFontScaling={false} style={styles.textButton}>
-            Already have an account?{" "}
-            <Text
-              allowFontScaling={false}
-              style={styles.signUpButton}
-              onPress={() => navigation.goBack()}
-            >
-              Sign In.
-            </Text>
-          </Text>
+
+        <View style={styles.orContainer}>
+          <View style={styles.orLine} />
+          <Text style={styles.orText}>OR</Text>
+          <View style={styles.orLine} />
         </View>
+
+        <View style={{ width: "90%", alignSelf: "center" }}>
+          <RoundedBox
+            isFilled={false}
+            fillColor="transparent"
+            borderColor="#C8102F"
+            borderWidth={2}
+            borderRadius={10}
+            text="Sign In"
+            textColor="#000"
+            fontVariant="medium"
+            textSize={16}
+            height={40}
+            onClick={() => navigation.goBack()}
+            style={{ width: "100%", marginTop: 15 }}
+          />
+        </View>
+
       </View>
     </View>
   );
@@ -232,10 +239,8 @@ const SignUpScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   outerContainer: {
-    backgroundColor: "white",
-    height: "100%",
-    display: "flex",
-    justifyContent: "space-between",
+    flex: 1,
+    backgroundColor: "#fff",
   },
   loadingOverlay: {
     position: "absolute",
@@ -249,9 +254,8 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   imageContainer: {
-    display: "flex",
     alignItems: "center",
-    marginTop: "40%",
+    marginTop: 80, // clean fixed spacing
   },
   headerImage: {
     width: 230,
@@ -328,6 +332,27 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  orContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 25,
+    marginBottom: 5,
+    width: "90%",
+    alignSelf: "center",
+  },
+  
+  orLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#E0E0E0",
+  },
+  
+  orText: {
+    marginHorizontal: 12,
+    fontSize: 12,
+    color: "#999",
+    fontFamily: "Futura-Medium",
   },
 });
 
