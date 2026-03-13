@@ -36,7 +36,7 @@ function JoinVIPScreen() {
   const [loading, setLoading] = React.useState(true);
   const insets = useSafeAreaInsets();
   const handlePress = () => {
-    Linking.openURL('https://legends.media/pages/vip-page');
+    Linking.openURL('https://legends.media/products/vip-gold-subscription');
   }
 
   React.useEffect(() => {
@@ -57,7 +57,7 @@ function JoinVIPScreen() {
   return (
     <View style={styles.root}>
       <GlassHeader variant="light" showSearchOnLeft={navigation.getState().index === 0} scrollY={scrollY} />
-  
+
       <ImageBackground
         transition={300}
         source={require("../../assets/vip-dark-background.png")}
@@ -81,11 +81,11 @@ function JoinVIPScreen() {
             <Text allowFontScaling={false} style={styles.tierLabel}>
               GOLD
             </Text>
-  
+
             <Text style={styles.priceText}>
               $25<Text style={styles.moText}>/mo</Text>
             </Text>
-  
+
             <View style={styles.perkSection}>
               {perks.map((perk, index) => (
                 <View key={index} style={styles.perkRow}>
@@ -96,7 +96,7 @@ function JoinVIPScreen() {
                 </View>
               ))}
             </View>
-  
+
             <TouchableOpacity
               style={styles.joinButton}
               activeOpacity={1}
@@ -107,7 +107,7 @@ function JoinVIPScreen() {
               </Text>
             </TouchableOpacity>
           </View>
-  
+
           <Image
             transition={300}
             source={require("../../assets/How_VIP_Works.png")}
