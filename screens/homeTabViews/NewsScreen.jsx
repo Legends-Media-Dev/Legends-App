@@ -19,7 +19,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   fetchLatestYouTubeVideo,
   fetchCollectionByHandle,
-  fetchCollections,
   fetchAllProductsCollection,
 } from "../../api/shopifyApi";
 
@@ -34,13 +33,12 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
   const scrollYToUse = scrollYProp ?? scrollY;
   const [latestVideo, setLatestVideo] = useState(null);
   const [heroImage, setHeroImage] = useState(null);
-  const [heroHeader, setHeroHeader] = useState("The new release is live");
-  const [heroSubheader, setHeroSubheader] = useState("Your next favorite pieces just dropped. Get it before it's gone.");
+  const [heroHeader, setHeroHeader] = useState("");
+  const [heroSubheader, setHeroSubheader] = useState("");
   const [heroImageLoading, setHeroImageLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [newArrivalProducts, setNewArrivalProducts] = useState([]);
   const [customerVIPStatus, setCustomerVIPStatus] = useState(false);
-  const [categoryCollections, setCategoryCollections] = useState([]);
   const navigation = useNavigation();
 
   const hasFetchedVideo = useRef(false);
@@ -95,29 +93,6 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
     }
   };
 
-  const fetchCategories = async () => {
-    try {
-      const data = await fetchCollections();
-
-      const collections = data || [];
-
-      const allowedHandles = [
-        "tshirts",
-        "hats",
-        "new-release",
-        "stickers"
-      ];
-
-      const filtered = collections.filter((collection) =>
-        allowedHandles.includes(collection.handle)
-      );
-
-      setCategoryCollections(filtered);
-    } catch (err) {
-      console.error("Failed to fetch categories:", err);
-    }
-  };
-
   const onRefresh = async () => {
     setRefreshing(true);
     hasFetchedVideo.current = false; // allow loadVideo to refetch on refresh
@@ -126,7 +101,6 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
         fetchHero(),
         fetchNewArrivals(),
         loadVideo(),
-        fetchCategories(),
       ]);
     } catch (error) {
       console.error("Refresh error:", error);
@@ -155,7 +129,6 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
     fetchHero();
     fetchNewArrivals();
     loadVideo();
-    fetchCategories();
   }, []);
 
   return (
@@ -213,7 +186,7 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
           />
         )}
         {/* Content Grid */}
-        <CategoryGrid collections={categoryCollections} />
+        <CategoryGrid />
 
         {!customerVIPStatus && (
           <View style={styles.vipWrapper}>

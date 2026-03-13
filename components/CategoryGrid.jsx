@@ -1,19 +1,73 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
+import { fetchCategoryGridCompInfo, fetchCollections } from "../api/shopifyApi";
 
-const CategoryGrid = ({ collections = [] }) => {
+const CategoryGrid = ({ collections: collectionsProp = [] }) => {
   const navigation = useNavigation();
+  const [sectionTitle, setSectionTitle] = useState("Explore");
+  const [collections, setCollections] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  if (!collections.length) return null;
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [config, shopifyCollections] = await Promise.all([
+          fetchCategoryGridCompInfo(),
+          fetchCollections(),
+        ]);
+
+        if (config?.items?.length > 0 && Array.isArray(shopifyCollections)) {
+          setSectionTitle(config.sectionTitle || "Explore");
+          const merged = [];
+          for (const { handle, displayName } of config.items) {
+            const match = shopifyCollections.find(
+              (c) => c.handle?.toLowerCase() === handle?.toLowerCase()
+            );
+            if (match) {
+              merged.push({
+                ...match,
+                title: displayName,
+              });
+            }
+          }
+          // Ensure even count so grid rows are full (2 columns)
+          const evenCount = merged.length % 2 === 0 ? merged.length : merged.length - 1;
+          setCollections(merged.slice(0, Math.max(0, evenCount)));
+        } else if (collectionsProp.length > 0) {
+          const evenCount =
+            collectionsProp.length % 2 === 0
+              ? collectionsProp.length
+              : collectionsProp.length - 1;
+          setCollections(collectionsProp.slice(0, Math.max(0, evenCount)));
+        }
+      } catch (err) {
+        console.error("CategoryGrid load failed:", err);
+        if (collectionsProp.length > 0) {
+          const evenCount =
+            collectionsProp.length % 2 === 0
+              ? collectionsProp.length
+              : collectionsProp.length - 1;
+          setCollections(collectionsProp.slice(0, Math.max(0, evenCount)));
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const displayList = collections.length > 0 ? collections : collectionsProp;
+  if (loading && displayList.length === 0) return null;
+  if (!displayList.length) return null;
 
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Explore</Text>
+      <Text style={styles.sectionTitle}>{sectionTitle}</Text>
 
       <View style={styles.grid}>
-        {collections.map((collection) => (
+        {displayList.map((collection) => (
           <TouchableOpacity
             key={collection.id}
             style={styles.card}
@@ -60,6 +114,7 @@ const styles = StyleSheet.create({
 
   card: {
     width: "49%",
+    marginBottom: 15,
   },
 
   image: {
@@ -69,7 +124,7 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    marginTop: 12,
+    marginTop: 6,
     fontSize: 15,
     fontFamily: "Futura-Medium",
   },

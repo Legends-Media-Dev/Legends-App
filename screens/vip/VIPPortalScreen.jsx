@@ -20,7 +20,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import GlassHeader from "../../components/GlassHeader";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { getScreenContentPadding } from "../../constants/layout";
+import {
+  getScreenContentPadding,
+  SCREEN_PADDING_HORIZONTAL,
+} from "../../constants/layout";
+import { HOME_FEATURED_COLLECTION } from "../../constants/appConfig";
 
 import {
   fetchCollections,
@@ -29,6 +33,7 @@ import {
   fetchCustomerDetails,
 } from "../../api/shopifyApi";
 import ContentBox from "../../components/ContentBox";
+import HorizontalProductRow from "../../components/HorizontalProductRow";
 import JoinVIPScreen from "./JoinVIPScreen";
 
 const { width, height } = Dimensions.get("window");
@@ -91,19 +96,19 @@ const VipPortalScreen = () => {
         if (accessToken) {
           const customerDetails = await fetchCustomerDetails(accessToken);
           setCustomerData(customerDetails);
-          
+
           // Check if customer is VIP
-          const customerIsVip = 
+          const customerIsVip =
             customerDetails?.tags?.includes("VIP Gold") ||
             customerDetails?.tags?.includes("Active Subscriber");
-          
+
           setIsVip(customerIsVip);
-          
+
           // Only load VIP content if user is VIP
           if (customerIsVip) {
             const collectionsData = await fetchCollections();
             const vipCollections = collectionsData
-              .filter((c) => c.title.includes("VIP DIGITAL DOWNLOADS"))
+              .filter((c) => c.title.includes("VIP EXCLUSIVE PRODUCT"))
               .map((item) => ({ ...item, type: "collection" }));
 
             const blog = await fetchBlogArticles("vip");
@@ -118,12 +123,22 @@ const VipPortalScreen = () => {
               })
               .filter(Boolean);
 
+            const featuredHandle = HOME_FEATURED_COLLECTION?.handle ?? "app-main-collection";
+            const featuredData = await fetchAllProductsCollection(featuredHandle);
+            const featuredProducts = featuredData?.products?.edges?.map((edge) => edge.node) ?? [];
+
             setScreenData([
-              { type: "section", title: "EXCLUSIVE COLLECTIONS" },
+              { type: "section", title: "Vip Exclusive" },
               ...vipCollections,
-              { type: "section", title: "VIP BLOG ARTICLES" },
+              {
+                type: "featuredProducts",
+                products: featuredProducts,
+                title: HOME_FEATURED_COLLECTION?.title ?? "Shop Now",
+                subtitle: HOME_FEATURED_COLLECTION?.subtitle,
+              },
+              { type: "section", title: "Vip Blog Articles" },
               ...blogArticles,
-              { type: "section", title: "PARTNERS" },
+              { type: "section", title: "Partners" },
               { type: "partnerGrid", data: partnerLogos },
             ]);
           }
@@ -199,6 +214,23 @@ const VipPortalScreen = () => {
       return <Text allowFontScaling={false} style={styles.sectionTitle}>{item.title}</Text>;
     }
 
+    if (item.type === "featuredProducts") {
+      return (
+        <View style={{ marginRight: -SCREEN_PADDING_HORIZONTAL }}>
+          <HorizontalProductRow
+            title={item.title ?? "Shop Now"}
+            subtitle={item.subtitle}
+            products={item.products ?? []}
+            onPressItem={(product) =>
+              navigation.navigate("Product", { product })
+            }
+            contentPaddingHorizontal={0}
+            marginBottom={16}
+          />
+        </View>
+      );
+    }
+
     if (item.type === "collection") {
       return (
         <>
@@ -236,11 +268,7 @@ const VipPortalScreen = () => {
           >
             <ImageBackground
               source={vipBackground}
-              style={{
-                borderRadius: 12,
-                marginTop: -3,
-                overflow: "hidden",
-              }}
+              style={styles.vipCardSecond}
               imageStyle={{
                 borderRadius: 12,
               }}
@@ -258,7 +286,7 @@ const VipPortalScreen = () => {
 
     if (item.type === "vipArticle") {
       return (
-        <TouchableOpacity style={{ marginBottom: 8 }}>
+        <TouchableOpacity style={styles.vipArticleCard}>
           <ContentBox
             topTitle={item.title}
             image={
@@ -318,7 +346,7 @@ const VipPortalScreen = () => {
   return (
     <View style={styles.root}>
       <GlassHeader variant="dark" showSearchOnLeft={navigation.getState().index === 0} scrollY={scrollY} />
-  
+
       <AnimatedFlatList
         data={screenData}
         renderItem={renderItem}
@@ -337,7 +365,7 @@ const VipPortalScreen = () => {
         ]}
         showsVerticalScrollIndicator={false}
       />
-  
+
       <Modal
         visible={!!selectedArticle}
         transparent={true}
@@ -352,7 +380,7 @@ const VipPortalScreen = () => {
             >
               <Ionicons name="close" size={20} color="#000" />
             </TouchableOpacity>
-  
+
             {selectedArticle && (
               <ScrollView showsVerticalScrollIndicator={false}>
                 <Text allowFontScaling={false} style={styles.articleTitle}>
@@ -378,7 +406,7 @@ const VipPortalScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     backgroundColor: "#FFFFFF",
   },
   root: {
@@ -386,14 +414,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 36,
     fontFamily: "Futura-Bold",
-    marginVertical: 16,
+    marginTop: 24,
+    marginBottom: 20,
     color: "#000",
   },
   vipCard: {
-    marginHorizontal: 4,
-    marginVertical: 10,
+    marginHorizontal: 0,
+    marginTop: 0,
+    marginBottom: 0,
     borderRadius: 12,
     overflow: "hidden",
     elevation: 3,
@@ -401,6 +431,21 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
     shadowRadius: 2,
+  },
+  vipCardSecond: {
+    marginHorizontal: 0,
+    marginTop: 14,
+    marginBottom: 0,
+    borderRadius: 12,
+    overflow: "hidden",
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  vipArticleCard: {
+    marginBottom: 16,
   },
   vipCardImage: {
     contentFit: "cover",
@@ -469,15 +514,15 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   partnerGridContainer: {
-    width: width - 32,
+    width: width - 40,
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    paddingVertical: 4,
-    marginTop: 4,
+    paddingVertical: 12,
+    marginTop: 8,
   },
   partnerLogoBox: {
-    width: (width - 32 - 16) / 3,
+    width: (width - 40 - 16) / 3,
     height: 96,
     backgroundColor: "#f5f5f5",
     marginBottom: 10,

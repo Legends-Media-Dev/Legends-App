@@ -80,6 +80,63 @@ const CLOUD_FUNCTION_URL_APP_VERSION =
 const CLOUD_FUNCTION_URL_APP_COLLECTIONS =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAppCollectionsInfoHandler";
 
+const CLOUD_FUNCTION_URL_GIVEAWAY_COMP =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchGiveawayCompInfoHandler";
+
+const CLOUD_FUNCTION_URL_CATEGORY_GRID =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchCategoryGridCompInfoHandler";
+
+/**
+ * Fetch category grid config (section title, ORDER, COLLECTION_MAP, DISPLAY_NAMES).
+ * Returns { sectionTitle, items: [{ label, handle, displayName }] } or null. Items are even-count safe (caller may slice to even).
+ */
+export const fetchCategoryGridCompInfo = async () => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_CATEGORY_GRID, {
+      timeout: 8000,
+    });
+    const data = response.data;
+    const first = data?.items?.[0];
+    if (!first) return null;
+
+    const map = first?.COLLECTION_MAP ?? first?.collection_map ?? null;
+    if (!map || typeof map !== "object") return null;
+
+    const sectionTitle =
+      first?.sectionTitle != null ? String(first.sectionTitle).trim() : "Explore";
+    const displayNames = first?.DISPLAY_NAMES ?? first?.display_names ?? {};
+    const order = first?.ORDER ?? first?.order ?? null;
+    const orderedLabels =
+      Array.isArray(order) && order.length > 0 ? order : Object.keys(map);
+
+    const items = orderedLabels
+      .map((label) => {
+        const raw = map[label ?? ""];
+        if (raw == null) return null;
+        const trimmedLabel = String(label).trim();
+        const displayName =
+          displayNames[trimmedLabel] != null &&
+          String(displayNames[trimmedLabel]).trim() !== ""
+            ? String(displayNames[trimmedLabel]).trim()
+            : trimmedLabel;
+        return {
+          label: trimmedLabel,
+          handle: String(raw).trim(),
+          displayName,
+        };
+      })
+      .filter(Boolean);
+
+    return { sectionTitle, items };
+  } catch (error) {
+    console.warn(
+      "Category grid comp info fetch failed:",
+      error.response?.data || error.message
+    );
+    return null;
+  }
+};
+
 /**
  * Fetch app shop collections config (order, labels, display names) from the backend.
  * Uses ORDER for sort order; COLLECTION_MAP for label → handle; DISPLAY_NAMES for optional alternate label to show.
@@ -152,6 +209,25 @@ export const fetchAppInfo = async () => {
   } catch (error) {
     console.warn(
       "App info (version) fetch failed:",
+      error.response?.data || error.message
+    );
+    return null;
+  }
+};
+
+/**
+ * Fetch giveaway comp / preview info for the home screen (badge, title, header, button, image).
+ * Returns { items: [{ id, badgeLabel, title, header, buttonText, imageLink }], total } or null on failure.
+ */
+export const fetchGiveawayCompInfo = async () => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_GIVEAWAY_COMP, {
+      timeout: 8000,
+    });
+    return response.data;
+  } catch (error) {
+    console.warn(
+      "Giveaway comp info fetch failed:",
       error.response?.data || error.message
     );
     return null;

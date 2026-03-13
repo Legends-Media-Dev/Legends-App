@@ -7,60 +7,29 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
-import { fetchBlogArticles } from "../../api/shopifyApi";
+import { fetchGiveawayCompInfo } from "../../api/shopifyApi";
 
 export default function HomeGiveawayPreview() {
   const navigation = useNavigation();
-  const [article, setArticle] = useState(null);
+  const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // 🔥 Badge Logic
-  const getBadgeLabel = (publishedAt) => {
-    if (!publishedAt) return "CHECK OUT PAST GIVEAWAYS";
-
-    const now = new Date();
-    const start = new Date(publishedAt);
-
-    const GIVEAWAY_DURATION_DAYS = 14; // adjust if needed
-    const end = new Date(start);
-    end.setDate(end.getDate() + GIVEAWAY_DURATION_DAYS);
-
-    const diffInMs = end - now;
-    const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
-
-    if (diffInDays <= 0) return "CHECK OUT PAST GIVEAWAYS";
-    if (diffInDays <= 3) return "ENDS SOON";
-
-    return "LIVE";
-  };
 
   useEffect(() => {
     const loadGiveaway = async () => {
       try {
-        const blog = await fetchBlogArticles("sweepstakes");
-        const edges = blog?.articles?.edges || [];
-
-        if (!edges.length) {
-          setLoading(false);
-          return;
+        const data = await fetchGiveawayCompInfo();
+        const items = data?.items ?? [];
+        if (items.length > 0) {
+          const first = items[0];
+          setItem({
+            id: first.id,
+            badgeLabel: first.badgeLabel ?? "CHECK OUT PAST GIVEAWAYS",
+            title: first.title ?? "",
+            header: first.header ?? "",
+            buttonText: first.buttonText ?? "View Past Winners",
+            imageLink: first.imageLink ?? null,
+          });
         }
-
-        // Find current giveaway first
-        const current = edges.find((edge) =>
-          edge.node.tags?.includes("current")
-        );
-
-        const target = current || edges[0]; // fallback to most recent
-
-        const html = target.node.contentHtml || "";
-        const imgMatch = html.match(/<img[^>]*src="([^"]+)"/);
-
-        setArticle({
-          id: target.node.id,
-          title: target.node.title,
-          image: imgMatch ? imgMatch[1] : null,
-          publishedAt: target.node.publishedAt,
-        });
       } catch (error) {
         console.error("Failed to load home giveaway:", error);
       } finally {
@@ -71,10 +40,11 @@ export default function HomeGiveawayPreview() {
     loadGiveaway();
   }, []);
 
-  if (loading || !article) return null;
+  if (loading || !item) return null;
 
-  const badgeLabel = getBadgeLabel(article.publishedAt);
-  const isPast = badgeLabel === "CHECK OUT PAST GIVEAWAYS";
+  const isPast = (item.badgeLabel || "").toUpperCase().includes("PAST");
+  const ctaText = (item.buttonText ?? "").trim();
+  const ctaWithArrow = ctaText.endsWith("→") ? ctaText : `${ctaText} →`;
 
   return (
     <TouchableOpacity
@@ -83,9 +53,9 @@ export default function HomeGiveawayPreview() {
       style={styles.wrapper}
     >
       <View style={styles.card}>
-        {article.image && (
+        {item.imageLink && (
           <Image
-            source={{ uri: article.image }}
+            source={{ uri: item.imageLink }}
             style={styles.image}
             contentFit="cover"
             transition={300}
@@ -94,28 +64,21 @@ export default function HomeGiveawayPreview() {
 
         <View style={styles.overlay} />
 
-        {/* 🔴 Dynamic Badge */}
-        {badgeLabel && (
+        {item.badgeLabel ? (
           <View
             style={[
               styles.badge,
               isPast && styles.badgePast,
             ]}
           >
-            <Text style={styles.badgeText}>{badgeLabel}</Text>
+            <Text style={styles.badgeText}>{item.badgeLabel}</Text>
           </View>
-        )}
+        ) : null}
 
         <View style={styles.content}>
-          <Text style={styles.kicker}>
-            {isPast ? "PAST GIVEAWAYS" : "CURRENT GIVEAWAY"}
-          </Text>
-
-          <Text style={styles.title}>{article.title}</Text>
-
-          <Text style={styles.cta}>
-            {isPast ? "View Past Winners →" : "Enter Now →"}
-          </Text>
+          <Text style={styles.kicker}>{item.title}</Text>
+          <Text style={styles.title}>{item.header}</Text>
+          <Text style={styles.cta}>{ctaWithArrow}</Text>
         </View>
       </View>
     </TouchableOpacity>
