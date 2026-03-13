@@ -2,7 +2,7 @@
   "expo": {
     "name": "Legends",
     "slug": "legends-media",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "icon": "./assets/icon.png",
     "orientation": "portrait",
     "newArchEnabled": true,
@@ -37,6 +37,6 @@
     "android": {
       "package": "com.legendsmedia.legends"
     },
-    "runtimeVersion": "1.0.6"
+    "runtimeVersion": "1.0.7"
   }
 }
