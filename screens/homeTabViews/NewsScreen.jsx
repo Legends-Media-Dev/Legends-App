@@ -197,7 +197,7 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
         </View>
         {/* Product shower */}
         <HorizontalProductRow
-          title={HOME_FEATURED_COLLECTION?.title ?? "New Arrivals"}
+          title={HOME_FEATURED_COLLECTION?.title ?? "APP MAIN COLLECTION"}
           subtitle={HOME_FEATURED_COLLECTION?.subtitle}
           products={newArrivalProducts}
           onPressItem={(product) =>

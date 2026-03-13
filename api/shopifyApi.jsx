@@ -77,6 +77,55 @@ const CLOUD_FUNCTION_URL_FETCH_GIVEAWAY_ENTRIES =
 const CLOUD_FUNCTION_URL_APP_VERSION =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchAppInfoHandler";
 
+const CLOUD_FUNCTION_URL_APP_COLLECTIONS =
+  "https://us-central1-premier-ikon.cloudfunctions.net/fetchAppCollectionsInfoHandler";
+
+/**
+ * Fetch app shop collections config (order, labels, display names) from the backend.
+ * Uses ORDER for sort order; COLLECTION_MAP for label → handle; DISPLAY_NAMES for optional alternate label to show.
+ * Returns array of { label, handle, displayName } in ORDER. displayName falls back to label when not in DISPLAY_NAMES.
+ */
+export const fetchAppCollectionsInfo = async () => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_APP_COLLECTIONS, {
+      timeout: 8000,
+    });
+    const data = response.data;
+    const first = data?.collections?.[0];
+    const map = first?.COLLECTION_MAP ?? first?.collection_map ?? null;
+    if (!map || typeof map !== "object") return null;
+
+    const displayNames = first?.DISPLAY_NAMES ?? first?.display_names ?? {};
+    const order = first?.ORDER ?? first?.order ?? null;
+    const orderedLabels = Array.isArray(order) && order.length > 0
+      ? order
+      : Object.keys(map);
+
+    return orderedLabels
+      .map((label) => {
+        const raw = map[label ?? ""];
+        if (raw == null) return null;
+        const trimmedLabel = String(label).trim();
+        const displayName =
+          displayNames[trimmedLabel] != null && String(displayNames[trimmedLabel]).trim() !== ""
+            ? String(displayNames[trimmedLabel]).trim()
+            : trimmedLabel;
+        return {
+          label: trimmedLabel,
+          handle: String(raw).trim(),
+          displayName,
+        };
+      })
+      .filter(Boolean);
+  } catch (error) {
+    console.warn(
+      "App collections info fetch failed:",
+      error.response?.data || error.message
+    );
+    return null;
+  }
+};
+
 /**
  * Fetch app version config from Firebase (fetchAppInfoHandler).
  * Expects: { appInfo: [{ minVersion, iosStoreUrl?, androidStoreUrl? }], total }

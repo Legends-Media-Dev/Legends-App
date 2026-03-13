@@ -15,6 +15,7 @@ import {
 import {
   fetchCollections,
   fetchAllProductsCollection,
+  fetchAppCollectionsInfo,
 } from "../../api/shopifyApi";
 import { FlatList } from "react-native-gesture-handler";
 
@@ -27,47 +28,47 @@ const ShopScreen = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
-  const collectionLabelMap = {
-    "all-product": "SHOP ALL",
-    "mystery-deals": "MYSTERY DEALS",
-    "new-release": "NEW RELEASE",
-    tshirts: "TSHIRTS",
-    hoodies: "HOODIES",
-    accessories: "ACCESSORIES",
-    stickers: "STICKERS",
-    "digital-downloads": "DOWNLOADS",
-    "last-chance-offers": "LAST CHANCE OFFERS",
-    "easy-entries": "EASY ENTRIES",
-    "learn-more-vip": "JOIN VIP",
-  };
+
+  const defaultOrder = [
+    "ALL PRODUCT",
+    "EASY ENTRIES",
+    "MYSTERY DEALS",
+    "NEW RELEASE",
+    "TSHIRTS",
+    "HOODIES",
+    "ACCESSORIES",
+    "STICKERS",
+    "DIGITAL DOWNLOADS",
+    "LAST CHANCE OFFERS",
+    "LEARN MORE - VIP",
+  ];
 
   useEffect(() => {
-    const desiredOrder = [
-      "ALL PRODUCT",
-      "EASY ENTRIES",
-      "MYSTERY DEALS",
-      "NEW RELEASE",
-      "TSHIRTS",
-      "HOODIES",
-      "ACCESSORIES",
-      "STICKERS",
-      "DIGITAL DOWNLOADS",
-      "LAST CHANCE OFFERS",
-      "LEARN MORE - VIP",
-    ];
-
     const getCollections = async () => {
       try {
-        const data = await fetchCollections();
-        console.log(data);
-        const mapped = [];
+        const [configList, shopifyCollections] = await Promise.all([
+          fetchAppCollectionsInfo(),
+          fetchCollections(),
+        ]);
 
-        // Match Shopify collection titles to their desired position
-        for (let title of desiredOrder) {
-          const match = data.find(
-            (c) => c.title.trim().toUpperCase() === title.trim().toUpperCase()
+        const orderList =
+          configList && configList.length > 0
+            ? configList
+            : defaultOrder.map((label) => ({ label }));
+
+        const mapped = [];
+        for (const item of orderList) {
+          const label = item.label ?? item;
+          const handle = item.handle;
+          const displayName = item.displayName ?? label;
+          const match = shopifyCollections.find(
+            (c) =>
+              (handle && c.handle?.toLowerCase() === handle.toLowerCase()) ||
+              (c.title?.trim().toUpperCase() === label.trim().toUpperCase())
           );
-          if (match) mapped.push(match);
+          if (match) {
+            mapped.push({ ...match, title: displayName });
+          }
         }
 
         setCollections(mapped);
@@ -109,7 +110,7 @@ const ShopScreen = () => {
         }}
       >
         <Text allowFontScaling={false} style={styles.collectionText}>
-          {collectionLabelMap[item.handle] || item.title || "No Title"}
+          {item.title || "No Title"}
         </Text>
       </TouchableOpacity>
     );
