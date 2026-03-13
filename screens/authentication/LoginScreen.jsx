@@ -6,19 +6,17 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
-import GlassHeader from "../../components/GlassHeader";
-import { getScreenContentWrapperStyle } from "../../constants/layout";
 import { customerSignIn, fetchCustomerDetails } from "../../api/shopifyApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
 import { registerForPushNotificationsAsync } from "../../utils/notifications";
+
+// 🔹 import helpers for push token linking
 import { setCustomerInfo } from "../../utils/storage";
 
 const LoginScreen = ({ route, navigation }) => {
-  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const passwordInputRef = useRef(null);
@@ -99,14 +97,13 @@ const LoginScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.outerContainer}>
-      <GlassHeader />
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" />
         </View>
       )}
 
-      <View style={[getScreenContentWrapperStyle(insets), { flex: 1 }]}>
+      <View style={styles.contentCenter}>
         {/* Logo */}
         <View style={styles.imageContainer}>
           <Image
@@ -132,7 +129,6 @@ const LoginScreen = ({ route, navigation }) => {
             value={email}
             onChangeText={setEmail}
             borderColor="#ccc"
-            height={45}
             labelColor="#000"
             textColor="#000"
             onSubmitEditing={() => passwordInputRef.current?.focus()}
@@ -146,7 +142,6 @@ const LoginScreen = ({ route, navigation }) => {
             value={password}
             onChangeText={setPassword}
             borderColor="#ccc"
-            height={45}
             labelColor="#000"
             textColor="#000"
             secureTextEntry={true}
@@ -180,35 +175,22 @@ const LoginScreen = ({ route, navigation }) => {
             text="Sign In"
             textColor="white"
             fontVariant="medium"
-            textSize={16}
-            height={40}
+            textSize={18}
             onClick={handleSignIn}
             isDisabled={!email || !password}
             style={{ width: "100%" }}
           />
         </View>
 
-        <View style={styles.orContainer}>
-          <View style={styles.orLine} />
-          <Text style={styles.orText}>OR</Text>
-          <View style={styles.orLine} />
-        </View>
-
-        <View style={{ width: "90%", alignSelf: "center" }}>
-        <RoundedBox
-          isFilled={false}
-          fillColor="transparent"
-          borderColor="#C8102F"
-          borderWidth={2}
-          borderRadius={10}
-          text="Create Account"
-          textColor="#000"
-          fontVariant="medium"
-          textSize={16}
-          height={40}
-          onClick={() => navigation.navigate("SignUpScreen")}
-          style={{ width: "100%", marginTop: 15 }}
-        />
+        <View style={styles.textLinkRow}>
+          <Text allowFontScaling={false} style={styles.textLinkLabel}>
+            Don't have an account?{" "}
+          </Text>
+          <TouchableOpacity onPress={() => navigation.navigate("SignUpScreen")} activeOpacity={0.7}>
+            <Text allowFontScaling={false} style={styles.textLinkAction}>
+              Sign up.
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -217,12 +199,16 @@ const LoginScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   outerContainer: {
+    backgroundColor: "white",
     flex: 1,
-    backgroundColor: "#fff",
+  },
+  contentCenter: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   imageContainer: {
     alignItems: "center",
-    marginTop: 80, // clean fixed spacing
   },
   headerImage: {
     width: 230,
@@ -265,21 +251,22 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginTop: 30,
   },
-  lowerContainer: {
-    display: "flex",
+  textLinkRow: {
+    flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginTop: 20,
+    flexWrap: "wrap",
   },
-  textButton: {
+  textLinkLabel: {
     fontFamily: "Futura-Medium",
     fontSize: 16,
+    color: "#444",
   },
-  signUpContainer: {
-    alignItems: "center",
-  },
-  signUpButton: {
+  textLinkAction: {
+    fontFamily: "Futura-Bold",
+    fontSize: 16,
     color: "#C8102F",
-    fontWeight: "bold",
   },
   loadingOverlay: {
     position: "absolute",
@@ -291,27 +278,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     zIndex: 999,
-  },
-  orContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 25,
-    marginBottom: 5,
-    width: "90%",
-    alignSelf: "center",
-  },
-  
-  orLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#E0E0E0",
-  },
-  
-  orText: {
-    marginHorizontal: 12,
-    fontSize: 12,
-    color: "#999",
-    fontFamily: "Futura-Medium",
   },
 });
 

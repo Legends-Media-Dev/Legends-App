@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
 
   sectionTitle: {
     fontSize: 28,
-    fontFamily: "Futura-Medium",
+    fontFamily: "Futura-Bold",
     marginBottom: 30,
   },
 
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
 
   image: {
     aspectRatio: 1,
-    borderRadius: 2,
+    borderRadius: 5,
     backgroundColor: "#F2F2F2",
   },
 

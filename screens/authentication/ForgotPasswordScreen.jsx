@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
-import GlassHeader from "../../components/GlassHeader";
-import { getScreenContentWrapperStyle } from "../../constants/layout";
 import { forgotPassword } from "../../api/shopifyApi";
 import { Image } from "expo-image";
 
 const ForgotPasswordScreen = ({ route, navigation }) => {
-  const insets = useSafeAreaInsets();
+  // State for managing input values
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -45,8 +42,7 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.outerContainer}>
-      <GlassHeader />
-      <View style={[getScreenContentWrapperStyle(insets), { flex: 1 }]}>
+      <View style={styles.contentCenter}>
         {/* Logo Section */}
         <View style={styles.imageContainer}>
           <Image
@@ -73,7 +69,6 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
             value={email}
             onChangeText={setEmail}
             borderColor="#ccc"
-            height={45}
             labelColor="#000"
             textColor="#000"
           />
@@ -96,35 +91,21 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
             text="Reset Password"
             textColor="white"
             fontVariant="medium"
-            textSize={16}
-            height={40}
+            textSize={18}
             onClick={handleForgotPassword}
             isDisabled={!email}
-            style={{ width: "90%", alignSelf: "center" }}
           />
         </View>
 
-        <View style={styles.orContainer}>
-          <View style={styles.orLine} />
-          <Text style={styles.orText}>OR</Text>
-          <View style={styles.orLine} />
-        </View>
-
-        <View style={{ width: "90%", alignSelf: "center" }}>
-          <RoundedBox
-            isFilled={false}
-            fillColor="transparent"
-            borderColor="#C8102F"
-            borderWidth={2}
-            borderRadius={10}
-            text="Back to Sign In"
-            textColor="#000"
-            fontVariant="medium"
-            textSize={16}
-            height={40}
-            onClick={() => navigation.goBack()}
-            style={{ width: "100%", marginTop: 15 }}
-          />
+        <View style={styles.textLinkRow}>
+          <Text allowFontScaling={false} style={styles.textLinkLabel}>
+            Remember your password?{" "}
+          </Text>
+          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7}>
+            <Text allowFontScaling={false} style={styles.textLinkAction}>
+              Sign in.
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
@@ -133,13 +114,16 @@ const ForgotPasswordScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   outerContainer: {
+    backgroundColor: "white",
     flex: 1,
-    backgroundColor: "#fff",
+  },
+  contentCenter: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   imageContainer: {
-    display: "flex",
     alignItems: "center",
-    marginTop: "40%",
   },
   headerImage: {
     width: 230,
@@ -147,20 +131,22 @@ const styles = StyleSheet.create({
     contentFit: "contain",
   },
   infoContainer: {
-    display: "flex",
     alignItems: "center",
     marginTop: 50,
     gap: 15,
+    paddingHorizontal: 28,
+    maxWidth: "100%",
   },
   header: {
     fontFamily: "Futura-Bold",
-    fontSize: 24, // Corrected as a number
+    fontSize: 24,
   },
   subHeader: {
     fontFamily: "Futura-Medium",
     textAlign: "center",
-    fontSize: 16, // Corrected as a number
-    width: "85%",
+    fontSize: 16,
+    lineHeight: 24,
+    paddingHorizontal: 8,
   },
   authContainer: {
     display: "flex",
@@ -173,21 +159,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 30,
   },
-  lowerContainer: {
-    display: "flex",
+  textLinkRow: {
+    flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginTop: 20,
+    flexWrap: "wrap",
   },
-  textButton: {
+  textLinkLabel: {
     fontFamily: "Futura-Medium",
     fontSize: 16,
+    color: "#444",
   },
-  signUpContainer: {
-    alignItems: "center", // Center the text
-  },
-  signUpButton: {
-    color: "#C8102F", // Highlight color for the button
-    fontWeight: "bold", // Bold to differentiate it as a button
+  textLinkAction: {
+    fontFamily: "Futura-Bold",
+    fontSize: 16,
+    color: "#C8102F",
   },
   successMessage: {
     color: "green",
@@ -198,27 +185,6 @@ const styles = StyleSheet.create({
     color: "red",
     textAlign: "center",
     marginTop: 10,
-  },
-  orContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 25,
-    marginBottom: 5,
-    width: "90%",
-    alignSelf: "center",
-  },
-  
-  orLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#E0E0E0",
-  },
-  
-  orText: {
-    marginHorizontal: 12,
-    fontSize: 12,
-    color: "#999",
-    fontFamily: "Futura-Medium",
   },
 });
 

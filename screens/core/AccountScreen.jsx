@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import GlassHeader from "../../components/GlassHeader";
-import { getScreenContentPadding } from "../../constants/layout";
+import { getScreenContentPadding, SCREEN_PADDING_HORIZONTAL } from "../../constants/layout";
 import ProductCard from "../../components/ProductCard";
 import Modal from "react-native-modal";
 import { Ionicons } from "@expo/vector-icons";
@@ -164,8 +164,12 @@ const AccountScreen = () => {
         animationIn="slideInUp"
         animationOut="slideOutDown"
         onBackdropPress={() => setModalVisible(false)}
+        style={styles.modalOverlay}
       >
         <View style={styles.modalContent}>
+          <Text allowFontScaling={false} style={styles.modalTitle}>
+            Log out?
+          </Text>
           <Text allowFontScaling={false} style={styles.modalText}>
             Are you sure you want to log out?
           </Text>
@@ -175,26 +179,28 @@ const AccountScreen = () => {
               fillColor="transparent"
               borderColor="#C8102F"
               borderWidth={2}
+              borderRadius={14}
               text="Cancel"
               textColor="#C8102F"
               fontVariant="medium"
               textSize={16}
               onClick={() => setModalVisible(false)}
-              width={"50%"}
-              height={40}
+              width={"48%"}
+              height={48}
             />
             <RoundedBox
               isFilled={true}
               fillColor="#C8102F"
               borderColor="#C8102F"
               borderWidth={2}
+              borderRadius={14}
               text="Log Out"
               textColor="white"
               fontVariant="medium"
               textSize={16}
               onClick={handleLogout}
-              width={"50%"}
-              height={40}
+              width={"48%"}
+              height={48}
             />
           </View>
         </View>
@@ -206,10 +212,14 @@ const AccountScreen = () => {
         animationIn="slideInUp"
         animationOut="slideOutDown"
         onBackdropPress={() => setDeleteAccountModalVisible(false)}
+        style={styles.modalOverlay}
       >
         <View style={styles.modalContent}>
+          <Text allowFontScaling={false} style={styles.modalTitle}>
+            Delete account?
+          </Text>
           <Text allowFontScaling={false} style={styles.modalText}>
-            Delete your account?
+            This will permanently remove your account. This action cannot be undone.
           </Text>
           <View style={styles.modalButtonContainer}>
             <RoundedBox
@@ -217,26 +227,28 @@ const AccountScreen = () => {
               fillColor="transparent"
               borderColor="#C8102F"
               borderWidth={2}
+              borderRadius={14}
               text="Cancel"
               textColor="#C8102F"
               fontVariant="medium"
               textSize={16}
               onClick={() => setDeleteAccountModalVisible(false)}
-              width={"50%"}
-              height={40}
+              width={"48%"}
+              height={48}
             />
             <RoundedBox
               isFilled={true}
               fillColor="#C8102F"
               borderColor="#C8102F"
               borderWidth={2}
+              borderRadius={14}
               text="Delete"
               textColor="white"
               fontVariant="medium"
               textSize={16}
               onClick={handleLogout}
-              width={"50%"}
-              height={40}
+              width={"48%"}
+              height={48}
             />
           </View>
         </View>
@@ -385,7 +397,7 @@ const AccountScreen = () => {
         </View>
         <View>
           <View style={styles.lowerContainer}>
-            <View style={{ paddingLeft: 20 }}>
+            <View>
               <Text allowFontScaling={false} style={styles.lowerText}>Recently Viewed</Text>
             </View>
 
@@ -396,13 +408,14 @@ const AccountScreen = () => {
                 No recently viewed products.
               </Text>
             ) : (
-              <FlatList
-                data={recentlyViewed}
-                keyExtractor={(item) => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.recentlyViewedScroll}
-                renderItem={({ item }) => {
+              <View style={styles.recentlyViewedListWrapper}>
+                <FlatList
+                  data={recentlyViewed}
+                  keyExtractor={(item) => item.id}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.recentlyViewedScroll}
+                  renderItem={({ item }) => {
                   const variant = item.variants.edges[0]?.node;
                   const price = parseFloat(
                     variant?.price?.amount || "0"
@@ -452,7 +465,8 @@ const AccountScreen = () => {
                     </TouchableOpacity>
                   );
                 }}
-              />
+                />
+              </View>
             )}
           </View>
         </View>
@@ -480,21 +494,46 @@ const styles = StyleSheet.create({
     fontFamily: "Futura-Bold",
     letterSpacing: 0.2,
   },
-  modalContent: {
-    backgroundColor: "white",
-    padding: 20,
-    borderRadius: 7,
+  modalOverlay: {
+    justifyContent: "center",
     alignItems: "center",
+    margin: 24,
+  },
+  modalContent: {
+    backgroundColor: "#FFFFFF",
+    paddingVertical: 28,
+    paddingHorizontal: 24,
+    borderRadius: 20,
+    alignItems: "center",
+    width: "100%",
+    maxWidth: 340,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontFamily: "Futura-Bold",
+    color: "#111",
+    marginBottom: 8,
+    textAlign: "center",
   },
   modalText: {
-    fontSize: 14,
-    fontFamily: "Futura-Bold",
+    fontSize: 15,
+    fontFamily: "Futura-Medium",
+    color: "#444",
+    textAlign: "center",
+    lineHeight: 22,
+    paddingHorizontal: 8,
   },
   modalButtonContainer: {
-    marginTop: 20,
-    display: "flex",
-    gap: 10,
+    marginTop: 24,
     flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 12,
+    width: "100%",
   },
   buttonContainer: {
     marginTop: 24,
@@ -555,16 +594,19 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   lowerContainer: {
-    marginTop: 40,
-    paddingTop: 20,
+    marginTop: 20,
+    paddingTop: 12,
   },
   lowerText: {
     fontFamily: "Futura-Medium",
     fontSize: 18,
   },
+  recentlyViewedListWrapper: {
+    marginRight: -SCREEN_PADDING_HORIZONTAL,
+  },
   recentlyViewedScroll: {
     marginTop: 10,
-    paddingHorizontal: 10,
+    paddingLeft: 0,
     paddingRight: 0,
   },
   noProductsText: {

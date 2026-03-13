@@ -80,7 +80,7 @@ const ProductCardDiscovery = ({ product, onPress, customerTags: customerTagsProp
       </View>
 
       <Text numberOfLines={2} style={styles.name}>
-        {product.title}
+        {(product.title || "").replace(/^\*+/, "").trim() || product.title}
       </Text>
 
       <View style={styles.priceRow}>
@@ -166,8 +166,8 @@ const styles = StyleSheet.create({
   },
 
   name: {
-    fontSize: 14,
-    fontFamily: "Futura-Medium",
+    fontSize: 12,
+    fontFamily: "Futura-Bold",
     marginTop: 10,
     color: "#222",
   },
@@ -180,8 +180,8 @@ const styles = StyleSheet.create({
   },
 
   price: {
-    fontSize: 14,
-    fontFamily: "Futura-Bold",
+    fontSize: 12,
+    fontFamily: "Futura-Medium",
     color: "#000",
   },
 
@@ -190,7 +190,8 @@ const styles = StyleSheet.create({
   },
 
   compare: {
-    fontSize: 13,
+    fontSize: 11,
+    fontFamily: "Futura-Medium",
     color: "#999",
     textDecorationLine: "line-through",
   },

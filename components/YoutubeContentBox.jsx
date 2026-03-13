@@ -20,9 +20,9 @@ const YoutubeContentBox = ({ topTitle, thumbnail, videoId }) => {
   return (
     <View style={styles.section}>
       <View style={styles.sectionHeader}>
-      <Ionicons name="logo-youtube" size={30} color="#000" />
-      <Text style={styles.sectionTitle}>YouTube</Text>
-    </View>
+        <Ionicons name="logo-youtube" size={30} color="#000" />
+        <Text style={styles.sectionTitle}>YouTube</Text>
+      </View>
 
       <TouchableOpacity
         style={styles.card}

@@ -4,12 +4,10 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import AuthInput from "../../components/AuthContainer";
 import RoundedBox from "../../components/RoundedBox";
-import GlassHeader from "../../components/GlassHeader";
-import { getScreenContentWrapperStyle } from "../../constants/layout";
 import { customerSignUp, customerSignIn } from "../../api/shopifyApi";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Image } from "expo-image";
@@ -17,7 +15,6 @@ import { Image } from "expo-image";
 const MIN_PASSWORD_LENGTH = 5;
 
 const SignUpScreen = ({ route, navigation }) => {
-  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -90,14 +87,13 @@ const SignUpScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.outerContainer}>
-      <GlassHeader />
       {loading && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" color="#fff" />
         </View>
       )}
 
-      <View style={[getScreenContentWrapperStyle(insets), { flex: 1 }]}>
+      <View style={styles.contentCenter}>
         {/* Logo Section */}
         <View style={styles.imageContainer}>
           <Image
@@ -124,7 +120,6 @@ const SignUpScreen = ({ route, navigation }) => {
               value={firstName}
               onChangeText={(t) => { setFirstName(t); if (error) setError(""); }}
               borderColor="#ccc"
-              height={45}
               labelColor="#000"
               textColor="#000"
               width={"49%"}
@@ -138,7 +133,6 @@ const SignUpScreen = ({ route, navigation }) => {
               value={lastName}
               onChangeText={(t) => { setLastName(t); if (error) setError(""); }}
               borderColor="#ccc"
-              height={45}
               labelColor="#000"
               textColor="#000"
               width={"49%"}
@@ -155,7 +149,6 @@ const SignUpScreen = ({ route, navigation }) => {
             value={email}
             onChangeText={(t) => { setEmail(t); if (error) setError(""); }}
             borderColor="#ccc"
-            height={45}
             labelColor="#000"
             textColor="#000"
             returnKeyType="next"
@@ -169,7 +162,6 @@ const SignUpScreen = ({ route, navigation }) => {
             value={password}
             onChangeText={(t) => { setPassword(t); if (error) setError(""); }}
             borderColor="#ccc"
-            height={45}
             labelColor="#000"
             textColor="#000"
             secureTextEntry={true}
@@ -195,8 +187,7 @@ const SignUpScreen = ({ route, navigation }) => {
             text="Create Account"
             textColor="white"
             fontVariant="medium"
-            textSize={16}
-            height={40}
+            textSize={18}
             onClick={handleSignUp}
             isDisabled={
               !email ||
@@ -209,29 +200,16 @@ const SignUpScreen = ({ route, navigation }) => {
           />
         </View>
 
-        <View style={styles.orContainer}>
-          <View style={styles.orLine} />
-          <Text style={styles.orText}>OR</Text>
-          <View style={styles.orLine} />
+        <View style={styles.textLinkRow}>
+          <Text allowFontScaling={false} style={styles.textLinkLabel}>
+            Have an account?{" "}
+          </Text>
+          <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.7}>
+            <Text allowFontScaling={false} style={styles.textLinkAction}>
+              Sign in.
+            </Text>
+          </TouchableOpacity>
         </View>
-
-        <View style={{ width: "90%", alignSelf: "center" }}>
-          <RoundedBox
-            isFilled={false}
-            fillColor="transparent"
-            borderColor="#C8102F"
-            borderWidth={2}
-            borderRadius={10}
-            text="Sign In"
-            textColor="#000"
-            fontVariant="medium"
-            textSize={16}
-            height={40}
-            onClick={() => navigation.goBack()}
-            style={{ width: "100%", marginTop: 15 }}
-          />
-        </View>
-
       </View>
     </View>
   );
@@ -239,8 +217,13 @@ const SignUpScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   outerContainer: {
+    backgroundColor: "white",
     flex: 1,
-    backgroundColor: "#fff",
+  },
+  contentCenter: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   loadingOverlay: {
     position: "absolute",
@@ -255,7 +238,6 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     alignItems: "center",
-    marginTop: 80, // clean fixed spacing
   },
   headerImage: {
     width: 230,
@@ -312,47 +294,27 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginTop: 30,
   },
-  lowerContainer: {
-    display: "flex",
+  textLinkRow: {
+    flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
-    marginBottom: 20,
+    marginTop: 20,
+    flexWrap: "wrap",
   },
-  textButton: {
+  textLinkLabel: {
     fontFamily: "Futura-Medium",
     fontSize: 16,
+    color: "#444",
   },
-  signUpContainer: {
-    alignItems: "center", // Center the text
-  },
-  signUpButton: {
-    color: "#C8102F", // Highlight color for the button
-    fontWeight: "bold", // Bold to differentiate it as a button
+  textLinkAction: {
+    fontFamily: "Futura-Bold",
+    fontSize: 16,
+    color: "#C8102F",
   },
   topContainer: {
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  orContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 25,
-    marginBottom: 5,
-    width: "90%",
-    alignSelf: "center",
-  },
-  
-  orLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#E0E0E0",
-  },
-  
-  orText: {
-    marginHorizontal: 12,
-    fontSize: 12,
-    color: "#999",
-    fontFamily: "Futura-Medium",
   },
 });
 

@@ -33,23 +33,23 @@ const HeroImage = ({
     <TouchableOpacity onPress={handlePress} activeOpacity={0.99}>
       {image && (
         <ImageBackground
-        source={{ uri: image }}
-        style={styles.heroContainer}
-        imageStyle={{ contentFit: "cover" }}
-        transition={300}
-      >
-        <View style={styles.imageOverlay} />
-        <View style={styles.overlay}>
-          <Text allowFontScaling={false} style={styles.heroTitle}>
-            {title}
-          </Text>
-          {subtitle && (
-            <Text allowFontScaling={false} style={styles.heroSubtitle}>
-              {subtitle}
+          source={{ uri: image }}
+          style={styles.heroContainer}
+          imageStyle={{ contentFit: "cover" }}
+          transition={300}
+        >
+          <View style={styles.imageOverlay} />
+          <View style={styles.overlay}>
+            <Text allowFontScaling={false} style={styles.heroTitle}>
+              {title}
             </Text>
-          )}
-        </View>
-      </ImageBackground>
+            {subtitle && (
+              <Text allowFontScaling={false} style={styles.heroSubtitle}>
+                {subtitle}
+              </Text>
+            )}
+          </View>
+        </ImageBackground>
       )}
     </TouchableOpacity>
   );
@@ -61,12 +61,12 @@ const styles = StyleSheet.create({
     height: height,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal:30,
+    paddingHorizontal: 30,
     backgroundOverlay: 30,
   },
   heroTitle: {
-    fontSize: 50,
-    fontFamily: "Futura-Medium",
+    fontSize: 45,
+    fontFamily: "Futura-Bold",
     color: "#fff",
     textAlign: "center",
     marginBottom: 12
@@ -79,9 +79,9 @@ const styles = StyleSheet.create({
     lineHeight: 22,
   },
   imageOverlay: {
-  ...StyleSheet.absoluteFillObject,
-  backgroundColor: "rgba(0,0,0,0.3)", // adjust darkness here
-},
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.3)", // adjust darkness here
+  },
 });
 
 export default HeroImage;

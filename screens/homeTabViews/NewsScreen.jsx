@@ -26,6 +26,7 @@ import {
 import { getCustomerInfo } from "../../utils/storage";
 import HorizontalProductRow from "../../components/HorizontalProductRow";
 import HomeGiveawayPreview from "../core/HomeGiveawayPreview";
+import { HOME_FEATURED_COLLECTION } from "../../constants/appConfig";
 
 const NewsScreen = ({ scrollY: scrollYProp }) => {
   const insets = useSafeAreaInsets();
@@ -33,6 +34,8 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
   const scrollYToUse = scrollYProp ?? scrollY;
   const [latestVideo, setLatestVideo] = useState(null);
   const [heroImage, setHeroImage] = useState(null);
+  const [heroHeader, setHeroHeader] = useState("The new release is live");
+  const [heroSubheader, setHeroSubheader] = useState("Your next favorite pieces just dropped. Get it before it's gone.");
   const [heroImageLoading, setHeroImageLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [newArrivalProducts, setNewArrivalProducts] = useState([]);
@@ -56,10 +59,23 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
     }
   };
 
+  const parseHeroTextFromDescription = (description) => {
+    if (!description || typeof description !== "string") return {};
+    const headerMatch = description.match(/HEADER:\s*"([^"]*)"/) ?? description.match(/HEADER:\s*\{([^}]*)\}/);
+    const subheaderMatch = description.match(/SUBHEADER:\s*"([^"]*)"/) ?? description.match(/SUBHEADER:\s*\{([^}]*)\}/);
+    return {
+      header: headerMatch?.[1]?.trim() ?? "",
+      subheader: subheaderMatch?.[1]?.trim() ?? "",
+    };
+  };
+
   const fetchHero = async () => {
     try {
-      const collection = await fetchCollectionByHandle("new-release");
+      const collection = await fetchCollectionByHandle("app-main-collection");
       setHeroImage(collection.image?.src);
+      const { header, subheader } = parseHeroTextFromDescription(collection?.description);
+      if (header) setHeroHeader(header);
+      if (subheader) setHeroSubheader(subheader);
     } catch (err) {
       console.error("Failed to load hero image:", err);
     } finally {
@@ -69,33 +85,33 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
 
   const fetchNewArrivals = async () => {
     try {
-      const data = await fetchAllProductsCollection("new-release");
-      console.log("NEW ARRIVALS:", data);
-      const products = 
+      const handle = HOME_FEATURED_COLLECTION?.handle ?? "new-release";
+      const data = await fetchAllProductsCollection(handle);
+      const products =
         data?.products?.edges?.map((edge) => edge.node) || [];
       setNewArrivalProducts(products);
     } catch (err) {
-      console.error("Failed to load new arrivals:", err);
+      console.error("Failed to load featured collection:", err);
     }
   };
 
   const fetchCategories = async () => {
     try {
       const data = await fetchCollections();
-  
+
       const collections = data || [];
-  
+
       const allowedHandles = [
         "tshirts",
         "hats",
         "new-release",
         "stickers"
       ];
-  
+
       const filtered = collections.filter((collection) =>
         allowedHandles.includes(collection.handle)
       );
-  
+
       setCategoryCollections(filtered);
     } catch (err) {
       console.error("Failed to fetch categories:", err);
@@ -110,6 +126,7 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
         fetchHero(),
         fetchNewArrivals(),
         loadVideo(),
+        fetchCategories(),
       ]);
     } catch (error) {
       console.error("Refresh error:", error);
@@ -155,28 +172,33 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
         ]}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollYToUse } } }],
-          { useNativeDriver: true }
+          { useNativeDriver: false }
         )}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#C8102F"
+            colors={["#C8102F"]}
+          />
         }
       >
         {/* Hero Banner */}
         <View style={styles.topHero}>
           <HeroImage
-            title="The new release is live"
-            subtitle="Your next favorite pieces just dropped. Get it before it's gone."
+            title={heroHeader}
+            subtitle={heroSubheader}
             backgroundColor="#D32F2F"
-            collectionHandle="new-release"
+            collectionHandle="app-main-collection"
             image={heroImage}
           />
         </View>
         {/* Product shower */}
         <HorizontalProductRow
-          title="Just Dropped"
-          subtitle="These sell out quickly"
+          title={HOME_FEATURED_COLLECTION?.title ?? "New Arrivals"}
+          subtitle={HOME_FEATURED_COLLECTION?.subtitle}
           products={newArrivalProducts}
           onPressItem={(product) =>
             navigation.navigate("Product", { product })
@@ -191,8 +213,8 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
           />
         )}
         {/* Content Grid */}
-        <CategoryGrid collections={categoryCollections}/>
-        
+        <CategoryGrid collections={categoryCollections} />
+
         {!customerVIPStatus && (
           <View style={styles.vipWrapper}>
             <ImageBackground
@@ -271,29 +293,29 @@ const styles = StyleSheet.create({
     marginTop: 30,
     marginHorizontal: 20,
   },
-  
+
   vipBackground: {
     borderRadius: 28,
     overflow: "hidden",
     padding: 32,
     justifyContent: "center",
   },
-  
+
   vipOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0,0,0,0.55)", // adjust darkness here
   },
-  
+
   vipContent: {
     zIndex: 2,
   },
-  
+
   vipTitle: {
     fontSize: 24,
     fontFamily: "Futura-Bold",
     color: "#fff",
   },
-  
+
   vipSubtitle: {
     marginTop: 12,
     marginBottom: 24,
@@ -301,14 +323,14 @@ const styles = StyleSheet.create({
     fontFamily: "Futura-Medium",
     color: "#ddd",
   },
-  
+
   vipButton: {
     backgroundColor: "#fff",
     paddingVertical: 14,
     borderRadius: 100,
     alignItems: "center",
   },
-  
+
   vipButtonText: {
     fontFamily: "Futura-Bold",
     fontSize: 14,
