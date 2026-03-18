@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   sectionTitle: {
-    fontSize: 36,
+    fontSize: 28,
     fontFamily: "Futura-Bold",
     marginTop: 24,
     marginBottom: 20,

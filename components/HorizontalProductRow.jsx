@@ -15,7 +15,7 @@ const HorizontalProductRow = ({
   return (
     <View style={[styles.container, marginBottom != null && { marginBottom }]}>
       <Text
-        allowFontScaling={true}
+        allowFontScaling={false}
         style={[
           styles.title,
           { marginLeft: padding, fontSize: titleFontSize },
@@ -25,7 +25,7 @@ const HorizontalProductRow = ({
       </Text>
       {subtitle && (
         <Text
-          allowFontScaling={true}
+          allowFontScaling={false}
           style={[styles.subtitle, { marginLeft: padding }]}
         >
           {subtitle}
