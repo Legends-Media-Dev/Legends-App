@@ -642,31 +642,30 @@ export const fetchProductById = async (productId) => {
 };
 
 /**
- * Fetch Product by ID using Admin API Cloud Function
+ * Fetch Product by ID using Admin API Cloud Function (includes product template)
  */
-// export const fetchProductByIdAdmin = async (productId) => {
-//   try {
-//     if (!productId) throw new Error("Missing productId parameter");
+export const fetchProductByIdAdmin = async (productId) => {
+  try {
+    if (!productId) throw new Error("Missing productId parameter");
 
-//     const response = await axios.get(CLOUD_FUNCTION_URL_FPBIA, {
-//       params: { productId },
-//     });
+    const response = await axios.get(CLOUD_FUNCTION_URL_FPBIA, {
+      params: { productId },
+    });
 
-//     if (!response.data || !response.data.id) {
-//       console.warn("Product not found or malformed response:", response.data);
-//       return null;
-//     }
+    if (!response.data || !response.data.id) {
+      console.warn("Product not found or malformed response:", response.data);
+      return null;
+    }
 
-//     // console.log("fetchProductById response:", response.data);
-//     return response.data;
-//   } catch (error) {
-//     console.error(
-//       "Error fetching product by ID via Admin API Cloud Function:",
-//       error.response?.data || error.message
-//     );
-//     return null;
-//   }
-// };
+    return response.data;
+  } catch (error) {
+    console.error(
+      "Error fetching product by ID via Admin API Cloud Function:",
+      error.response?.data || error.message
+    );
+    return null;
+  }
+};
 
 /**
  * Fetch All Orders for a Specific Customer

@@ -8,6 +8,7 @@ import {
   FlatList,
   ActivityIndicator,
   Animated,
+  Linking,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import GlassHeader from "../../components/GlassHeader";
@@ -25,6 +26,7 @@ import AddToCartModal from "../../components/AddToCartModal";
 import { getRecentlyViewedProducts, getCustomerInfo } from "../../utils/storage";
 import {
   fetchProductById,
+  fetchProductByIdAdmin,
   fetchAllProductsCollection,
 } from "../../api/shopifyApi";
 import { addRecentlyViewedProduct } from "../../utils/storage";
@@ -33,6 +35,8 @@ import { useGiveaway } from "../../context/GiveawayContext";
 
 const TICKET_ICON_URI =
   "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/admit_one_ticket.png?v=1683922022";
+
+const VIP_SIGNUP_URL = "https://legends.media/products/vip-gold-subscription";
 
 function getVipMultiplier(tags) {
   if (!Array.isArray(tags)) return 1;
@@ -60,6 +64,8 @@ const ProductScreen = ({ route, navigation }) => {
   );
   const [showReminder, setShowReminder] = useState(false);
   const [customerTags, setCustomerTags] = useState(null);
+  /** Product template from Admin API (Shopify templateSuffix), e.g. "presale", "vip", or null for default. undefined = not yet loaded. */
+  const [productTemplate, setProductTemplate] = useState(undefined);
 
   const compareAt = parseFloat(
     product.variants.edges[0]?.node.compareAtPrice?.amount || 0
@@ -91,13 +97,27 @@ const ProductScreen = ({ route, navigation }) => {
     product.id,
   ]);
 
+  // VIP template gating: must have "Active Subscriber" to purchase. Don't show Add to cart until template is loaded.
+  const templateLoaded = productTemplate !== undefined;
+  const canPurchaseVipProduct =
+    templateLoaded &&
+    (productTemplate !== "vip" ||
+      (Array.isArray(customerTags) && customerTags.includes("Active Subscriber")));
+
+  if (__DEV__ && templateLoaded) {
+    console.log("ProductScreen: productTemplate =", productTemplate, "customerTags =", customerTags, "canPurchaseVipProduct =", canPurchaseVipProduct);
+  }
+
   useEffect(() => {
     if (product?.id) {
       addRecentlyViewedProduct(product.id);
     }
 
     getCustomerInfo().then((info) => {
-      if (info?.tags) setCustomerTags(info.tags);
+      const tags = info?.tags;
+      const normalized = Array.isArray(tags) ? tags : typeof tags === "string" ? tags.split(",").map((s) => s.trim()) : [];
+      setCustomerTags(normalized);
+      console.log("ProductScreen: user tags (raw)", tags, "-> normalized", normalized);
     });
 
     const fetchRecentProducts = async () => {
@@ -138,6 +158,23 @@ const ProductScreen = ({ route, navigation }) => {
 
     fetchSuggestedProducts();
     fetchRecentProducts();
+
+    // Fetch product via Admin API for templateSuffix (product template) for template-based UI
+    const loadProductTemplate = async () => {
+      try {
+        const adminProduct = await fetchProductByIdAdmin(product.id);
+        if (adminProduct) {
+          const suffix = adminProduct.templateSuffix ?? null;
+          setProductTemplate(suffix);
+          if (__DEV__) {
+            console.log("Product template (templateSuffix):", suffix ?? "(default)");
+          }
+        }
+      } catch (err) {
+        console.error("fetchProductByIdAdmin error:", err);
+      }
+    };
+    loadProductTemplate();
   }, [product.id]);
 
   const handleIncrement = () => setQuantity((prev) => prev + 1);
@@ -420,68 +457,90 @@ const ProductScreen = ({ route, navigation }) => {
             </View>
           )}
 
-          <View style={styles.quantityContainer}>
-            <Text allowFontScaling={false} style={styles.sizeTitle}>Quantity:</Text>
-            <View style={styles.selectorContainer}>
-              {/* Minus Button */}
-              <TouchableOpacity
-                style={styles.quantityButton}
-                activeOpacity={1}
-                onPress={async () => {
-                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  handleDecrement();
-                }}
-                disabled={quantity === 1}
-              >
-                <Text allowFontScaling={false} style={styles.buttonText}>-</Text>
-              </TouchableOpacity>
+          {canPurchaseVipProduct && (
+            <View style={styles.quantityContainer}>
+              <Text allowFontScaling={false} style={styles.sizeTitle}>Quantity:</Text>
+              <View style={styles.selectorContainer}>
+                {/* Minus Button */}
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  activeOpacity={1}
+                  onPress={async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    handleDecrement();
+                  }}
+                  disabled={quantity === 1}
+                >
+                  <Text allowFontScaling={false} style={styles.buttonText}>-</Text>
+                </TouchableOpacity>
 
-              {/* Quantity Value */}
-              <Text allowFontScaling={false} style={styles.quantity}>{quantity}</Text>
+                {/* Quantity Value */}
+                <Text allowFontScaling={false} style={styles.quantity}>{quantity}</Text>
 
-              {/* Plus Button */}
-              <TouchableOpacity
-                style={styles.quantityButton}
-                activeOpacity={1}
-                onPress={async () => {
-                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  handleIncrement();
-                }}
-              >
-                <Text allowFontScaling={false} style={styles.buttonText}>+</Text>
-              </TouchableOpacity>
+                {/* Plus Button */}
+                <TouchableOpacity
+                  style={styles.quantityButton}
+                  activeOpacity={1}
+                  onPress={async () => {
+                    await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    handleIncrement();
+                  }}
+                >
+                  <Text allowFontScaling={false} style={styles.buttonText}>+</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
+          )}
 
           {/* Buttons */}
           <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[
-                styles.addToBagButton,
-                {
-                  backgroundColor: product.variants.edges.some(
-                    (v) => v.node.availableForSale
-                  )
-                    ? "black"
-                    : "grey",
-                },
-              ]}
-              disabled={
-                !product.variants.edges.some(
-                  (v) => v.node.availableForSale
-                ) || isAddingToCart // disable during loading
-              }
-              onPress={async () => {
-                await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                await handleAddToCart();
-              }}
-            >
-              {isAddingToCart ? (
+            {!templateLoaded ? (
+              <TouchableOpacity
+                style={[styles.addToBagButton, { backgroundColor: "grey" }]}
+                disabled
+              >
                 <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Text allowFontScaling={false} style={styles.addToBagText}>Add to cart</Text>
-              )}
-            </TouchableOpacity>
+              </TouchableOpacity>
+            ) : canPurchaseVipProduct ? (
+              <TouchableOpacity
+                style={[
+                  styles.addToBagButton,
+                  {
+                    backgroundColor: product.variants.edges.some(
+                      (v) => v.node.availableForSale
+                    )
+                      ? "black"
+                      : "grey",
+                  },
+                ]}
+                disabled={
+                  !product.variants.edges.some(
+                    (v) => v.node.availableForSale
+                  ) || isAddingToCart // disable during loading
+                }
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  await handleAddToCart();
+                }}
+              >
+                {isAddingToCart ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <Text allowFontScaling={false} style={styles.addToBagText}>Add to cart</Text>
+                )}
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.addToBagButton, { backgroundColor: "black" }]}
+                activeOpacity={1}
+                onPress={async () => {
+                  await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  Linking.openURL(VIP_SIGNUP_URL);
+                }}
+              >
+                <Text allowFontScaling={false} style={styles.addToBagText}>Sign up for VIP</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
         <View>
