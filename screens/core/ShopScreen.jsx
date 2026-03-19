@@ -1,7 +1,9 @@
 import { useNavigation } from "@react-navigation/native";
 import * as Haptics from "expo-haptics";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import GlassHeader from "../../components/GlassHeader";
+import AppRefreshControl from "../../components/AppRefreshControl";
+import { useCart } from "../../context/CartContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   View,
@@ -22,65 +24,78 @@ import { FlatList } from "react-native-gesture-handler";
 const { width, height } = Dimensions.get("window");
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
+const SHOP_COLLECTION_DEFAULT_ORDER = [
+  "ALL PRODUCT",
+  "EASY ENTRIES",
+  "MYSTERY DEALS",
+  "NEW RELEASE",
+  "TSHIRTS",
+  "HOODIES",
+  "ACCESSORIES",
+  "STICKERS",
+  "DIGITAL DOWNLOADS",
+  "LAST CHANCE OFFERS",
+  "LEARN MORE - VIP",
+];
+
 const ShopScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const { getCartDetails } = useCart();
   const scrollY = useRef(new Animated.Value(0)).current;
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const defaultOrder = [
-    "ALL PRODUCT",
-    "EASY ENTRIES",
-    "MYSTERY DEALS",
-    "NEW RELEASE",
-    "TSHIRTS",
-    "HOODIES",
-    "ACCESSORIES",
-    "STICKERS",
-    "DIGITAL DOWNLOADS",
-    "LAST CHANCE OFFERS",
-    "LEARN MORE - VIP",
-  ];
+  const loadCollections = useCallback(async () => {
+    try {
+      const [configList, shopifyCollections] = await Promise.all([
+        fetchAppCollectionsInfo(),
+        fetchCollections(),
+      ]);
+
+      const orderList =
+        configList && configList.length > 0
+          ? configList
+          : SHOP_COLLECTION_DEFAULT_ORDER.map((label) => ({ label }));
+
+      const mapped = [];
+      for (const item of orderList) {
+        const label = item.label ?? item;
+        const handle = item.handle;
+        const displayName = item.displayName ?? label;
+        const match = shopifyCollections.find(
+          (c) =>
+            (handle && c.handle?.toLowerCase() === handle.toLowerCase()) ||
+            (c.title?.trim().toUpperCase() === label.trim().toUpperCase())
+        );
+        if (match) {
+          mapped.push({ ...match, title: displayName });
+        }
+      }
+
+      setCollections(mapped);
+    } catch (error) {
+      console.error("Error fetching collections:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const getCollections = async () => {
-      try {
-        const [configList, shopifyCollections] = await Promise.all([
-          fetchAppCollectionsInfo(),
-          fetchCollections(),
-        ]);
+    loadCollections();
+  }, [loadCollections]);
 
-        const orderList =
-          configList && configList.length > 0
-            ? configList
-            : defaultOrder.map((label) => ({ label }));
-
-        const mapped = [];
-        for (const item of orderList) {
-          const label = item.label ?? item;
-          const handle = item.handle;
-          const displayName = item.displayName ?? label;
-          const match = shopifyCollections.find(
-            (c) =>
-              (handle && c.handle?.toLowerCase() === handle.toLowerCase()) ||
-              (c.title?.trim().toUpperCase() === label.trim().toUpperCase())
-          );
-          if (match) {
-            mapped.push({ ...match, title: displayName });
-          }
-        }
-
-        setCollections(mapped);
-      } catch (error) {
-        console.error("Error fetching collections:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getCollections();
-  }, []);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([loadCollections(), getCartDetails?.()]);
+    } catch (e) {
+      console.error("Shop refresh:", e);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadCollections, getCartDetails]);
 
   const handleCollectionPress = async (handle, title) => {
     try {
@@ -136,6 +151,13 @@ const ShopScreen = () => {
           )}
           scrollEventThrottle={16}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <AppRefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              progressViewOffset={insets.top + 40}
+            />
+          }
           contentContainerStyle={[
             styles.flatListContent,
             { paddingTop: insets.top + 50 }

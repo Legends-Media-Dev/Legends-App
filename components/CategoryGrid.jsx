@@ -4,7 +4,7 @@ import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import { fetchCategoryGridCompInfo, fetchCollections } from "../api/shopifyApi";
 
-const CategoryGrid = ({ collections: collectionsProp = [] }) => {
+const CategoryGrid = ({ collections: collectionsProp = [], reloadKey = 0 }) => {
   const navigation = useNavigation();
   const [sectionTitle, setSectionTitle] = useState("Explore");
   const [collections, setCollections] = useState([]);
@@ -12,6 +12,7 @@ const CategoryGrid = ({ collections: collectionsProp = [] }) => {
 
   useEffect(() => {
     const load = async () => {
+      setLoading(true);
       try {
         const [config, shopifyCollections] = await Promise.all([
           fetchCategoryGridCompInfo(),
@@ -56,7 +57,7 @@ const CategoryGrid = ({ collections: collectionsProp = [] }) => {
       }
     };
     load();
-  }, []);
+  }, [reloadKey]);
 
   const displayList = collections.length > 0 ? collections : collectionsProp;
   if (loading && displayList.length === 0) return null;

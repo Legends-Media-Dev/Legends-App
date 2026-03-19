@@ -13,6 +13,8 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import GlassHeader from "../../components/GlassHeader";
+import AppRefreshControl from "../../components/AppRefreshControl";
+import { useCart } from "../../context/CartContext";
 import { getScreenContentPadding, SCREEN_PADDING_HORIZONTAL } from "../../constants/layout";
 import ProductCard from "../../components/ProductCard";
 import Modal from "react-native-modal";
@@ -30,7 +32,8 @@ import { useGiveaway } from "../../context/GiveawayContext";
 const AccountScreen = () => {
   const insets = useSafeAreaInsets();
   const scrollY = useRef(new Animated.Value(0)).current;
-  const { multiplier: giveawayMultiplier } = useGiveaway();
+  const { multiplier: giveawayMultiplier, refetch: refetchGiveaway } = useGiveaway();
+  const { getCartDetails } = useCart();
   const [modalVisible, setModalVisible] = useState(false);
   const [deleteAccountModalVisible, setDeleteAccountModalVisible] = useState(false);
   const [customerData, setCustomerData] = useState(null);
@@ -38,91 +41,103 @@ const AccountScreen = () => {
   const navigation = useNavigation();
   const [recentlyViewed, setRecentlyViewed] = useState([]);
   const [loadingRecentlyViewed, setLoadingRecentlyViewed] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch customer details when the screen loads
-  useEffect(() => {
-    const getCustomerData = async () => {
-      try {
-        setLoading(true);
-        const accessToken = await AsyncStorage.getItem("shopifyAccessToken");
-        if (!accessToken) {
-          console.log("No access token found.");
-          setLoading(false);
-          return;
-        }
-
-        const customerDetails = await fetchCustomerDetails(accessToken);
-        setCustomerData(customerDetails);
-        await setCustomerInfo(customerDetails); // ✅ Save for later use
-      } catch (error) {
-        console.error("Error fetching customer details:", error);
-      } finally {
-        setLoading(false);
+  const fetchCustomerData = useCallback(async (options = { showGlobalLoader: true }) => {
+    const showLoader = options.showGlobalLoader !== false;
+    try {
+      if (showLoader) setLoading(true);
+      const accessToken = await AsyncStorage.getItem("shopifyAccessToken");
+      if (!accessToken) {
+        console.log("No access token found.");
+        setCustomerData(null);
+        return;
       }
-    };
 
-    getCustomerData();
+      const customerDetails = await fetchCustomerDetails(accessToken);
+      setCustomerData(customerDetails);
+      await setCustomerInfo(customerDetails);
+    } catch (error) {
+      console.error("Error fetching customer details:", error);
+    } finally {
+      if (showLoader) setLoading(false);
+    }
   }, []);
+
+  const fetchRecentlyViewedData = useCallback(async () => {
+    try {
+      setLoadingRecentlyViewed(true);
+
+      const productIds = await getRecentlyViewedProducts();
+      const cachedIdsString = await AsyncStorage.getItem("cachedProductIds");
+      const cachedIds = cachedIdsString ? JSON.parse(cachedIdsString) : [];
+
+      const idsAreSame =
+        Array.isArray(productIds) &&
+        Array.isArray(cachedIds) &&
+        productIds.length === cachedIds.length &&
+        productIds.every((id, i) => id === cachedIds[i]);
+
+      if (idsAreSame) {
+        const cachedProductsString = await AsyncStorage.getItem("cachedProducts");
+        const cachedProducts = cachedProductsString
+          ? JSON.parse(cachedProductsString)
+          : [];
+        setRecentlyViewed(cachedProducts);
+      } else {
+        const products = await Promise.all(
+          productIds.map(async (id) => {
+            try {
+              return await fetchProductById(id);
+            } catch (err) {
+              console.error(`Failed to fetch product ${id}:`, err);
+              return null;
+            }
+          })
+        );
+
+        const filtered = products.filter(Boolean);
+        setRecentlyViewed(filtered);
+        await AsyncStorage.setItem("cachedProductIds", JSON.stringify(productIds));
+        await AsyncStorage.setItem("cachedProducts", JSON.stringify(filtered));
+      }
+    } catch (error) {
+      console.error("Error fetching recently viewed products:", error);
+    } finally {
+      setLoadingRecentlyViewed(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCustomerData({ showGlobalLoader: true });
+  }, [fetchCustomerData]);
 
   useFocusEffect(
     useCallback(() => {
-      const fetchRecentlyViewed = async () => {
-        try {
-          setLoadingRecentlyViewed(true);
-
-          const productIds = await getRecentlyViewedProducts();
-          const cachedIdsString = await AsyncStorage.getItem(
-            "cachedProductIds"
-          );
-          const cachedIds = cachedIdsString ? JSON.parse(cachedIdsString) : [];
-
-          const idsAreSame =
-            Array.isArray(productIds) &&
-            Array.isArray(cachedIds) &&
-            productIds.length === cachedIds.length &&
-            productIds.every((id, i) => id === cachedIds[i]);
-
-          if (idsAreSame) {
-            const cachedProductsString = await AsyncStorage.getItem(
-              "cachedProducts"
-            );
-            const cachedProducts = cachedProductsString
-              ? JSON.parse(cachedProductsString)
-              : [];
-            setRecentlyViewed(cachedProducts);
-          } else {
-            const products = await Promise.all(
-              productIds.map(async (id) => {
-                try {
-                  return await fetchProductById(id);
-                } catch (err) {
-                  console.error(`Failed to fetch product ${id}:`, err);
-                  return null;
-                }
-              })
-            );
-
-            const filtered = products.filter(Boolean);
-            setRecentlyViewed(filtered);
-            await AsyncStorage.setItem(
-              "cachedProductIds",
-              JSON.stringify(productIds)
-            );
-            await AsyncStorage.setItem(
-              "cachedProducts",
-              JSON.stringify(filtered)
-            );
-          }
-        } catch (error) {
-          console.error("Error fetching recently viewed products:", error);
-        } finally {
-          setLoadingRecentlyViewed(false);
-        }
-      };
-
-      fetchRecentlyViewed();
-    }, [])
+      fetchRecentlyViewedData();
+    }, [fetchRecentlyViewedData])
   );
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        fetchCustomerData({ showGlobalLoader: false }),
+        fetchRecentlyViewedData(),
+        refetchGiveaway?.(),
+        getCartDetails?.(),
+      ]);
+    } catch (e) {
+      console.error("Account refresh:", e);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [
+    fetchCustomerData,
+    fetchRecentlyViewedData,
+    refetchGiveaway,
+    getCartDetails,
+  ]);
 
   const handleLogout = async () => {
     try {
@@ -263,6 +278,9 @@ const AccountScreen = () => {
           { useNativeDriver: true }
         )}
         scrollEventThrottle={16}
+        refreshControl={
+          <AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         <View>
           {loading ? (

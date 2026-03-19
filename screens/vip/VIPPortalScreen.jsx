@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -19,6 +19,8 @@ import vipBackground from "../../assets/vip-background.png";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Haptics from "expo-haptics";
 import GlassHeader from "../../components/GlassHeader";
+import AppRefreshControl from "../../components/AppRefreshControl";
+import { useCart } from "../../context/CartContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   getScreenContentPadding,
@@ -39,119 +41,137 @@ import JoinVIPScreen from "./JoinVIPScreen";
 const { width, height } = Dimensions.get("window");
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
+const VIP_PARTNER_LOGOS = [
+  {
+    id: "ghost",
+    uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Ghost.png?v=1684369049",
+    url: "https://www.ghostlifestyle.com/",
+  },
+  {
+    id: "meguiars",
+    uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Meguiar_s.png?v=1684369049",
+    url: "https://www.meguiars.com/#/",
+  },
+  {
+    id: "toprank",
+    uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Top_Rank.png?v=1684369049",
+    url: "https://www.importavehicle.com/",
+  },
+  {
+    id: "fitment",
+    uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Fitment_Industries.png?v=1684369049",
+    url: "https://www.fitmentindustries.com/?utm_source=google&utm_medium=cpc&utm_campaign=6773145759&utm_content=125574610510&utm_term=fitment%20industries&gclid=CjwKCAjw9pGjBhB-EiwAa5jl3DY1dU77CLtJtYRvmNOzgP82JC30ikAThr0p8epIMKkT9SUrC-DozBoCVMIQAvD_BwE",
+  },
+  {
+    id: "miller",
+    uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Miller.png?v=1684369049",
+    url: "https://www.millerwelds.com/?gclid=CjwKCAjw9pGjBhB-EiwAa5jl3KylMNeXDs1r-Qk7v6d68ug1DpU7hJOCwkrnRasl0RgMV5SHvLTdqRoC-JsQAvD_BwE",
+  },
+  {
+    id: "act",
+    uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/ACT.png?v=1684369049",
+    url: "https://www.advancedclutch.com/",
+  },
+  {
+    id: "bridgestone",
+    uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Bridgestone.png?v=1684369049",
+    url: "https://www.bridgestonetire.com/sem/bridgestone-tire/?https://ad.doubleclick.net/ddm/clk/546719407;355536812;q&lw_cmp=sem_bst-us_g_con_brand&keyword=bridgestone%20tires&campaign=10134808723&adgroup=101970748296&gad=1&gclid=CjwKCAjw9pGjBhB-EiwAa5jl3A2eegjgfI6FPudRRdlsLKeKNPVaSaliOMxxSdCY79dZ4peOKJWMMRoCFWwQAvD_BwE&ef_id=ZGVz-QAAAFjKhANx:20230518004327:s",
+  },
+];
+
 const VipPortalScreen = () => {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
+  const { getCartDetails } = useCart();
   const scrollY = useRef(new Animated.Value(0)).current;
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [screenData, setScreenData] = useState([]);
   const [showWheel, setShowWheel] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState(null);
   const [customerData, setCustomerData] = useState(null);
   const [isVip, setIsVip] = useState(false);
 
-  const partnerLogos = [
-    {
-      id: "ghost",
-      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Ghost.png?v=1684369049",
-      url: "https://www.ghostlifestyle.com/",
-    },
-    {
-      id: "meguiars",
-      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Meguiar_s.png?v=1684369049",
-      url: "https://www.meguiars.com/#/",
-    },
-    {
-      id: "toprank",
-      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Top_Rank.png?v=1684369049",
-      url: "https://www.importavehicle.com/",
-    },
-    {
-      id: "fitment",
-      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Fitment_Industries.png?v=1684369049",
-      url: "https://www.fitmentindustries.com/?utm_source=google&utm_medium=cpc&utm_campaign=6773145759&utm_content=125574610510&utm_term=fitment%20industries&gclid=CjwKCAjw9pGjBhB-EiwAa5jl3DY1dU77CLtJtYRvmNOzgP82JC30ikAThr0p8epIMKkT9SUrC-DozBoCVMIQAvD_BwE",
-    },
-    {
-      id: "miller",
-      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Miller.png?v=1684369049",
-      url: "https://www.millerwelds.com/?gclid=CjwKCAjw9pGjBhB-EiwAa5jl3KylMNeXDs1r-Qk7v6d68ug1DpU7hJOCwkrnRasl0RgMV5SHvLTdqRoC-JsQAvD_BwE",
-    },
-    {
-      id: "act",
-      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/ACT.png?v=1684369049",
-      url: "https://www.advancedclutch.com/",
-    },
-    {
-      id: "bridgestone",
-      uri: "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/Bridgestone.png?v=1684369049",
-      url: "https://www.bridgestonetire.com/sem/bridgestone-tire/?https://ad.doubleclick.net/ddm/clk/546719407;355536812;q&lw_cmp=sem_bst-us_g_con_brand&keyword=bridgestone%20tires&campaign=10134808723&adgroup=101970748296&gad=1&gclid=CjwKCAjw9pGjBhB-EiwAa5jl3A2eegjgfI6FPudRRdlsLKeKNPVaSaliOMxxSdCY79dZ4peOKJWMMRoCFWwQAvD_BwE&ef_id=ZGVz-QAAAFjKhANx:20230518004327:s",
-    },
-  ];
+  const loadPortalData = useCallback(async (options = { isRefresh: false }) => {
+    const isRefresh = options.isRefresh === true;
+    if (!isRefresh) setLoading(true);
+    try {
+      const accessToken = await AsyncStorage.getItem("shopifyAccessToken");
+      if (accessToken) {
+        const customerDetails = await fetchCustomerDetails(accessToken);
+        setCustomerData(customerDetails);
+
+        const customerIsVip =
+          customerDetails?.tags?.includes("VIP Gold") ||
+          customerDetails?.tags?.includes("Active Subscriber");
+
+        setIsVip(customerIsVip);
+
+        if (customerIsVip) {
+          const collectionsData = await fetchCollections();
+          const vipCollections = collectionsData
+            .filter((c) => c.title.includes("VIP EXCLUSIVE PRODUCT"))
+            .map((item) => ({ ...item, type: "collection" }));
+
+          const blog = await fetchBlogArticles("vip");
+          const blogArticles = (blog.articles?.edges || [])
+            .map((edge) => {
+              const image = edge.node.image?.src;
+              const title = edge.node.title;
+              const description = edge.node.contentHtml;
+              return image && description && title
+                ? { image, description, title, type: "vipArticle" }
+                : null;
+            })
+            .filter(Boolean);
+
+          const featuredHandle = HOME_FEATURED_COLLECTION?.handle ?? "app-main-collection";
+          const featuredData = await fetchAllProductsCollection(featuredHandle);
+          const featuredProducts = featuredData?.products?.edges?.map((edge) => edge.node) ?? [];
+
+          setScreenData([
+            { type: "section", title: "Vip Exclusive" },
+            ...vipCollections,
+            {
+              type: "featuredProducts",
+              products: featuredProducts,
+              title: HOME_FEATURED_COLLECTION?.title ?? "Shop Now",
+              subtitle: HOME_FEATURED_COLLECTION?.subtitle,
+            },
+            { type: "section", title: "Vip Blog Articles" },
+            ...blogArticles,
+            { type: "section", title: "Partners" },
+            { type: "partnerGrid", data: VIP_PARTNER_LOGOS },
+          ]);
+        } else {
+          setScreenData([]);
+        }
+      } else {
+        setIsVip(false);
+        setScreenData([]);
+      }
+    } catch (err) {
+      console.error("Error loading screen data:", err);
+    } finally {
+      if (!isRefresh) setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Check customer VIP status
-        const accessToken = await AsyncStorage.getItem("shopifyAccessToken");
-        if (accessToken) {
-          const customerDetails = await fetchCustomerDetails(accessToken);
-          setCustomerData(customerDetails);
+    loadPortalData({ isRefresh: false });
+  }, [loadPortalData]);
 
-          // Check if customer is VIP
-          const customerIsVip =
-            customerDetails?.tags?.includes("VIP Gold") ||
-            customerDetails?.tags?.includes("Active Subscriber");
-
-          setIsVip(customerIsVip);
-
-          // Only load VIP content if user is VIP
-          if (customerIsVip) {
-            const collectionsData = await fetchCollections();
-            const vipCollections = collectionsData
-              .filter((c) => c.title.includes("VIP EXCLUSIVE PRODUCT"))
-              .map((item) => ({ ...item, type: "collection" }));
-
-            const blog = await fetchBlogArticles("vip");
-            const blogArticles = (blog.articles?.edges || [])
-              .map((edge) => {
-                const image = edge.node.image?.src;
-                const title = edge.node.title;
-                const description = edge.node.contentHtml;
-                return image && description && title
-                  ? { image, description, title, type: "vipArticle" }
-                  : null;
-              })
-              .filter(Boolean);
-
-            const featuredHandle = HOME_FEATURED_COLLECTION?.handle ?? "app-main-collection";
-            const featuredData = await fetchAllProductsCollection(featuredHandle);
-            const featuredProducts = featuredData?.products?.edges?.map((edge) => edge.node) ?? [];
-
-            setScreenData([
-              { type: "section", title: "Vip Exclusive" },
-              ...vipCollections,
-              {
-                type: "featuredProducts",
-                products: featuredProducts,
-                title: HOME_FEATURED_COLLECTION?.title ?? "Shop Now",
-                subtitle: HOME_FEATURED_COLLECTION?.subtitle,
-              },
-              { type: "section", title: "Vip Blog Articles" },
-              ...blogArticles,
-              { type: "section", title: "Partners" },
-              { type: "partnerGrid", data: partnerLogos },
-            ]);
-          }
-        }
-      } catch (err) {
-        console.error("Error loading screen data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
-  }, []);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await loadPortalData({ isRefresh: true });
+      await getCartDetails?.();
+    } catch (e) {
+      console.error("VIP portal refresh:", e);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadPortalData, getCartDetails]);
 
   const renderParsedText = (html) => {
     if (!html) return null;
@@ -356,6 +376,9 @@ const VipPortalScreen = () => {
           { useNativeDriver: true }
         )}
         scrollEventThrottle={16}
+        refreshControl={
+          <AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         contentContainerStyle={[
           styles.container,
           {

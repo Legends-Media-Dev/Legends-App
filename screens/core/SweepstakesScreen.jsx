@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import { fetchBlogArticles } from "../../api/shopifyApi";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Image } from "expo-image";
 import GlassHeader from "../../components/GlassHeader";
+import AppRefreshControl from "../../components/AppRefreshControl";
+import { useCart } from "../../context/CartContext";
 import { getScreenContentPadding } from "../../constants/layout";
 
 const extractSweepstakesData = (article) => {
@@ -97,44 +99,57 @@ const SweepstakesItem = ({ item }) => {
 
 const SweepstakesScreen = () => {
   const insets = useSafeAreaInsets();
+  const { getCartDetails } = useCart();
   const scrollY = useRef(new Animated.Value(0)).current;
   const [currentArticles, setCurrentArticles] = useState([]);
   const [previousArticles, setPreviousArticles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadArticles = useCallback(async () => {
+    try {
+      const blog = await fetchBlogArticles("sweepstakes");
+      const allArticles = blog.articles?.edges || [];
+
+      const current = [];
+      const previous = [];
+
+      allArticles.forEach((edge) => {
+        const article = edge.node;
+        const tags = article.tags || [];
+        const cleaned = extractSweepstakesData(article);
+
+        if (tags.includes("current")) {
+          console.log(cleaned);
+          current.push(cleaned);
+        } else if (tags.includes("previous")) {
+          previous.push(cleaned);
+        }
+      });
+
+      setCurrentArticles(current);
+      setPreviousArticles(previous);
+    } catch (error) {
+      console.error("Error loading sweepstakes articles:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    const loadArticles = async () => {
-      try {
-        const blog = await fetchBlogArticles("sweepstakes");
-        const allArticles = blog.articles?.edges || [];
-
-        const current = [];
-        const previous = [];
-
-        allArticles.forEach((edge) => {
-          const article = edge.node;
-          const tags = article.tags || [];
-          const cleaned = extractSweepstakesData(article);
-
-          if (tags.includes("current")) {
-            console.log(cleaned)
-            current.push(cleaned);
-          } else if (tags.includes("previous")) {
-            previous.push(cleaned);
-          }
-        });
-
-        setCurrentArticles(current);
-        setPreviousArticles(previous);
-      } catch (error) {
-        console.error("Error loading sweepstakes articles:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadArticles();
-  }, []);
+  }, [loadArticles]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await Promise.all([loadArticles(), getCartDetails?.()]);
+    } catch (e) {
+      console.error("Sweepstakes refresh:", e);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadArticles, getCartDetails]);
 
   if (loading) {
     return (
@@ -163,6 +178,9 @@ const SweepstakesScreen = () => {
         )}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       >
         {currentArticles.length > 0 && (
           <>

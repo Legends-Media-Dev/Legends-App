@@ -9,7 +9,7 @@ import { Image } from "expo-image";
 import { useNavigation } from "@react-navigation/native";
 import { fetchGiveawayCompInfo } from "../../api/shopifyApi";
 
-export default function HomeGiveawayPreview() {
+export default function HomeGiveawayPreview({ reloadKey = 0 }) {
   const navigation = useNavigation();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ export default function HomeGiveawayPreview() {
     };
 
     loadGiveaway();
-  }, []);
+  }, [reloadKey]);
 
   if (loading || !item) return null;
 

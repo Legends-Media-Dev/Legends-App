@@ -3,19 +3,18 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   TouchableOpacity,
   ActivityIndicator,
-  RefreshControl,
   ImageBackground,
-  Animated
+  Animated,
 } from "react-native";
+import AppRefreshControl from "../../components/AppRefreshControl";
+import { useCart } from "../../context/CartContext";
+import { useGiveaway } from "../../context/GiveawayContext";
 import HeroImage from "../../components/HeroImage";
 import YoutubeContentBox from "../../components/YoutubeContentBox";
 import CategoryGrid from "../../components/CategoryGrid";
 import { useNavigation } from "@react-navigation/native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 import {
   fetchLatestYouTubeVideo,
   fetchCollectionByHandle,
@@ -28,15 +27,18 @@ import HomeGiveawayPreview from "../core/HomeGiveawayPreview";
 import { HOME_FEATURED_COLLECTION } from "../../constants/appConfig";
 
 const NewsScreen = ({ scrollY: scrollYProp }) => {
-  const insets = useSafeAreaInsets();
   const scrollY = useRef(new Animated.Value(0)).current;
   const scrollYToUse = scrollYProp ?? scrollY;
+  const { getCartDetails } = useCart();
+  const { refetch: refetchGiveaway } = useGiveaway();
   const [latestVideo, setLatestVideo] = useState(null);
   const [heroImage, setHeroImage] = useState(null);
   const [heroHeader, setHeroHeader] = useState("");
   const [heroSubheader, setHeroSubheader] = useState("");
   const [heroImageLoading, setHeroImageLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  /** Bumps on pull-to-refresh so embedded sections (giveaway card, category grid) refetch. */
+  const [homeContentReloadKey, setHomeContentReloadKey] = useState(0);
   const [newArrivalProducts, setNewArrivalProducts] = useState([]);
   const [customerVIPStatus, setCustomerVIPStatus] = useState(false);
   const navigation = useNavigation();
@@ -97,10 +99,14 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
     setRefreshing(true);
     hasFetchedVideo.current = false; // allow loadVideo to refetch on refresh
     try {
+      setHomeContentReloadKey((k) => k + 1);
       await Promise.all([
         fetchHero(),
         fetchNewArrivals(),
         loadVideo(),
+        loadCustomerInfo(),
+        refetchGiveaway?.(),
+        getCartDetails?.(),
       ]);
     } catch (error) {
       console.error("Refresh error:", error);
@@ -150,12 +156,7 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor="#C8102F"
-            colors={["#C8102F"]}
-          />
+          <AppRefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
       >
         {/* Hero Banner */}
@@ -186,7 +187,7 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
           />
         )}
         {/* Content Grid */}
-        <CategoryGrid />
+        <CategoryGrid reloadKey={homeContentReloadKey} />
 
         {!customerVIPStatus && (
           <View style={styles.vipWrapper}>
@@ -216,7 +217,7 @@ const NewsScreen = ({ scrollY: scrollYProp }) => {
             </ImageBackground>
           </View>
         )}
-        <HomeGiveawayPreview />
+        <HomeGiveawayPreview reloadKey={homeContentReloadKey} />
 
       </Animated.ScrollView>
     </>

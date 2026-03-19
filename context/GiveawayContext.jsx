@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+} from "react";
 import { fetchGiveawayInfo } from "../api/shopifyApi";
 
 const GiveawayContext = createContext({
@@ -6,6 +13,7 @@ const GiveawayContext = createContext({
   startDate: null,
   endDate: null,
   loading: true,
+  refetch: async () => {},
 });
 
 export const useGiveaway = () => useContext(GiveawayContext);
@@ -29,43 +37,59 @@ export const GiveawayProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [tick, setTick] = useState(0);
 
+  const applyGiveawayPayload = useCallback((data) => {
+    console.log("[Giveaway] API response:", JSON.stringify(data));
+
+    const giveaway = data?.giveaways?.[0];
+    const mult =
+      giveaway?.entries_multiplier ??
+      data?.portal_multiplier ??
+      data?.multiplier ??
+      data?.standard_value ??
+      0;
+    const start =
+      giveaway?.start_date ??
+      data?.giveaway_start_date ??
+      data?.startDate ??
+      data?.start_date ??
+      null;
+    const end =
+      giveaway?.end_date ??
+      data?.giveaway_end_date ??
+      data?.endDate ??
+      data?.end_date ??
+      null;
+
+    const multiplierNum = Number(mult) || 0;
+    const startNorm = start ? (start.includes("T") ? start : `${start}T00:00:00.000Z`) : null;
+    const endNorm = end ? (end.includes("T") ? end : `${end}T23:59:59.999Z`) : null;
+
+    console.log("[Giveaway] Parsed:", { multiplier: multiplierNum, startDate: startNorm, endDate: endNorm });
+
+    setRawMultiplier(multiplierNum);
+    setStartDate(startNorm);
+    setEndDate(endNorm);
+  }, []);
+
+  const refetch = useCallback(async () => {
+    try {
+      const data = await fetchGiveawayInfo();
+      applyGiveawayPayload(data);
+    } catch (err) {
+      console.warn("[Giveaway] Refetch failed:", err?.message || err);
+      setRawMultiplier(0);
+      setStartDate(null);
+      setEndDate(null);
+    }
+  }, [applyGiveawayPayload]);
+
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       try {
         const data = await fetchGiveawayInfo();
         if (cancelled) return;
-        console.log("[Giveaway] API response:", JSON.stringify(data));
-
-        const giveaway = data?.giveaways?.[0];
-        const mult =
-          giveaway?.entries_multiplier ??
-          data?.portal_multiplier ??
-          data?.multiplier ??
-          data?.standard_value ??
-          0;
-        const start =
-          giveaway?.start_date ??
-          data?.giveaway_start_date ??
-          data?.startDate ??
-          data?.start_date ??
-          null;
-        const end =
-          giveaway?.end_date ??
-          data?.giveaway_end_date ??
-          data?.endDate ??
-          data?.end_date ??
-          null;
-
-        const multiplierNum = Number(mult) || 0;
-        const startNorm = start ? (start.includes("T") ? start : `${start}T00:00:00.000Z`) : null;
-        const endNorm = end ? (end.includes("T") ? end : `${end}T23:59:59.999Z`) : null;
-
-        console.log("[Giveaway] Parsed:", { multiplier: multiplierNum, startDate: startNorm, endDate: endNorm });
-
-        setRawMultiplier(multiplierNum);
-        setStartDate(startNorm);
-        setEndDate(endNorm);
+        applyGiveawayPayload(data);
       } catch (err) {
         if (!cancelled) {
           console.warn("[Giveaway] Fetch failed:", err?.message || err);
@@ -79,7 +103,7 @@ export const GiveawayProvider = ({ children }) => {
     };
     load();
     return () => { cancelled = true; };
-  }, []);
+  }, [applyGiveawayPayload]);
 
   // Re-check date range every minute so multiplier goes 0 when period ends (or becomes active at start)
   useEffect(() => {
@@ -93,8 +117,8 @@ export const GiveawayProvider = ({ children }) => {
   }, [rawMultiplier, startDate, endDate, tick]);
 
   const value = useMemo(
-    () => ({ multiplier, startDate, endDate, loading }),
-    [multiplier, startDate, endDate, loading]
+    () => ({ multiplier, startDate, endDate, loading, refetch }),
+    [multiplier, startDate, endDate, loading, refetch]
   );
 
   return (
