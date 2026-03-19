@@ -105,14 +105,16 @@ export const CartProvider = ({ children }) => {
   const getCartDetails = async () => {
     if (!cartId) {
       console.error("Cart ID is not initialized");
-      return;
+      return null;
     }
 
     try {
       const cartDetails = await fetchCart(cartId);
       setCart(cartDetails);
+      return cartDetails;
     } catch (error) {
       console.error("Error fetching cart details:", error);
+      return null;
     }
   };
 
@@ -145,9 +147,9 @@ export const CartProvider = ({ children }) => {
     }
 
     try {
-      await deleteItem(cartId, lineId); // Call your delete API function
-      const updatedCart = await getCartDetails(); // Fetch the updated cart after deletion
-      setCart(updatedCart);
+      await deleteItem(cartId, lineId);
+      // getCartDetails already updates context; it does not return the cart unless fetch succeeds.
+      await getCartDetails();
     } catch (error) {
       console.error("Error deleting item from cart:", error);
     }

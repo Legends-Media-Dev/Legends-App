@@ -29,6 +29,7 @@ import CartConfirmationModal from "../../components/CartConfirmationModal";
 const TICKET_ICON_URI =
   "https://cdn.shopify.com/s/files/1/0003/8977/5417/files/admit_one_ticket.png?v=1683922022";
 const DEBUG_CART_DISCOUNTS = __DEV__;
+const DEBUG_CART_QUANTITY = __DEV__;
 
 function getVipMultiplier(tags) {
   if (!Array.isArray(tags)) return 1;
@@ -143,6 +144,121 @@ const parseFreeQuantityFromDiscount = (discount) => {
   if (match) return Number(match[1]) || 1;
   return 1;
 };
+
+const parseMinimumPurchaseAmount = (discount) => {
+  const candidates = [
+    discount?.minimumRequirement?.greaterThanOrEqualToSubtotal?.amount,
+    discount?.minimumRequirement?.subtotal?.amount,
+    discount?.customerBuys?.value?.amount,
+    discount?.customerBuys?.value?.greaterThanOrEqualToAmount?.amount,
+    discount?.raw?.minimumRequirement?.greaterThanOrEqualToSubtotal?.amount,
+    discount?.raw?.customerBuys?.value?.amount,
+  ];
+
+  for (const value of candidates) {
+    const parsed = typeof value === "string" ? parseFloat(value) : Number(value);
+    if (Number.isFinite(parsed) && parsed > 0) return parsed;
+  }
+
+  // Fallback to summary parsing: "Spend $7.00, get 1 item free"
+  const summary = String(discount?.summary || "");
+  const spendMatch = summary.match(/spend\s+\$?\s*([0-9]+(?:\.[0-9]+)?)/i);
+  if (spendMatch) {
+    const parsed = parseFloat(spendMatch[1]);
+    if (Number.isFinite(parsed) && parsed > 0) return parsed;
+  }
+
+  return 0;
+};
+
+const getDiscountQualifiedSubtotal = (
+  discount,
+  cartLines,
+  quantitiesByLineId,
+  collectionProductIdsByHandle = {},
+  collectionVariantIdsByHandle = {}
+) => {
+  const qualifyingProductIds = [
+    ...(discount?.qualifyingPurchaseItems?.productIds || []),
+    ...(discount?.customerBuys?.items?.products?.nodes?.map((p) => p?.id) || []),
+  ].filter(Boolean);
+
+  const qualifyingCollectionHandles = [
+    ...(discount?.qualifyingPurchaseItems?.collections || []),
+    ...(discount?.customerBuys?.items?.collections?.nodes || []),
+  ]
+    .map((c) => c?.handle)
+    .filter(Boolean);
+
+  // If there are no explicit buy-item qualifiers, subtotal is full cart subtotal.
+  const hasQualifierScope =
+    qualifyingProductIds.length > 0 || qualifyingCollectionHandles.length > 0;
+
+  return cartLines.reduce((sum, line) => {
+    const lineId = line?.node?.id;
+    const productId = line?.node?.merchandise?.product?.id;
+    const variantId = line?.node?.merchandise?.id;
+    const quantity = quantitiesByLineId?.[lineId] ?? line?.node?.quantity ?? 0;
+    const unitPrice = parseFloat(line?.node?.merchandise?.price?.amount) || 0;
+    if (!quantity || unitPrice <= 0) return sum;
+
+    if (!hasQualifierScope) return sum + unitPrice * quantity;
+
+    let qualifies = false;
+    if (qualifyingProductIds.length > 0 && productId) {
+      qualifies = qualifyingProductIds.includes(productId);
+    }
+
+    if (!qualifies && qualifyingCollectionHandles.length > 0) {
+      if (qualifyingCollectionHandles.includes("all-product")) {
+        qualifies = true;
+      } else {
+        qualifies = qualifyingCollectionHandles.some((handle) => {
+          const productIds = collectionProductIdsByHandle[handle];
+          const variantIds = collectionVariantIdsByHandle[handle];
+          const byProduct = productId ? productIds?.has(productId) : false;
+          const byVariant = variantId ? variantIds?.has(variantId) : false;
+          return !!(byProduct || byVariant);
+        });
+      }
+    }
+
+    return qualifies ? sum + unitPrice * quantity : sum;
+  }, 0);
+};
+
+const isBuyConditionSatisfied = (
+  discount,
+  cartLines,
+  quantitiesByLineId,
+  collectionProductIdsByHandle = {},
+  collectionVariantIdsByHandle = {}
+) => {
+  if (!Array.isArray(cartLines) || cartLines.length === 0) return false;
+
+  const minimumAmount = parseMinimumPurchaseAmount(discount);
+  if (!minimumAmount) return true;
+
+  const qualifyingSubtotal = getDiscountQualifiedSubtotal(
+    discount,
+    cartLines,
+    quantitiesByLineId,
+    collectionProductIdsByHandle,
+    collectionVariantIdsByHandle
+  );
+
+  return qualifyingSubtotal >= minimumAmount;
+};
+
+const getTotalCartQuantity = (cartLines, quantitiesByLineId) => {
+  if (!Array.isArray(cartLines) || cartLines.length === 0) return 0;
+  return cartLines.reduce((sum, line) => {
+    const lineId = line?.node?.id;
+    const quantity = quantitiesByLineId?.[lineId] ?? line?.node?.quantity ?? 0;
+    return sum + (Number.isFinite(quantity) ? quantity : 0);
+  }, 0);
+};
+
 
 const getEstimatedAutomaticDiscountAmount = (
   appliedDiscounts,
@@ -352,12 +468,63 @@ const getDiscountTargetCollection = (discount) => {
   return { handle: "all-product", title: "Shop All" };
 };
 
+/**
+ * Shopify sometimes splits one variant into multiple cart lines (BXGY / promotions).
+ * Group by variant id so the UI shows one row and quantity edits consolidate server-side.
+ */
+const buildGroupedCartRows = (edges) => {
+  if (!Array.isArray(edges) || edges.length === 0) return [];
+
+  const byVariant = new Map();
+  for (const edge of edges) {
+    const vid = edge?.node?.merchandise?.id || `__line_${edge?.node?.id}`;
+    if (!byVariant.has(vid)) byVariant.set(vid, []);
+    byVariant.get(vid).push(edge);
+  }
+
+  return Array.from(byVariant.entries()).map(([variantId, groupEdges]) => {
+    const sorted = [...groupEdges].sort((a, b) =>
+      String(a?.node?.id).localeCompare(String(b?.node?.id))
+    );
+    const primaryEdge = sorted[0];
+    const lineIds = sorted.map((e) => e.node.id);
+    const rowKey = lineIds.join("||");
+
+    return {
+      variantId,
+      edges: sorted,
+      primaryEdge,
+      primaryLineId: lineIds[0],
+      lineIds,
+      rowKey,
+    };
+  });
+};
+
+const getGroupTotalQuantity = (group, quantitiesByLineId) => {
+  if (!group?.lineIds?.length) return 0;
+  return group.lineIds.reduce((sum, lid) => {
+    const edge = group.edges.find((e) => e.node.id === lid);
+    const q =
+      quantitiesByLineId?.[lid] ??
+      edge?.node?.quantity ??
+      0;
+    return sum + (Number.isFinite(Number(q)) ? Number(q) : 0);
+  }, 0);
+};
+
 const CartScreen = ({ navigation }) => {
   const dlog = (...args) => {
     if (DEBUG_CART_DISCOUNTS) console.log(...args);
   };
   const dwarn = (...args) => {
     if (DEBUG_CART_DISCOUNTS) console.warn(...args);
+  };
+  const qlog = (...args) => {
+    if (DEBUG_CART_QUANTITY) console.log(...args);
+  };
+  const qwarn = (...args) => {
+    if (DEBUG_CART_QUANTITY) console.warn(...args);
   };
   const insets = useSafeAreaInsets();
   const scrollY = useRef(new Animated.Value(0)).current;
@@ -381,26 +548,84 @@ const CartScreen = ({ navigation }) => {
     {}
   );
 
+  /** Stable fingerprint of server line ids + qty; drives quantity sync (fixes stale keys when lines split). */
+  const cartLineSignature = useMemo(() => {
+    const edges = cart?.lines?.edges;
+    if (!edges?.length) return "";
+    return [...edges]
+      .map((e) => `${e?.node?.id}:${e?.node?.quantity ?? 0}`)
+      .sort()
+      .join("|");
+  }, [cart?.lines?.edges]);
+
+  const groupedCartRows = useMemo(
+    () => buildGroupedCartRows(cart?.lines?.edges || []),
+    [cart?.lines?.edges]
+  );
+
   useEffect(() => {
-    // Fetch cart details only once
+    if (!DEBUG_CART_QUANTITY) return;
+    const dupes = groupedCartRows.filter((g) => g.lineIds.length > 1);
+    if (dupes.length) {
+      qlog(
+        "[CartQty] merged Shopify duplicate lines in UI (same variant):",
+        dupes.map((g) => ({
+          variantId: g.variantId,
+          lineCount: g.lineIds.length,
+          lineIds: g.lineIds,
+        }))
+      );
+    }
+  }, [groupedCartRows]);
+
+  useEffect(() => {
     if (!isInitialized.current) {
       getCartDetails();
       isInitialized.current = true;
     }
+  }, [getCartDetails]);
 
-    // Initialize quantities and calculate total price only if cart has items
-    if (
-      cart?.lines?.edges?.length > 0 &&
-      Object.keys(quantities).length === 0
-    ) {
-      const initialQuantities = cart.lines.edges.reduce((acc, item) => {
-        acc[item.node.id] = item.node.quantity;
-        return acc;
-      }, {});
-      setQuantities(initialQuantities);
-      calculateTotalPrice(initialQuantities);
+  // Keep per-line quantities aligned with Shopify whenever the cart lines snapshot changes.
+  useEffect(() => {
+    if (!cartLineSignature) {
+      setQuantities({});
+      setTotalPrice(0);
+      return;
     }
-  }, [cart, getCartDetails]);
+    const edges = cart?.lines?.edges || [];
+    const nextQty = {};
+    let tp = 0;
+    edges.forEach((item) => {
+      const id = item?.node?.id;
+      const q = item?.node?.quantity ?? 0;
+      if (!id) return;
+      nextQty[id] = q;
+      const price = parseFloat(item?.node?.merchandise?.price?.amount) || 0;
+      tp += price * q;
+    });
+    setQuantities(nextQty);
+    setTotalPrice(tp);
+  }, [cartLineSignature, cart?.lines?.edges]);
+
+  useEffect(() => {
+    if (!DEBUG_CART_QUANTITY) return;
+    const lines = cart?.lines?.edges || [];
+    const simple = lines.map((line) => ({
+      lineId: line?.node?.id,
+      variantId: line?.node?.merchandise?.id,
+      qty: line?.node?.quantity,
+      price: line?.node?.merchandise?.price?.amount,
+      title: line?.node?.merchandise?.product?.title,
+    }));
+    const byVariant = simple.reduce((acc, row) => {
+      const key = row.variantId || "unknown-variant";
+      acc[key] = (acc[key] || 0) + (Number(row.qty) || 0);
+      return acc;
+    }, {});
+    qlog("[CartQty] cart lines snapshot:", simple);
+    qlog("[CartQty] aggregated qty by variant:", byVariant);
+    qlog("[CartQty] local quantities state:", quantities);
+  }, [cart?.lines?.edges, quantities]);
 
   useEffect(() => {
     getCustomerInfo().then((info) => {
@@ -529,92 +754,100 @@ const CartScreen = ({ navigation }) => {
     setTotalPrice(newTotalPrice);
   };
 
-  const syncCartWithServer = async (customQuantities = null) => {
+  /**
+   * When Shopify has duplicated lines for the same variant, set the primary line to
+   * the new total and send quantity 0 for the other line ids so the cart consolidates.
+   */
+  const updateVariantGroupQuantity = async (group, nextQuantity) => {
+    if (!group?.primaryLineId || !Number.isFinite(nextQuantity) || nextQuantity < 1) return;
+
+    const { lineIds, primaryLineId } = group;
+    const quantitiesBefore = { ...quantities };
+
+    const prevSnapshot = {};
+    lineIds.forEach((lid) => {
+      const edge = group.edges.find((e) => e.node.id === lid);
+      prevSnapshot[lid] = quantities[lid] ?? edge?.node?.quantity ?? 0;
+    });
+    const prevTotal = lineIds.reduce((s, lid) => s + prevSnapshot[lid], 0);
+
+    const optimistic = { ...quantities };
+    if (lineIds.length === 1) {
+      optimistic[primaryLineId] = nextQuantity;
+    } else {
+      lineIds.forEach((lid) => {
+        optimistic[lid] = lid === primaryLineId ? nextQuantity : 0;
+      });
+    }
+
+    qlog("[CartQty] update request (variant group):", {
+      variantId: group.variantId,
+      lineIds,
+      primaryLineId,
+      prevTotal,
+      nextQuantity,
+      prevSnapshot,
+    });
+
+    setQuantities(optimistic);
+    calculateTotalPrice(optimistic);
+
+    const payload = [{ id: primaryLineId, quantity: nextQuantity }];
+    if (lineIds.length > 1) {
+      lineIds.forEach((lid) => {
+        if (lid !== primaryLineId) {
+          payload.push({ id: lid, quantity: 0 });
+        }
+      });
+    }
+
     try {
-      const quantitiesToUse = customQuantities || quantities;
+      qlog("[CartQty] calling updateCartDetails payload:", payload);
+      await updateCartDetails(payload);
+      qlog("[CartQty] updateCartDetails success for variant:", group.variantId);
+      await getCartDetails();
+      qlog("[CartQty] getCartDetails refresh complete");
+    } catch (error) {
+      const rollback = { ...quantitiesBefore };
+      lineIds.forEach((lid) => {
+        rollback[lid] = prevSnapshot[lid];
+      });
+      setQuantities(rollback);
+      calculateTotalPrice(rollback);
+      qwarn("[CartQty] update failed; rollback (group):", {
+        variantId: group.variantId,
+        prevTotal,
+        nextQuantity,
+        error: error?.message || error,
+      });
 
-      const updatedLines = Object.entries(quantitiesToUse).map(
-        ([lineId, quantity]) => ({
-          id: lineId.split("?")[0], // clean up the ID
-          quantity,
-        })
-      );
-
-      if (!cart?.id || updatedLines.length === 0) {
-        throw new Error("Missing cartId or updatedLines");
+      if (nextQuantity > prevTotal) {
+        Alert.alert("Out of Stock", "There is no more stock for this item.");
       }
-
-      await updateCartDetails(updatedLines);
-      await getCartDetails();
-    } catch (error) {
-      // console.error("Failed to update cart on the server:", error);
-      throw error; // ✅ THIS LINE IS ESSENTIAL
     }
   };
 
-  const handleIncrement = async (itemId) => {
-    try {
-      setQuantities((prevQuantities) => {
-        const updatedQuantities = {
-          ...prevQuantities,
-          [itemId]: prevQuantities[itemId] + 1,
-        };
-
-        calculateTotalPrice(updatedQuantities); // Recalculate total price
-        syncCartWithServer(updatedQuantities); // Sync with server
-        return updatedQuantities;
-      });
-
-      // Directly update the cart with the new quantity
-      await updateCartDetails([
-        { id: itemId, quantity: quantities[itemId] + 1 },
-      ]);
-      await getCartDetails(); // Refresh cart details
-    } catch (error) {
-      Alert.alert("Out of Stock", "There is no more stock for this item.");
-      setQuantities((prevQuantities) => {
-        const updatedQuantities = {
-          ...prevQuantities,
-          [itemId]: prevQuantities[itemId] - 1,
-        };
-
-        calculateTotalPrice(updatedQuantities); // Recalculate total price
-        syncCartWithServer(updatedQuantities); // Sync with server
-        return updatedQuantities;
-      });
-
-      // Directly update the cart with the new quantity
-      await updateCartDetails([
-        { id: itemId, quantity: quantities[itemId] - 1 },
-      ]);
-      await getCartDetails();
-    }
+  const handleIncrementGroup = async (group) => {
+    const total = getGroupTotalQuantity(group, quantities);
+    qlog("[CartQty] plus tapped (group):", {
+      variantId: group.variantId,
+      lineIds: group.lineIds,
+      current: total,
+      next: total + 1,
+    });
+    await updateVariantGroupQuantity(group, total + 1);
   };
 
-  const handleDecrement = async (itemId) => {
-    try {
-      setQuantities((prevQuantities) => {
-        const updatedQuantities = {
-          ...prevQuantities,
-          [itemId]: prevQuantities[itemId] > 1 ? prevQuantities[itemId] - 1 : 1,
-        };
-
-        calculateTotalPrice(updatedQuantities); // Recalculate total price
-        syncCartWithServer(updatedQuantities); // Sync with server
-        return updatedQuantities;
-      });
-
-      // Directly update the cart with the new quantity
-      await updateCartDetails([
-        {
-          id: itemId,
-          quantity: quantities[itemId] - 1 > 0 ? quantities[itemId] - 1 : 1,
-        },
-      ]);
-      await getCartDetails(); // Refresh cart details
-    } catch (error) {
-      // console.error("Failed to decrement item quantity:", error);
-    }
+  const handleDecrementGroup = async (group) => {
+    const total = getGroupTotalQuantity(group, quantities);
+    if (total <= 1) return;
+    qlog("[CartQty] minus tapped (group):", {
+      variantId: group.variantId,
+      lineIds: group.lineIds,
+      current: total,
+      next: total - 1,
+    });
+    await updateVariantGroupQuantity(group, total - 1);
   };
 
   const handleNavigateToCheckoutUpdated = async () => {
@@ -676,48 +909,44 @@ const CartScreen = ({ navigation }) => {
   };
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener("beforeRemove", async () => {
-      try {
-        const hasUpdates = Object.entries(quantities).some(([lineId, qty]) => {
-          const cartLine = cart?.lines?.edges.find(
-            (line) => line.node.id === lineId
-          );
-          return cartLine && cartLine.node.quantity !== qty;
-        });
-
-        if (hasUpdates) {
-          dlog("[Cart] syncing cart on navigation back...");
-          await syncCartWithServer();
-        }
-      } catch (error) {
-        console.error("Error syncing cart before navigating back:", error);
-      }
+    const unsubscribe = navigation.addListener("beforeRemove", () => {
+      // Kept for parity/future hooks. Quantity updates now sync immediately per action.
     });
 
     return unsubscribe;
-  }, [navigation, quantities, cart]);
+  }, [navigation]);
 
   // Helper function to calculate total number of items
   const getTotalItems = () => {
     return Object.values(quantities).reduce((total, qty) => total + qty, 0);
   };
 
-  const handleRemoveItem = async (itemId) => {
+  const handleRemoveGroup = async (group) => {
     try {
-      setRemovingItemId(itemId); // show loader
+      setRemovingItemId(group.rowKey);
 
-      await deleteItemFromCart(itemId);
-
-      const updatedQuantities = { ...quantities };
-      delete updatedQuantities[itemId];
-      setQuantities(updatedQuantities);
-
-      await getCartDetails();
-      calculateTotalPrice(updatedQuantities);
+      if (group.lineIds.length === 1) {
+        await deleteItemFromCart(group.lineIds[0]);
+      } else {
+        try {
+          await updateCartDetails(
+            group.lineIds.map((id) => ({ id, quantity: 0 }))
+          );
+          await getCartDetails();
+        } catch (bulkErr) {
+          qwarn(
+            "[CartQty] bulk line remove failed; sequential delete:",
+            bulkErr?.message || bulkErr
+          );
+          for (const lid of group.lineIds) {
+            await deleteItemFromCart(lid);
+          }
+        }
+      }
     } catch (error) {
       console.error("Failed to remove item from cart:", error);
     } finally {
-      setRemovingItemId(null); // hide loader
+      setRemovingItemId(null);
     }
   };
 
@@ -811,14 +1040,29 @@ const CartScreen = ({ navigation }) => {
       }))
     );
 
-    const applicable = activeAutomaticDiscounts.filter((discount) =>
-      isAutomaticDiscountApplicableToCart(
+    const applicable = activeAutomaticDiscounts.filter((discount) => {
+      // Guardrail for BxGy: don't apply when cart has only 1 total item.
+      const isBxgy = String(discount?.discountType || "") === "DiscountAutomaticBxgy";
+      const totalQty = getTotalCartQuantity(lines, quantities);
+      if (isBxgy && totalQty <= 1) return false;
+
+      const buyConditionSatisfied = isBuyConditionSatisfied(
+        discount,
+        lines,
+        quantities,
+        collectionProductIdsByHandle,
+        collectionVariantIdsByHandle
+      );
+
+      if (!buyConditionSatisfied) return false;
+
+      return isAutomaticDiscountApplicableToCart(
         discount,
         lines,
         collectionProductIdsByHandle,
         collectionVariantIdsByHandle
-      )
-    );
+      );
+    });
     setAppliedAutomaticDiscounts(applicable);
 
     dlog(
@@ -842,6 +1086,7 @@ const CartScreen = ({ navigation }) => {
     );
   }, [
     cart?.lines?.edges,
+    quantities,
     activeAutomaticDiscounts,
     collectionProductIdsByHandle,
     collectionVariantIdsByHandle,
@@ -855,17 +1100,20 @@ const CartScreen = ({ navigation }) => {
 
   const primaryUnappliedDiscount = unappliedAutomaticDiscounts[0] || null;
 
-  // Render each cart item
-  const renderItem = ({ item }) => {
+  // Render each cart row (one per variant; may represent multiple merged Shopify lines)
+  const renderItem = ({ item: group }) => {
+    const item = group.primaryEdge;
     const product = item?.node?.merchandise;
     const price = product?.price?.amount || "0.00";
     const compareAtPrice = product?.compareAtPrice?.amount || null;
-    const itemId = item.node.id;
-    const quantity = quantities[itemId] || item.node.quantity; // Use state or fallback to initial quantity
+    const quantity = getGroupTotalQuantity(group, quantities);
 
-    const totalItemPrice = calculateItemPrice(price, quantity); // Calculate total price for this item
-    const totalComparePrice = calculateItemPrice(compareAtPrice, quantity); // Calculate total price for this item
-    const autoLineDiscount = automaticDiscountBreakdown.lineDiscountById[itemId] || 0;
+    const totalItemPrice = calculateItemPrice(price, quantity);
+    const totalComparePrice = calculateItemPrice(compareAtPrice, quantity);
+    const autoLineDiscount = group.lineIds.reduce(
+      (sum, lid) => sum + (automaticDiscountBreakdown.lineDiscountById[lid] || 0),
+      0
+    );
     const discountedItemPrice = Math.max(0, totalItemPrice - autoLineDiscount);
 
     const priceNum = parseFloat(price) || 0;
@@ -955,7 +1203,7 @@ const CartScreen = ({ navigation }) => {
               {/* Minus Button */}
               <TouchableOpacity
                 style={styles.quantityButton}
-                onPress={() => handleDecrement(itemId)}
+                onPress={() => handleDecrementGroup(group)}
                 disabled={quantity === 1}
               >
                 <Text allowFontScaling={false} style={styles.buttonText}>-</Text>
@@ -967,7 +1215,7 @@ const CartScreen = ({ navigation }) => {
               {/* Plus Button */}
               <TouchableOpacity
                 style={styles.quantityButton}
-                onPress={() => handleIncrement(itemId)}
+                onPress={() => handleIncrementGroup(group)}
               >
                 <Text allowFontScaling={false} style={styles.buttonText}>+</Text>
               </TouchableOpacity>
@@ -976,10 +1224,10 @@ const CartScreen = ({ navigation }) => {
             {/* Remove Button */}
             <TouchableOpacity
               style={styles.removeButtonWrap}
-              onPress={() => handleRemoveItem(itemId)}
-              disabled={removingItemId === itemId}
+              onPress={() => handleRemoveGroup(group)}
+              disabled={removingItemId === group.rowKey}
             >
-              {removingItemId === itemId ? (
+              {removingItemId === group.rowKey ? (
                 <ActivityIndicator size="small" color="#000" />
               ) : (
                 <Text allowFontScaling={false} style={styles.removeButton}>Remove</Text>
@@ -1002,8 +1250,8 @@ const CartScreen = ({ navigation }) => {
       {/* Cart Items */}
       {cart?.lines?.edges?.length > 0 ? (
         <AnimatedFlatList
-          data={cart.lines.edges}
-          keyExtractor={(item) => item.node.id}
+          data={groupedCartRows}
+          keyExtractor={(g) => g.rowKey}
           renderItem={renderItem}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
