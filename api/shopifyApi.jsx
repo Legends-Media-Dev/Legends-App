@@ -86,6 +86,24 @@ const CLOUD_FUNCTION_URL_GIVEAWAY_COMP =
 const CLOUD_FUNCTION_URL_CATEGORY_GRID =
   "https://us-central1-premier-ikon.cloudfunctions.net/fetchCategoryGridCompInfoHandler";
 
+const CLOUD_FUNCTION_URL_FETCH_ALL_DISCOUNTS =
+  "https://us-west1-premier-ikon.cloudfunctions.net/fetchAllDiscountsHandler";
+
+const isDiscountCurrentlyActive = (discount) => {
+  if (!discount || String(discount.status || "").toUpperCase() !== "ACTIVE") {
+    return false;
+  }
+
+  const now = Date.now();
+  const startsAt = discount.startsAt ? Date.parse(discount.startsAt) : null;
+  const endsAt = discount.endsAt ? Date.parse(discount.endsAt) : null;
+
+  const startsOk = Number.isNaN(startsAt) || startsAt == null || startsAt <= now;
+  const endsOk = Number.isNaN(endsAt) || endsAt == null || endsAt >= now;
+
+  return startsOk && endsOk;
+};
+
 /**
  * Fetch category grid config (section title, ORDER, COLLECTION_MAP, DISPLAY_NAMES).
  * Returns { sectionTitle, items: [{ label, handle, displayName }] } or null. Items are even-count safe (caller may slice to even).
@@ -244,6 +262,50 @@ export const fetchGiveawayInfo = async () => {
   } catch (error) {
     console.error(
       "Error fetching giveaway info via Cloud Function:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+/**
+ * Fetch all discounts and derive active discounts + active automatic discounts.
+ * Returns:
+ * {
+ *   totalCount,
+ *   codeDiscountCount,
+ *   automaticDiscountCount,
+ *   discounts,
+ *   activeDiscounts,
+ *   activeAutomaticDiscounts
+ * }
+ */
+export const fetchAllDiscounts = async () => {
+  try {
+    const response = await axios.get(CLOUD_FUNCTION_URL_FETCH_ALL_DISCOUNTS, {
+      timeout: 12000,
+    });
+
+    const payload = response?.data || {};
+    const discounts = Array.isArray(payload.discounts) ? payload.discounts : [];
+    const activeDiscounts = discounts.filter(isDiscountCurrentlyActive);
+    const activeAutomaticDiscounts = activeDiscounts.filter(
+      (d) =>
+        d?.isAutomatic === true ||
+        String(d?.discountType || "").startsWith("DiscountAutomatic")
+    );
+
+    return {
+      totalCount: payload.totalCount ?? discounts.length,
+      codeDiscountCount: payload.codeDiscountCount ?? 0,
+      automaticDiscountCount: payload.automaticDiscountCount ?? 0,
+      discounts,
+      activeDiscounts,
+      activeAutomaticDiscounts,
+    };
+  } catch (error) {
+    console.error(
+      "Error fetching discounts via Cloud Function:",
       error.response?.data || error.message
     );
     throw error;

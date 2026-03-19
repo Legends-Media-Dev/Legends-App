@@ -13,12 +13,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Fuse from "fuse.js";
 import { fetchAllProductsCollection } from "../../api/shopifyApi";
 import GlassHeader from "../../components/GlassHeader";
-import { getScreenContentPadding, getScreenContentWrapperStyle } from "../../constants/layout";
-import ProductCard from "../../components/ProductCard";
+import { getScreenContentPadding } from "../../constants/layout";
 import * as Haptics from "expo-haptics";
+import ProductCardDiscovery from "../../components/ProductCardDiscovery";
 
 const { width, height } = Dimensions.get("window");
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+const COLLECTION_PADDING_HORIZONTAL = 12;
 
 const SearchResultsScreen = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
@@ -84,48 +85,23 @@ const SearchResultsScreen = ({ route, navigation }) => {
   }, [query, allProducts, isReady]);
 
   const renderItem = ({ item }) => {
-    const variant = item?.variants?.edges?.[0]?.node;
-
-    // 🖼️ Image fallback
-    const imageNode = item?.images?.edges?.[0]?.node;
-    const imageUrl =
-      imageNode?.url ||
-      imageNode?.src ||
-      item?.featuredImage?.url ||
-      "../assets/Legends.png";
-
-    const compareAt = variant?.compareAtPrice?.amount
-      ? parseFloat(variant.compareAtPrice.amount).toFixed(2)
-      : null;
-
     return (
-      <TouchableOpacity
-        style={styles.productWrapper}
-        activeOpacity={1}
-        onPress={async () => {
-          await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          navigation.navigate("Product", { product: item });
-        }}
-      >
-        <ProductCard
-          image={imageUrl}
-          name={item.title || "No Name"}
-          price={
-            variant?.price?.amount
-              ? parseFloat(variant.price.amount).toFixed(2)
-              : "N/A"
-          }
-          compareAtPrice={compareAt}
-          availableForSale={variant?.availableForSale}
+      <View style={styles.productWrapper}>
+        <ProductCardDiscovery
+          product={item}
+          onPress={async () => {
+            await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            navigation.navigate("Product", { product: item });
+          }}
         />
-      </TouchableOpacity>
+      </View>
     );
   };
 
   if (!isReady || loading) {
     return (
       <View style={styles.container}>
-        <GlassHeader scrollY={scrollY} />
+        <GlassHeader variant="dark" scrollY={scrollY} />
         <View style={[styles.loadingOverlay, getScreenContentPadding(insets)]}>
           <ActivityIndicator size="small" />
         </View>
@@ -136,8 +112,8 @@ const SearchResultsScreen = ({ route, navigation }) => {
   if (results.length === 0) {
     return (
       <View style={styles.container}>
-        <GlassHeader scrollY={scrollY} />
-        <View style={[getScreenContentWrapperStyle(insets), { justifyContent: "center" }]}>
+        <GlassHeader variant="dark" scrollY={scrollY} />
+        <View style={[styles.emptyContainer, getScreenContentPadding(insets)]}>
           <Text allowFontScaling={false} style={styles.noResultsText}>No products found.</Text>
         </View>
       </View>
@@ -146,18 +122,26 @@ const SearchResultsScreen = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      <GlassHeader scrollY={scrollY} />
+      <GlassHeader variant="dark" scrollY={scrollY} />
       <AnimatedFlatList
         data={results}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         numColumns={2}
+        columnWrapperStyle={styles.columnWrapper}
+        ListHeaderComponent={<View style={styles.listTopSpacer} />}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           { useNativeDriver: true }
         )}
         scrollEventThrottle={16}
-        contentContainerStyle={[styles.flatListContent, getScreenContentPadding(insets)]}
+        contentContainerStyle={[
+          styles.flatListContent,
+          getScreenContentPadding(insets),
+          { paddingHorizontal: COLLECTION_PADDING_HORIZONTAL },
+          results.length === 1 && { alignItems: "flex-start" },
+          { paddingBottom: (insets?.bottom ?? 0) + 90 },
+        ]}
         showsVerticalScrollIndicator={false}
       />
     </View>
@@ -166,25 +150,36 @@ const SearchResultsScreen = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#F2F2F2",
+    backgroundColor: "#FAFAFA",
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
   productWrapper: {
-    width: width / 2,
-    height: height / 3.3,
-    padding: 8,
+    width: (width - 2 * COLLECTION_PADDING_HORIZONTAL) / 2,
+    paddingHorizontal: 18,
+    marginBottom: 24,
   },
   flatListContent: {
-    paddingBottom: 16,
     paddingTop: 0,
+    alignItems: "center",
+  },
+  columnWrapper: {
+    flexDirection: "row",
+    width: width - 2 * COLLECTION_PADDING_HORIZONTAL,
+    justifyContent: "flex-start",
+  },
+  listTopSpacer: {
+    height: 12,
   },
   loadingOverlay: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fff",
+    backgroundColor: "#F2F2F2",
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   noResultsText: {
     textAlign: "center",

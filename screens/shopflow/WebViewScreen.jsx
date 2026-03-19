@@ -29,7 +29,7 @@ const WebViewScreen = ({ route }) => {
 
   return (
     <View style={{ flex: 1 }}>
-      <GlassHeader />
+      <GlassHeader variant="dark" />
       <WebView
         source={{ uri: checkoutUrl }}
         onNavigationStateChange={handleNavigationChange}

@@ -35,8 +35,14 @@ const CollectionScreen = ({ route, navigation }) => {
   useEffect(() => {
     const getProducts = async () => {
       try {
-        const data = await fetchAllProductsCollection(handle);
-        const edges = data.products?.edges || [];
+        let data = await fetchAllProductsCollection(handle);
+
+        // Guard against invalid handles returning null-ish payloads.
+        if (!data?.products?.edges) {
+          data = await fetchAllProductsCollection("all-product");
+        }
+
+        const edges = data?.products?.edges || [];
         const productNodes = edges.map((edge) => edge.node); // extract actual products
         setProducts(productNodes);
       } catch (error) {
